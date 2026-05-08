@@ -4,6 +4,7 @@ const state = {
   loading: true,
   error: "",
   generatingExam: false,
+  mode: "exam",
   generationMsg: "",
   test: null,
   started: false,
@@ -40,6 +41,7 @@ const app = document.getElementById("app");
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    mode: state.mode,
     answers: state.answers,
     writingTexts: state.writingTexts,
     notes: state.notes,
@@ -55,6 +57,7 @@ function saveState() {
 function loadState() {
   try {
     const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    if (p.mode === "study" || p.mode === "exam") state.mode = p.mode;
     if (p.answers) state.answers = p.answers;
     if (p.writingTexts) state.writingTexts = p.writingTexts;
     if (p.notes) state.notes = p.notes;
@@ -519,11 +522,13 @@ function resetAttemptState() {
   state.speakingPrepRemaining = 0;
   state.speakingRemaining = 0;
   state.finalizing = false;
+  state.mode = "exam";
   localStorage.removeItem(STORAGE_KEY);
 }
 
-function startExam() {
+function startExam(mode = "exam") {
   resetAttemptState();
+  state.mode = mode === "study" ? "study" : "exam";
   state.started = true;
   state.view = "section-break";
   state.pendingSectionIndex = 0;
@@ -537,7 +542,8 @@ function startExam() {
 function startPendingSection() {
   state.sectionIndex = state.pendingSectionIndex;
   state.view = "exam";
-  startTimer(sectionData().timeLimit);
+  if (state.mode === "exam") startTimer(sectionData().timeLimit);
+  else stopTimer();
   saveState();
   render();
 }
@@ -560,7 +566,8 @@ function prevSection() {
   if (state.sectionIndex === 0) return;
   state.sectionIndex -= 1;
   state.view = "exam";
-  startTimer(sectionData().timeLimit);
+  if (state.mode === "exam") startTimer(sectionData().timeLimit);
+  else stopTimer();
   render();
 }
 
@@ -573,10 +580,24 @@ function optionButton(qid, option, idx) {
   return `<button class="option ${sel ? "selected" : ""}" data-action="answer" data-qid="${qid}" data-idx="${idx}">${esc(option)}</button>`;
 }
 
+function renderStudyFeedback(q) {
+  if (state.mode !== "study") return "";
+  const selected = state.answers[q.id];
+  if (!Number.isInteger(selected)) return "";
+  const ok = selected === q.correctAnswer;
+  const selectedLabel = q.options[selected] ?? `Option ${selected + 1}`;
+  const correctLabel = q.options[q.correctAnswer] ?? `Option ${q.correctAnswer + 1}`;
+  return `<div class="study-feedback ${ok ? "ok" : "bad"}">
+    <p><strong>${ok ? "Correct" : "Incorrect"}.</strong> Your answer: ${esc(selectedLabel)}</p>
+    <p><strong>Correct answer:</strong> ${esc(correctLabel)}</p>
+    <p><strong>Why:</strong> ${esc(q.explanation || "Review this concept.")}</p>
+  </div>`;
+}
+
 function renderGrammar() {
   const idx = state.questionIndexes.grammar;
   const q = grammarQs()[idx];
-  return `<section class="content-grid"><article class="passage-card"><h3>Grammar - ${idx < 13 ? "Part 1 (Sentence Completion)" : "Part 2 (Error Detection)"}</h3><p class="prompt">${esc(q.prompt)}</p></article><aside class="question-card"><p><strong>Question ${idx + 1} of ${grammarQs().length}</strong></p><div class="options">${q.options.map((o, i) => optionButton(q.id, o, i)).join("")}</div></aside></section>`;
+  return `<section class="content-grid"><article class="passage-card"><h3>Grammar - ${idx < 13 ? "Part 1 (Sentence Completion)" : "Part 2 (Error Detection)"}</h3><p class="prompt">${esc(q.prompt)}</p></article><aside class="question-card"><p><strong>Question ${idx + 1} of ${grammarQs().length}</strong></p><div class="options">${q.options.map((o, i) => optionButton(q.id, o, i)).join("")}</div>${renderStudyFeedback(q)}</aside></section>`;
 }
 
 function renderListening() {
@@ -590,7 +611,7 @@ function renderListening() {
   const unlocked = !!state.listeningUnlocked[row.item.id];
   const listenPart = row.item.id === "l1" || row.item.id === "l2" ? "Part 1 (Short Conversations)" : row.item.id === "l3" ? "Part 2 (Long Conversation)" : "Part 3 (Lecture)";
   const questionPanel = unlocked
-    ? `<p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p>${esc(row.question.prompt)}</p><div class="options">${row.question.options.map((o, i) => optionButton(row.question.id, o, i)).join("")}</div>`
+    ? `<p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p>${esc(row.question.prompt)}</p><div class="options">${row.question.options.map((o, i) => optionButton(row.question.id, o, i)).join("")}</div>${renderStudyFeedback(row.question)}`
     : `<p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p class="muted">Play the audio first. Then the question will appear.</p>`;
   return `<section class="content-grid"><article class="passage-card"><h3>Listening - ${listenPart}</h3><p class="muted">No transcript shown during this section.</p><p class="tag">Playback left: ${remain}/${row.item.playLimit}</p><button class="btn primary" data-action="play-listening" ${remain === 0 ? "disabled" : ""}>Play Audio</button>${row.item.audioMode === "file" ? `<audio id="listening-audio" controls src="${esc(row.item.audio || "")}"></audio>` : ""}<label class="muted">Notes</label><textarea id="listening-notes" data-itemid="${row.item.id}" placeholder="Write notes here...">${esc(note)}</textarea></article><aside class="question-card">${questionPanel}</aside></section>`;
 }
@@ -601,7 +622,7 @@ function renderReading() {
   const row = rows[idx];
   if (!row) return `<section class="panel"><p>No reading questions available.</p></section>`;
   const readingPart = row.passage.id === "r1" ? "Part 1" : "Part 2";
-  return `<section class="content-grid"><article class="passage-card"><h3>Reading - ${readingPart}: ${esc(row.passage.title)}</h3><div class="scroll-text"><p>${esc(row.passage.text)}</p></div></article><aside class="question-card"><p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p>${esc(row.question.prompt)}</p><div class="options">${row.question.options.map((o, i) => optionButton(row.question.id, o, i)).join("")}</div></aside></section>`;
+  return `<section class="content-grid"><article class="passage-card"><h3>Reading - ${readingPart}: ${esc(row.passage.title)}</h3><div class="scroll-text"><p>${esc(row.passage.text)}</p></div></article><aside class="question-card"><p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p>${esc(row.question.prompt)}</p><div class="options">${row.question.options.map((o, i) => optionButton(row.question.id, o, i)).join("")}</div>${renderStudyFeedback(row.question)}</aside></section>`;
 }
 
 function renderWriting() {
@@ -949,7 +970,7 @@ function render() {
   if (state.error) return (app.innerHTML = `<main class="wrap"><section class="panel"><h2>Error</h2><p>${esc(state.error)}</p></section></main>`);
 
   if (!state.started && state.view === "instructions") {
-    app.innerHTML = `<main class="wrap"><section class="panel"><h1>${esc(state.test.title)}</h1><ul>${state.test.instructions.map((i) => `<li>${esc(i)}</li>`).join("")}</ul><div class="actions"><button class="btn" data-action="generate-exam" ${state.generatingExam ? "disabled" : ""}>${state.generatingExam ? "Generating..." : "Generate New iTEP Exam"}</button><button class="btn primary" data-action="start-exam">Start Full Exam</button></div>${state.generationMsg ? `<p class="muted">${esc(state.generationMsg)}</p>` : ""}</section></main>`;
+    app.innerHTML = `<main class="wrap"><section class="panel landing"><h1>${esc(state.test.title)}</h1><p class="landing-sub">Choose how you want to practice.</p><ul>${state.test.instructions.map((i) => `<li>${esc(i)}</li>`).join("")}</ul><div class="mode-grid"><article class="mode-card"><h3>Exam Mode</h3><p>Official section timing, score at the end, and realistic exam flow.</p><button class="btn primary" data-action="start-exam">Start Exam Mode</button></article><article class="mode-card"><h3>Study Mode</h3><p>No section timer pressure and instant feedback under each objective question.</p><button class="btn" data-action="start-study">Start Study Mode</button></article></div><div class="actions"><button class="btn" data-action="generate-exam" ${state.generatingExam ? "disabled" : ""}>${state.generatingExam ? "Generating..." : "Generate New iTEP Exam"}</button></div>${state.generationMsg ? `<p class="muted">${esc(state.generationMsg)}</p>` : ""}</section></main>`;
     return;
   }
 
@@ -964,7 +985,7 @@ function render() {
 
   const sn = sectionName();
   const progress = Math.round(((state.sectionIndex + 1) / state.sectionOrder.length) * 100);
-  app.innerHTML = `<main class="itep-shell"><header class="itep-header"><div class="logo-pill">iTEP</div><div><h1>${sn[0].toUpperCase() + sn.slice(1)}</h1><p>Academic-Plus</p></div><button class="help-btn">Help</button></header><section class="instruction-bar">Follow iTEP rules for this section.</section><div class="main-stage">${renderExamBody()}</div><footer class="itep-footer"><div class="status"><div><strong>${state.sectionIndex + 1}/${state.sectionOrder.length}</strong><span>Section</span></div><div><strong id="timer" class="${state.sectionRemaining <= 60 ? "danger" : ""}">${formatTimer(state.sectionRemaining)}</strong><span>Time Left</span></div></div><div class="nav"><button class="btn" data-action="prev-question" ${sn === "listening" ? "disabled" : ""}>Back</button><button class="btn primary" data-action="next-question">Next</button></div><div class="nav"><button class="btn" data-action="prev-section" ${state.sectionIndex === 0 ? "disabled" : ""}>Prev Section</button><button class="btn primary" data-action="next-section">${state.sectionIndex === state.sectionOrder.length - 1 ? "Review" : "Next Section"}</button></div></footer><div class="progress"><span style="width:${progress}%"></span></div></main>`;
+  app.innerHTML = `<main class="itep-shell"><header class="itep-header"><div class="logo-pill">iTEP</div><div><h1>${sn[0].toUpperCase() + sn.slice(1)}</h1><p>Academic-Plus</p></div><button class="help-btn">${state.mode === "study" ? "Study Mode" : "Exam Mode"}</button></header><section class="instruction-bar">${state.mode === "study" ? "Study mode: answer and review feedback below each question." : "Follow iTEP rules for this section."}</section><div class="main-stage">${renderExamBody()}</div><footer class="itep-footer"><div class="status"><div><strong>${state.sectionIndex + 1}/${state.sectionOrder.length}</strong><span>Section</span></div><div><strong id="timer" class="${state.sectionRemaining <= 60 ? "danger" : ""}">${state.mode === "study" ? "--:--" : formatTimer(state.sectionRemaining)}</strong><span>${state.mode === "study" ? "Timer Off" : "Time Left"}</span></div></div><div class="nav"><button class="btn" data-action="prev-question" ${sn === "listening" ? "disabled" : ""}>Back</button><button class="btn primary" data-action="next-question">Next</button></div><div class="nav"><button class="btn" data-action="prev-section" ${state.sectionIndex === 0 ? "disabled" : ""}>Prev Section</button><button class="btn primary" data-action="next-section">${state.sectionIndex === state.sectionOrder.length - 1 ? "Review" : "Next Section"}</button></div></footer><div class="progress"><span style="width:${progress}%"></span></div></main>`;
 }
 
 function navQuestion(dir) {
@@ -1102,7 +1123,8 @@ app.addEventListener("click", async (e) => {
   if (!btn) return;
   const action = btn.dataset.action;
 
-  if (action === "start-exam") return startExam();
+  if (action === "start-exam") return startExam("exam");
+  if (action === "start-study") return startExam("study");
   if (action === "generate-exam") return generateNewExamWithGroq();
   if (action === "start-pending-section") return startPendingSection();
   if (action === "next-section") return nextSection();
@@ -1110,7 +1132,7 @@ app.addEventListener("click", async (e) => {
   if (action === "next-question") return navQuestion(1);
   if (action === "prev-question") return navQuestion(-1);
   if (action === "start-recording") return startRecording();
-  if (action === "back-exam") { state.view = "exam"; startTimer(sectionData().timeLimit); return render(); }
+  if (action === "back-exam") { state.view = "exam"; if (state.mode === "exam") startTimer(sectionData().timeLimit); else stopTimer(); return render(); }
   if (action === "finish-exam") {
     if (state.finalizing) return;
     state.finalizing = true;
