@@ -192,7 +192,8 @@ function normalizeGeneratedTest(input) {
     voiceLang: it?.voiceLang || "en-US",
     speechRate: Number.isFinite(it?.speechRate) ? it.speechRate : 0.95,
     transcript: it?.transcript || "Listening transcript placeholder.",
-    questions: toArray(it?.questions).map((q, qi) => ensureQuestionShape(q, `l${i + 1}q`, qi))
+    questions: toArray(it?.questions).map((q, qi) => ensureQuestionShape(q, `l${i + 1}q`, qi)),
+    answerTimeLimit: Number.isFinite(it?.answerTimeLimit) ? Math.max(10, it.answerTimeLimit) : (i < 2 ? 20 : i === 2 ? 120 : 180)
   }));
 
   const readingPassages = toArray(sections.reading?.passages).map((p, i) => ({
@@ -238,6 +239,126 @@ function normalizeGeneratedTest(input) {
   };
 }
 
+function enforceGeneratedExamContract(test) {
+  const t = normalizeGeneratedTest(test);
+
+  // Force iTEP-style blueprint as in data example.
+  t.sections.grammar.timeLimit = 600;
+  t.sections.listening.timeLimit = 380;
+  t.sections.reading.timeLimit = 1200;
+  t.sections.writing.timeLimit = 1500;
+  t.sections.speaking.timeLimit = 180;
+  t.sections.grammar.weight = 0.2;
+  t.sections.listening.weight = 0.2;
+  t.sections.reading.weight = 0.2;
+  t.sections.writing.weight = 0.2;
+  t.sections.speaking.weight = 0.2;
+
+  t.sections.grammar.questions = toArray(t.sections.grammar.questions).slice(0, 25);
+  while (t.sections.grammar.questions.length < 25) {
+    t.sections.grammar.questions.push(ensureQuestionShape({}, "g", t.sections.grammar.questions.length));
+  }
+  t.sections.grammar.questions = t.sections.grammar.questions.map((q, i) => ({
+    ...q,
+    id: `g${i + 1}`,
+    type: i < 13 ? "sentence_completion" : "error_detection"
+  }));
+
+  t.sections.listening.items = toArray(t.sections.listening.items).slice(0, 4);
+  while (t.sections.listening.items.length < 4) {
+    const i = t.sections.listening.items.length;
+    t.sections.listening.items.push({
+      id: `l${i + 1}`,
+      audioMode: "tts",
+      playLimit: 1,
+      voiceLang: "en-US",
+      speechRate: 0.95,
+      transcript: "Listening transcript placeholder.",
+      questions: [],
+      answerTimeLimit: i < 2 ? 20 : i === 2 ? 120 : 180
+    });
+  }
+  const listeningQuestionCounts = [1, 1, 3, 3];
+  t.sections.listening.items = t.sections.listening.items.map((it, i) => {
+    const target = listeningQuestionCounts[i];
+    let qs = toArray(it.questions).slice(0, target).map((q, qi) => ({
+      ...ensureQuestionShape(q, `l${i + 1}q`, qi),
+      id: `l${i + 1}q${i === 0 ? 1 : i === 1 ? 2 : i === 2 ? qi + 3 : qi + 6}`
+    }));
+    while (qs.length < target) {
+      const qi = qs.length;
+      qs.push({
+        ...ensureQuestionShape({}, `l${i + 1}q`, qi),
+        id: `l${i + 1}q${i === 0 ? 1 : i === 1 ? 2 : i === 2 ? qi + 3 : qi + 6}`
+      });
+    }
+    return {
+      ...it,
+      id: `l${i + 1}`,
+      audioMode: "tts",
+      playLimit: 1,
+      voiceLang: "en-US",
+      speechRate: Number.isFinite(it.speechRate) ? it.speechRate : 0.95,
+      answerTimeLimit: i < 2 ? 20 : i === 2 ? 120 : 180,
+      questions: qs
+    };
+  });
+
+  t.sections.reading.passages = toArray(t.sections.reading.passages).slice(0, 2);
+  while (t.sections.reading.passages.length < 2) {
+    const i = t.sections.reading.passages.length;
+    t.sections.reading.passages.push({
+      id: `r${i + 1}`,
+      title: `Reading Passage ${i + 1}`,
+      text: "Reading text placeholder.",
+      questions: []
+    });
+  }
+  const readingQuestionCounts = [4, 6];
+  t.sections.reading.passages = t.sections.reading.passages.map((p, i) => {
+    const target = readingQuestionCounts[i];
+    let qs = toArray(p.questions).slice(0, target).map((q, qi) => ({
+      ...ensureQuestionShape(q, `r${i + 1}q`, qi),
+      id: `r${i + 1}q${i === 0 ? qi + 1 : qi + 5}`
+    }));
+    while (qs.length < target) {
+      const qi = qs.length;
+      qs.push({
+        ...ensureQuestionShape({}, `r${i + 1}q`, qi),
+        id: `r${i + 1}q${i === 0 ? qi + 1 : qi + 5}`
+      });
+    }
+    return { ...p, id: `r${i + 1}`, questions: qs };
+  });
+
+  t.sections.writing.prompts = toArray(t.sections.writing.prompts).slice(0, 2);
+  while (t.sections.writing.prompts.length < 2) {
+    t.sections.writing.prompts.push({});
+  }
+  t.sections.writing.prompts = t.sections.writing.prompts.map((p, i) => ({
+    ...p,
+    id: `w${i + 1}`,
+    type: i === 0 ? "informal_note" : "opinion_essay",
+    minWords: i === 0 ? 50 : 175,
+    maxWords: i === 0 ? 75 : 250,
+    recommendedTime: i === 0 ? 300 : 1200
+  }));
+
+  t.sections.speaking.prompts = toArray(t.sections.speaking.prompts).slice(0, 2);
+  while (t.sections.speaking.prompts.length < 2) {
+    t.sections.speaking.prompts.push({});
+  }
+  t.sections.speaking.prompts = t.sections.speaking.prompts.map((p, i) => ({
+    ...p,
+    id: `s${i + 1}`,
+    type: i === 0 ? "personal_response" : "integrated_opinion",
+    prepTime: 45,
+    speakTime: 60
+  }));
+
+  return t;
+}
+
 async function generateNewExamWithGroq() {
   const key = import.meta.env.VITE_GROQ_API_KEY || "";
   if (!key) {
@@ -256,22 +377,22 @@ async function generateNewExamWithGroq() {
     instructions: ["string"],
     sections: {
       grammar: { timeLimit: 600, weight: 0.2, questions: [{ id: "g1", prompt: "string", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }] },
-      listening: { timeLimit: 380, weight: 0.2, items: [{ id: "l1", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "long script", questions: [{ id: "l1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }] }] },
+      listening: { timeLimit: 380, weight: 0.2, items: [{ id: "l1", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "long script", questions: [{ id: "l1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }], answerTimeLimit: 20 }] },
       reading: { timeLimit: 1200, weight: 0.2, passages: [{ id: "r1", title: "string", text: "long text", questions: [{ id: "r1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }] }] },
       writing: { timeLimit: 1500, weight: 0.2, prompts: [{ id: "w1", prompt: "string", minWords: 50, maxWords: 75 }, { id: "w2", prompt: "string", minWords: 175, maxWords: 250 }] },
-      speaking: { timeLimit: 180, weight: 0.2, prompts: [{ id: "s1", prompt: "string", prepTime: 30, speakTime: 45 }, { id: "s2", prompt: "string", prepTime: 45, speakTime: 60 }] }
+      speaking: { timeLimit: 180, weight: 0.2, prompts: [{ id: "s1", prompt: "string", prepTime: 45, speakTime: 60 }, { id: "s2", prompt: "string", prepTime: 45, speakTime: 60 }] }
     }
   };
 
   const prompt = [
     "Create ONE brand-new iTEP-style B1 English exam in strict JSON only (no markdown).",
     "Do NOT use student performance data.",
-    "Follow iTEP-like structure and timing:",
-    "- Grammar 25 questions (13 completion + 12 error detection), 10 minutes.",
-    "- Listening with short conversations + one long conversation + one lecture. Provide rich transcripts for TTS. Total answer timing 380 seconds.",
-    "- Reading with 2 passages and 10 questions total.",
-    "- Writing with 2 tasks (50-75 words and 175-250 words), total 25 minutes.",
-    "- Speaking with 2 tasks (30/45 and 45/60 prep/speak).",
+    "Follow EXACTLY the same structure as the data example contract.",
+    "- Grammar: 25 questions, IDs g1..g25, first 13 sentence_completion and next 12 error_detection, timeLimit 600.",
+    "- Listening: exactly 4 items IDs l1..l4, TTS, playLimit 1, question IDs and counts exactly: l1q1 (1), l2q2 (1), l3q3-l3q5 (3), l4q6-l4q8 (3), answerTimeLimit [20,20,120,180], timeLimit 380.",
+    "- Reading: exactly 2 passages IDs r1,r2 with question IDs r1q1-r1q4 and r2q5-r2q10, timeLimit 1200.",
+    "- Writing: exactly 2 prompts w1 informal_note 50-75 words recommendedTime 300, w2 opinion_essay 175-250 words recommendedTime 1200, timeLimit 1500.",
+    "- Speaking: exactly 2 prompts s1 personal_response and s2 integrated_opinion, both prepTime 45 and speakTime 60, timeLimit 180.",
     "Each objective question must have 4 options, correctAnswer index, and explanation.",
     "Return JSON object with key: test.",
     `Schema hint: ${JSON.stringify(schemaHint)}`
@@ -296,7 +417,7 @@ async function generateNewExamWithGroq() {
     const content = data.choices?.[0]?.message?.content || "";
     const parsed = await parseGroqGeneratedExam(key, content);
     const rawTest = parsed.test || parsed;
-    const test = normalizeGeneratedTest(rawTest);
+    const test = enforceGeneratedExamContract(rawTest);
     if (!validateGeneratedTest(test)) throw new Error("Generated JSON does not match required structure");
 
     state.test = test;
@@ -871,14 +992,25 @@ function splitDialogueTurns(raw) {
 }
 
 function speakTurns(turns, lang = "en-US", rate = 0.95) {
-  if (!turns.length) return;
+  if (!turns.length) return Promise.resolve();
   const [voiceA, voiceB] = pickMaleVoices();
-  turns.forEach((text, idx) => {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang;
-    u.rate = rate;
-    u.voice = idx % 2 === 0 ? voiceA : voiceB;
-    speechSynthesis.speak(u);
+  return new Promise((resolve) => {
+    let pending = turns.length;
+    turns.forEach((text, idx) => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = rate;
+      u.voice = idx % 2 === 0 ? voiceA : voiceB;
+      u.onend = () => {
+        pending -= 1;
+        if (pending <= 0) resolve();
+      };
+      u.onerror = () => {
+        pending -= 1;
+        if (pending <= 0) resolve();
+      };
+      speechSynthesis.speak(u);
+    });
   });
 }
 
@@ -886,14 +1018,25 @@ function playListening(item) {
   const used = state.listeningPlaybacks[item.id] || 0;
   if (used >= item.playLimit) return;
   state.listeningPlaybacks[item.id] = used + 1;
-  state.listeningUnlocked[item.id] = true;
   if ((item.audioMode || "tts") === "file") {
     const a = document.getElementById("listening-audio");
-    if (a) { a.currentTime = 0; a.play().catch(() => {}); }
+    if (a) {
+      a.currentTime = 0;
+      a.onended = () => {
+        state.listeningUnlocked[item.id] = true;
+        render();
+      };
+      a.play().catch(() => {});
+    }
   } else {
     speechSynthesis.cancel();
     const turns = splitDialogueTurns(item.transcript);
-    const run = () => speakTurns(turns, item.voiceLang || "en-US", item.speechRate || 0.95);
+    const run = () => {
+      speakTurns(turns, item.voiceLang || "en-US", item.speechRate || 0.95).finally(() => {
+        state.listeningUnlocked[item.id] = true;
+        render();
+      });
+    };
     if (!speechSynthesis.getVoices().length) {
       speechSynthesis.onvoiceschanged = () => {
         speechSynthesis.onvoiceschanged = null;
