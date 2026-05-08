@@ -79,7 +79,8 @@ function promiseWithTimeout(promise, ms, fallback = null) {
 async function init() {
   loadState();
   try {
-    const res = await fetch("/data/exam-data.json", { cache: "no-store" });
+    const dataUrl = `${import.meta.env.BASE_URL}data/exam-data.json`;
+    const res = await fetch(dataUrl, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     state.test = data.tests.find((t) => t.id === data.meta.defaultTestId) || data.tests[0];
