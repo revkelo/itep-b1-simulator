@@ -18,6 +18,7 @@ const state = {
   answers: {},
   writingTexts: {},
   listeningPlaybacks: {},
+  listeningUnlocked: {},
   notes: { listening: {}, speaking: {} },
   speakingRecordings: {},
   speakingTranscript: "",
@@ -25,6 +26,7 @@ const state = {
   speakingEvaluation: {},
   writingEvaluation: {},
   speakingStatus: "idle",
+  speakingAutoStartedFor: "",
   finalizing: false,
   speakingPrepRemaining: 0,
   speakingPrepTimerId: null,
@@ -344,6 +346,7 @@ function resetAttemptState() {
   state.answers = {};
   state.writingTexts = {};
   state.listeningPlaybacks = {};
+  state.listeningUnlocked = {};
   state.notes = { listening: {}, speaking: {} };
   state.speakingRecordings = {};
   state.speakingTranscript = "";
@@ -354,6 +357,7 @@ function resetAttemptState() {
   state.writingPartIndex = 0;
   state.speakingPartIndex = 0;
   state.speakingStatus = "idle";
+  state.speakingAutoStartedFor = "";
   state.speakingPrepRemaining = 0;
   state.speakingRemaining = 0;
   state.finalizing = false;
@@ -421,17 +425,23 @@ function renderListening() {
   const rows = listeningRows();
   const idx = state.questionIndexes.listening;
   const row = rows[idx];
+  if (!row) return `<section class="panel"><p>No listening questions available.</p></section>`;
   const used = state.listeningPlaybacks[row.item.id] || 0;
   const remain = Math.max(0, row.item.playLimit - used);
   const note = state.notes.listening[row.item.id] || "";
+  const unlocked = !!state.listeningUnlocked[row.item.id];
   const listenPart = row.item.id === "l1" || row.item.id === "l2" ? "Part 1 (Short Conversations)" : row.item.id === "l3" ? "Part 2 (Long Conversation)" : "Part 3 (Lecture)";
-  return `<section class="content-grid"><article class="passage-card"><h3>Listening - ${listenPart}</h3><p class="muted">No transcript shown during this section.</p><p class="tag">Playback left: ${remain}/${row.item.playLimit}</p><button class="btn primary" data-action="play-listening" ${remain === 0 ? "disabled" : ""}>Play Audio</button>${row.item.audioMode === "file" ? `<audio id="listening-audio" controls src="${esc(row.item.audio || "")}"></audio>` : ""}<label class="muted">Notes</label><textarea id="listening-notes" data-itemid="${row.item.id}" placeholder="Write notes here...">${esc(note)}</textarea></article><aside class="question-card"><p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p>${esc(row.question.prompt)}</p><div class="options">${row.question.options.map((o, i) => optionButton(row.question.id, o, i)).join("")}</div></aside></section>`;
+  const questionPanel = unlocked
+    ? `<p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p>${esc(row.question.prompt)}</p><div class="options">${row.question.options.map((o, i) => optionButton(row.question.id, o, i)).join("")}</div>`
+    : `<p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p class="muted">Play the audio first. Then the question will appear.</p>`;
+  return `<section class="content-grid"><article class="passage-card"><h3>Listening - ${listenPart}</h3><p class="muted">No transcript shown during this section.</p><p class="tag">Playback left: ${remain}/${row.item.playLimit}</p><button class="btn primary" data-action="play-listening" ${remain === 0 ? "disabled" : ""}>Play Audio</button>${row.item.audioMode === "file" ? `<audio id="listening-audio" controls src="${esc(row.item.audio || "")}"></audio>` : ""}<label class="muted">Notes</label><textarea id="listening-notes" data-itemid="${row.item.id}" placeholder="Write notes here...">${esc(note)}</textarea></article><aside class="question-card">${questionPanel}</aside></section>`;
 }
 
 function renderReading() {
   const rows = readingRows();
   const idx = state.questionIndexes.reading;
   const row = rows[idx];
+  if (!row) return `<section class="panel"><p>No reading questions available.</p></section>`;
   const readingPart = row.passage.id === "r1" ? "Part 1" : "Part 2";
   return `<section class="content-grid"><article class="passage-card"><h3>Reading - ${readingPart}: ${esc(row.passage.title)}</h3><div class="scroll-text"><p>${esc(row.passage.text)}</p></div></article><aside class="question-card"><p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p>${esc(row.question.prompt)}</p><div class="options">${row.question.options.map((o, i) => optionButton(row.question.id, o, i)).join("")}</div></aside></section>`;
 }
@@ -447,11 +457,12 @@ function renderWriting() {
 
 async function startRecording() {
   const p = sectionData().prompts[state.speakingPartIndex];
+  if (!p) return;
   if (state.speakingRecordings[p.id] || state.speakingStatus === "recording") return;
   if (state.speakingStatus === "preparing") return;
 
   state.speakingStatus = "preparing";
-  state.speakingPrepRemaining = p.prepTime || 0;
+  state.speakingPrepRemaining = Math.max(10, Math.min(20, Number(p.prepTime) || 15));
   render();
 
   if (state.speakingPrepTimerId) clearInterval(state.speakingPrepTimerId);
@@ -614,6 +625,7 @@ async function evaluateWritingWithGroq(promptObj, text) {
 
 function renderSpeaking() {
   const p = sectionData().prompts[state.speakingPartIndex];
+  if (!p) return `<section class="panel"><p>No speaking prompts available.</p></section>`;
   const note = state.notes.speaking[p.id] || "";
   const already = !!state.speakingRecordings[p.id];
   const preparing = state.speakingStatus === "preparing";
@@ -636,7 +648,7 @@ function renderSpeaking() {
       </div>`
     : (evalRaw ? `<div class="transcript"><h4>Speaking Feedback</h4><p>${esc(evalRaw)}</p></div>` : "");
   const speakingPart = state.speakingPartIndex === 0 ? "Part 1 (Read + Speak)" : "Part 2 (Opinion Response)";
-  return `<section class="panel"><h3>Speaking - ${speakingPart}</h3><p class="prompt">${esc(p.prompt)}</p><p class="muted">Prep ${p.prepTime}s | Speak ${p.speakTime}s | One recording only</p><div class="speak-meta"><span class="tag">${preparing ? "Preparing..." : recording ? "Recording..." : already ? "Recorded" : "Ready"}</span><span id="speaking-prep-remaining" class="muted">${preparing ? `${state.speakingPrepRemaining}s prep` : ""}</span><span id="speaking-remaining" class="muted">${recording ? `${state.speakingRemaining}s remaining` : ""}</span></div><button class="btn primary" data-action="start-recording" ${(recording || preparing || already) ? "disabled" : ""}>${already ? "Recorded" : preparing ? "Preparing..." : recording ? "Recording..." : "Start Recording"}</button><div class="wave ${(recording || preparing) ? "active" : ""}"></div><label class="muted">Notes</label><textarea id="speaking-notes" data-pid="${p.id}" placeholder="Write notes before speaking...">${esc(note)}</textarea><audio id="speaking-playback" controls style="display:${already ? "block" : "none"}"></audio>${evalBlock}</section>`;
+  return `<section class="panel"><h3>Speaking - ${speakingPart}</h3><p class="prompt">${esc(p.prompt)}</p><p class="muted">Prep 10-20s | Speak ${p.speakTime}s | Microphone starts automatically</p><div class="speak-meta"><span class="tag">${preparing ? "Preparing..." : recording ? "Recording..." : already ? "Recorded" : "Ready"}</span><span id="speaking-prep-remaining" class="muted">${preparing ? `${state.speakingPrepRemaining}s prep` : ""}</span><span id="speaking-remaining" class="muted">${recording ? `${state.speakingRemaining}s remaining` : ""}</span></div><button class="btn primary" data-action="start-recording" ${(recording || preparing || already) ? "disabled" : ""}>${already ? "Recorded" : preparing ? "Preparing..." : recording ? "Recording..." : "Start Recording"}</button><div class="wave ${(recording || preparing) ? "active" : ""}"></div><label class="muted">Notes</label><textarea id="speaking-notes" data-pid="${p.id}" placeholder="Write notes before speaking...">${esc(note)}</textarea><audio id="speaking-playback" controls style="display:${already ? "block" : "none"}"></audio>${evalBlock}</section>`;
 }
 
 function renderExamBody() {
@@ -874,6 +886,7 @@ function playListening(item) {
   const used = state.listeningPlaybacks[item.id] || 0;
   if (used >= item.playLimit) return;
   state.listeningPlaybacks[item.id] = used + 1;
+  state.listeningUnlocked[item.id] = true;
   if ((item.audioMode || "tts") === "file") {
     const a = document.getElementById("listening-audio");
     if (a) { a.currentTime = 0; a.play().catch(() => {}); }
@@ -891,6 +904,17 @@ function playListening(item) {
     }
   }
   render();
+}
+
+function autoStartSpeakingIfNeeded() {
+  if (state.view !== "exam" || sectionName() !== "speaking") return;
+  const p = sectionData().prompts[state.speakingPartIndex];
+  if (!p) return;
+  if (state.speakingRecordings[p.id]) return;
+  if (state.speakingStatus === "preparing" || state.speakingStatus === "recording") return;
+  if (state.speakingAutoStartedFor === p.id) return;
+  state.speakingAutoStartedFor = p.id;
+  startRecording().catch(() => {});
 }
 
 app.addEventListener("click", async (e) => {
@@ -933,10 +957,15 @@ app.addEventListener("click", async (e) => {
 
   if (action === "play-listening") {
     const row = listeningRows()[state.questionIndexes.listening];
+    if (!row) return;
     return playListening(row.item);
   }
 
   if (action === "answer") {
+    if (sectionName() === "listening") {
+      const row = listeningRows()[state.questionIndexes.listening];
+      if (row && !state.listeningUnlocked[row.item.id]) return;
+    }
     state.answers[btn.dataset.qid] = Number(btn.dataset.idx);
     saveState();
     return render();
@@ -982,3 +1011,4 @@ window.addEventListener("beforeunload", (e) => {
 });
 
 init();
+setInterval(autoStartSpeakingIfNeeded, 400);
