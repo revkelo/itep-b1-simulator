@@ -359,6 +359,42 @@ function enforceGeneratedExamContract(test) {
   return t;
 }
 
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function mergeWithFallbackSection(generatedTest, fallbackTest) {
+  if (!fallbackTest?.sections) return generatedTest;
+  const merged = cloneJson(generatedTest);
+  const fallback = fallbackTest.sections;
+  const sec = merged.sections || {};
+
+  const hasGoodGrammar = Array.isArray(sec.grammar?.questions) && sec.grammar.questions.some((q) => (q?.prompt || "").trim().length > 12);
+  if (!hasGoodGrammar) merged.sections.grammar = cloneJson(fallback.grammar);
+
+  const hasGoodListening = Array.isArray(sec.listening?.items)
+    && sec.listening.items.length === 4
+    && sec.listening.items.every((i) => (i?.transcript || "").trim().length > 20);
+  if (!hasGoodListening) merged.sections.listening = cloneJson(fallback.listening);
+
+  const hasGoodReading = Array.isArray(sec.reading?.passages)
+    && sec.reading.passages.length === 2
+    && sec.reading.passages.every((p) => (p?.text || "").trim().length > 120);
+  if (!hasGoodReading) merged.sections.reading = cloneJson(fallback.reading);
+
+  const hasGoodWriting = Array.isArray(sec.writing?.prompts)
+    && sec.writing.prompts.length === 2
+    && sec.writing.prompts.every((p) => (p?.prompt || "").trim().length > 20);
+  if (!hasGoodWriting) merged.sections.writing = cloneJson(fallback.writing);
+
+  const hasGoodSpeaking = Array.isArray(sec.speaking?.prompts)
+    && sec.speaking.prompts.length === 2
+    && sec.speaking.prompts.every((p) => (p?.prompt || "").trim().length > 20);
+  if (!hasGoodSpeaking) merged.sections.speaking = cloneJson(fallback.speaking);
+
+  return merged;
+}
+
 async function generateNewExamWithGroq() {
   const key = import.meta.env.VITE_GROQ_API_KEY || "";
   if (!key) {
@@ -417,7 +453,8 @@ async function generateNewExamWithGroq() {
     const content = data.choices?.[0]?.message?.content || "";
     const parsed = await parseGroqGeneratedExam(key, content);
     const rawTest = parsed.test || parsed;
-    const test = enforceGeneratedExamContract(rawTest);
+    const enforced = enforceGeneratedExamContract(rawTest);
+    const test = mergeWithFallbackSection(enforced, state.test);
     if (!validateGeneratedTest(test)) throw new Error("Generated JSON does not match required structure");
 
     state.test = test;
