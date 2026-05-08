@@ -1,0 +1,184 @@
+{
+  "meta": {
+    "platform": "iTEP Practice Simulator",
+    "version": "4.8",
+    "level": "A1-C2",
+    "defaultTestId": "itep_pdf_ii_001",
+    "source": "Based on pdf-itep-practice-test-ii_compress.pdf"
+  },
+  "tests": [
+    {
+      "id": "itep_pdf_ii_001",
+      "title": "iTEP Practice Test II (Reset Version)",
+      "instructions": [
+        "This exam follows an iTEP-style format with five sections.",
+        "Complete sections in order and manage your time carefully.",
+        "Listening is forward-only and each audio can be played once.",
+        "Speaking allows one recording per task."
+      ],
+      "sections": {
+        "grammar": {
+          "timeLimit": 600,
+          "weight": 0.2,
+          "questions": [
+            {"id":"g1","type":"sentence_completion","difficulty":"A1","tags":["present_simple"],"prompt":"My classmate usually ____ the library after lunch.","options":["visit","visits","visited","visiting"],"correctAnswer":1,"explanation":"Third-person singular present simple takes -s."},
+            {"id":"g2","type":"sentence_completion","difficulty":"A2","tags":["prepositions"],"prompt":"She is interested ____ environmental law.","options":["in","on","to","for"],"correctAnswer":0,"explanation":"Use 'interested in'."},
+            {"id":"g3","type":"sentence_completion","difficulty":"B1","tags":["past_continuous"],"prompt":"They ____ dinner when the phone rang.","options":["had","were having","have","are having"],"correctAnswer":1,"explanation":"Past continuous + interruption in past simple."},
+            {"id":"g4","type":"sentence_completion","difficulty":"B1","tags":["pronouns"],"prompt":"Please send the message to Daniel and ____.","options":["I","my","me","mine"],"correctAnswer":2,"explanation":"Object pronoun required after preposition."},
+            {"id":"g5","type":"sentence_completion","difficulty":"B2","tags":["comparatives"],"prompt":"Public buses are usually ____ than private taxis.","options":["cheap","cheaper","cheapest","more cheaply"],"correctAnswer":1,"explanation":"Comparative adjective needed."},
+            {"id":"g6","type":"sentence_completion","difficulty":"A2","tags":["articles"],"prompt":"He bought ____ umbrella before leaving home.","options":["a","an","the","-"],"correctAnswer":1,"explanation":"Use 'an' before a vowel sound."},
+            {"id":"g7","type":"sentence_completion","difficulty":"B1","tags":["gerund_infinitive"],"prompt":"The manager suggested ____ the report tonight.","options":["finish","to finish","finishing","finished"],"correctAnswer":2,"explanation":"'Suggest' is followed by a gerund."},
+            {"id":"g8","type":"sentence_completion","difficulty":"A2","tags":["relative_clause"],"prompt":"The student ____ notebook is on the desk is absent today.","options":["who","whose","which","whom"],"correctAnswer":1,"explanation":"'Whose' indicates possession."},
+            {"id":"g9","type":"sentence_completion","difficulty":"B2","tags":["conditionals"],"prompt":"If we leave now, we ____ the train.","options":["catch","caught","will catch","would catch"],"correctAnswer":2,"explanation":"First conditional: if + present, will + base verb."},
+            {"id":"g10","type":"sentence_completion","difficulty":"C1","tags":["modals"],"prompt":"Applicants ____ submit all documents before Friday.","options":["must","might","can","would"],"correctAnswer":0,"explanation":"'Must' expresses requirement."},
+            {"id":"g11","type":"sentence_completion","difficulty":"A1","tags":["adverbs_frequency"],"prompt":"I ____ drink coffee after 9 p.m.","options":["never","already","yet","ever"],"correctAnswer":0,"explanation":"Frequency adverb fits sentence meaning."},
+            {"id":"g12","type":"sentence_completion","difficulty":"B2","tags":["present_perfect"],"prompt":"She ____ in this city since 2019.","options":["lives","lived","has lived","is living"],"correctAnswer":2,"explanation":"Present perfect with 'since'."},
+            {"id":"g13","type":"sentence_completion","difficulty":"C1","tags":["advanced_structure"],"prompt":"Not only ____ the exam, but he also received a scholarship.","options":["he passed","did he pass","he did pass","passed he"],"correctAnswer":1,"explanation":"Inversion after 'Not only'."},
+            {"id":"g14","type":"error_detection","difficulty":"A2","tags":["subject_verb"],"prompt":"The books on the shelf is very expensive.","options":["books","shelf","is","expensive"],"correctAnswer":2,"explanation":"Plural subject takes 'are'."},
+            {"id":"g15","type":"error_detection","difficulty":"B1","tags":["pronoun_case"],"prompt":"Him and Laura are preparing the presentation.","options":["Him","Laura","are preparing","presentation"],"correctAnswer":0,"explanation":"Subject pronoun should be 'He'."},
+            {"id":"g16","type":"error_detection","difficulty":"B1","tags":["verb_form"],"prompt":"You should received your student ID by email.","options":["should","received","student","email"],"correctAnswer":1,"explanation":"Modal + base verb: 'receive'."},
+            {"id":"g17","type":"error_detection","difficulty":"A2","tags":["articles"],"prompt":"After lunch, Tom took his dog for the walk.","options":["After","lunch","took","the"],"correctAnswer":3,"explanation":"Use 'for a walk' or 'for walks'."},
+            {"id":"g18","type":"error_detection","difficulty":"B2","tags":["conditionals"],"prompt":"If the weather was sunny, we would go hiking.","options":["If","was","would go","hiking"],"correctAnswer":1,"explanation":"Second conditional usually uses 'were'."},
+            {"id":"g19","type":"error_detection","difficulty":"B2","tags":["passive"],"prompt":"The house looks new since it was painting last year.","options":["looks","since","was painting","last year"],"correctAnswer":2,"explanation":"Passive form should be 'was painted'."},
+            {"id":"g20","type":"error_detection","difficulty":"A2","tags":["tense"],"prompt":"Almost every afternoon, Bill is stopping at the store.","options":["Almost","afternoon","is stopping","store"],"correctAnswer":2,"explanation":"Habitual action needs present simple: 'stops'."},
+            {"id":"g21","type":"error_detection","difficulty":"B1","tags":["agreement"],"prompt":"At this concert, the best performers is the last group.","options":["concert","performers","is","last"],"correctAnswer":2,"explanation":"Plural subject requires 'are'."},
+            {"id":"g22","type":"error_detection","difficulty":"B1","tags":["pronouns"],"prompt":"Their commute is long, but they says it is worth it.","options":["Their","is","they says","worth"],"correctAnswer":2,"explanation":"Plural subject takes 'say'."},
+            {"id":"g23","type":"error_detection","difficulty":"A2","tags":["uncountable"],"prompt":"It snowed so many yesterday that classes were canceled.","options":["snowed","many","classes","canceled"],"correctAnswer":1,"explanation":"Use 'so much snow'."},
+            {"id":"g24","type":"error_detection","difficulty":"C1","tags":["participles"],"prompt":"Students finishing the exam early may leave quietly.","options":["Students","finishing","early","quietly"],"correctAnswer":1,"explanation":"Use 'who finish' or 'finishing' can be acceptable; here target is finite relative clause expected in test style."},
+            {"id":"g25","type":"error_detection","difficulty":"C1","tags":["parallelism"],"prompt":"She likes reading, to swim, and cycling on weekends.","options":["likes","reading","to swim","cycling"],"correctAnswer":2,"explanation":"Keep parallel structure: reading, swimming, cycling."}
+          ]
+        },
+        "listening": {
+          "timeLimit": 380,
+          "weight": 0.2,
+          "items": [
+            {
+              "id": "l1",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation one. Student: Professor, do we read chapter 3 or chapter 6 for tomorrow? Professor: Read chapter 3 and review your notes from last week.",
+              "questions": [
+                {"id":"l1q1","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What were the students told to read?","options":["Chapter 6","Chapter 3","Last week's quiz","Only class notes"],"correctAnswer":1,"explanation":"The professor says to read chapter 3."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l2",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation two. Woman: I want to take a history class next term, maybe one about Washington, D.C. Man: That sounds great. The professor is excellent.",
+              "questions": [
+                {"id":"l2q2","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the woman say she wants to do?","options":["Attend a class trip","Take a history class","Change her major","Write a travel guide"],"correctAnswer":1,"explanation":"She says she wants to take a history class."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l3",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.94,
+              "transcript": "Long conversation. Student A: I'm not sure about the assignment for economics. Student B: We need to compare two local businesses and explain their pricing strategies. Student A: Should we include interviews? Student B: Yes, at least one owner and five customers. Student A: Okay, I'll draft the questions tonight. Student B: Great, and let's meet on Thursday to organize the report.",
+              "questions": [
+                {"id":"l3q3","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"Why is Student A talking to Student B?","options":["To ask about an assignment","To invite B to a concert","To share internship news","To discuss exam scores"],"correctAnswer":0,"explanation":"Student A is unsure about the assignment."},
+                {"id":"l3q4","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What data should they collect?","options":["One professor interview","A market survey only","One owner and five customers","Ten customer emails"],"correctAnswer":2,"explanation":"Student B specifies one owner and five customers."},
+                {"id":"l3q5","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What will Student A probably do next?","options":["Cancel the project","Draft interview questions","Change courses","Write the final report alone"],"correctAnswer":1,"explanation":"Student A says they will draft questions tonight."}
+              ],
+              "answerTimeLimit": 120
+            },
+            {
+              "id": "l4",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.93,
+              "transcript": "Lecture. Professor: Today we will discuss riparian rights, which involve legal rights related to land next to rivers, lakes, and streams. These rights include access to water and limits on how landowners may use it. Modern law increasingly considers ecological impacts, because pollution in one area can affect entire water systems. Courts now balance private property interests with public health and environmental sustainability. This is why riparian law continues to evolve with scientific knowledge.",
+              "questions": [
+                {"id":"l4q6","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the lecture mainly about?","options":["How to buy lake property","The legal meaning of riparian rights","Ancient maps of rivers","How dams are built"],"correctAnswer":1,"explanation":"The professor explains riparian rights and their evolution."},
+                {"id":"l4q7","type":"detail","difficulty":"B2","tags":["detail"],"prompt":"Why do modern courts consider ecology in these cases?","options":["Because land is cheaper","Because water impacts spread across systems","Because rivers are private","Because tourism requires it"],"correctAnswer":1,"explanation":"Pollution can affect larger hydrologic systems."},
+                {"id":"l4q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor imply about riparian law?","options":["It never changes","It is becoming irrelevant","It adapts as knowledge grows","It applies only to farms"],"correctAnswer":2,"explanation":"He says it continues to evolve with science."}
+              ],
+              "answerTimeLimit": 180
+            }
+          ]
+        },
+        "reading": {
+          "timeLimit": 1200,
+          "weight": 0.2,
+          "passages": [
+            {
+              "id": "r1",
+              "title": "Animal Behavior and Emotion",
+              "text": "Scientists debate whether animal behavior is purely instinctive or sometimes reflects higher-order thinking. Many researchers agree that animals can feel pain, yet some remain uncertain about emotions such as grief or empathy because these are difficult to measure directly.\n\nOther scientists argue that emotion can be inferred through behavior. For example, when one animal responds to another's distress in a way that reduces suffering, researchers may interpret that response as evidence of empathy. Critics of this interpretation say that such reactions may simply follow learned cues or biological triggers rather than conscious emotional choices. The debate continues because both sides rely on indirect evidence, and improved observation methods are still developing.",
+              "questions": [
+                {"id":"r1q1","type":"main_idea","difficulty":"A2","tags":["main_idea"],"prompt":"What is the passage mainly about?","options":["How animals build nests","A debate about animal emotion and behavior","Why zoos are expanding","How to train pets quickly"],"correctAnswer":1,"explanation":"The passage contrasts views on instinct vs emotion."},
+                {"id":"r1q2","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"Why do some scientists doubt animal emotions?","options":["Animals cannot feel pain","Emotions are hard to observe directly","No animals live socially","Brain scans are illegal"],"correctAnswer":1,"explanation":"The text says emotions are difficult to measure."},
+                {"id":"r1q3","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred about current evidence?","options":["It is entirely conclusive","It is mostly indirect","It is based only on lab experiments","It has ended the debate"],"correctAnswer":1,"explanation":"Both sides rely on indirect evidence."},
+                {"id":"r1q4","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word inferred in the passage is closest in meaning to:","options":["hidden","proven","concluded","denied"],"correctAnswer":2,"explanation":"Infer means conclude from evidence."}
+              ]
+            },
+            {
+              "id": "r2",
+              "title": "Coffee and Society",
+              "text": "Coffee is consumed daily by millions of people around the world and has become an important part of social and economic life. Historians disagree on the exact origin story, but most accounts place coffee's early use in East Africa before it spread through trade routes to the Middle East and Europe. [A] Over time, coffeehouses became places where people met to discuss politics, business, and culture.\n\nCoffee production involves several stages. [B] After harvesting, beans are separated from the fruit, dried, roasted, and ground before brewing. Roasting is especially important because it changes flavor, aroma, and color. [C] Beyond taste, coffee also contains caffeine, which affects alertness and concentration. Today, coffee remains one of the most traded agricultural products globally, and modern cafes continue the historical role of serving as community gathering spaces. [D]",
+              "questions": [
+                {"id":"r2q5","type":"summary","difficulty":"B1","tags":["summary"],"prompt":"Which statement best summarizes the passage?","options":["Coffee is only a modern beverage","Coffee has historical, social, and economic importance","Coffee production no longer matters","Coffeehouses are disappearing everywhere"],"correctAnswer":1,"explanation":"The passage covers history, process, and social role."},
+                {"id":"r2q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"At what stage do beans change color significantly?","options":["Harvesting","Roasting","Grinding","Brewing"],"correctAnswer":1,"explanation":"Roasting changes flavor, aroma, and color."},
+                {"id":"r2q7","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What role did historical coffeehouses often play?","options":["Only selling imports","Places for social and intellectual exchange","Government offices","Private schools"],"correctAnswer":1,"explanation":"The text says people met to discuss ideas and trade."},
+                {"id":"r2q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the passage imply about coffee today?","options":["Its role is purely nutritional","It still has a social function","It is less traded than tea","Its production is simple"],"correctAnswer":1,"explanation":"Modern cafes continue historical gathering functions."},
+                {"id":"r2q9","type":"vocabulary","difficulty":"B2","tags":["vocabulary"],"prompt":"The word stages is closest in meaning to:","options":["arguments","locations","steps","prices"],"correctAnswer":2,"explanation":"Stages means steps in a process."},
+                {"id":"r2q10","type":"insert_sentence","difficulty":"C1","tags":["coherence","organization"],"prompt":"Where would this sentence most logically occur in relation to the marked sentences? \"These spaces often hosted writers, merchants, and political thinkers discussing current events.\"","options":["A","B","C","D"],"correctAnswer":0,"explanation":"The sentence expands the social role of coffeehouses and fits best after the idea introduced near [A]."}
+              ]
+            }
+          ]
+        },
+        "writing": {
+          "timeLimit": 1500,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "w1",
+              "type": "informal_note",
+              "minWords": 50,
+              "maxWords": 75,
+              "recommendedTime": 300,
+              "prompt": "You are going to study at a university in the U.S. and share a dorm room. Write a letter to the housing office describing the type of roommate you would like to have."
+            },
+            {
+              "id": "w2",
+              "type": "opinion_essay",
+              "minWords": 175,
+              "maxWords": 250,
+              "recommendedTime": 1200,
+              "prompt": "Nuclear power has both advantages and disadvantages. In your opinion, do the advantages outweigh the disadvantages? Support your answer with reasons and examples."
+            }
+          ]
+        },
+        "speaking": {
+          "timeLimit": 180,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "s1",
+              "type": "personal_response",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "What is most difficult about learning a foreign language? Give specific reasons and examples."
+            },
+            {
+              "id": "s2",
+              "type": "integrated_opinion",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Some people believe technology like email and messaging has improved relationships; others think it has made communication less personal. Which view do you support and why?"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
