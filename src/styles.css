@@ -10,6 +10,34 @@ body { margin:0; font-family:"Segoe UI", Arial, sans-serif; background:linear-gr
 .mode-card h3 { margin:0 0 6px; color:#113c66; }
 .mode-card p { margin:0 0 12px; color:#325f8d; }
 
+/* Landing hero & sections */
+.lnd-hero { display:flex; align-items:center; gap:18px; background:linear-gradient(135deg,#1a4a78,#2568a8); border-radius:18px; padding:22px 24px; margin-bottom:14px; }
+.lnd-logo { width:62px; height:62px; border-radius:50%; background:#fff; color:#1a4f7e; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:17px; flex-shrink:0; border:2px solid #6aabde; }
+.lnd-hero-text { flex:1; }
+.lnd-hero-text h1 { margin:0 0 4px; font-size:22px; color:#fff; font-weight:800; }
+.lnd-hero-text p { margin:0; font-size:13px; color:#a8d4f5; }
+.lnd-level-badge { background:#ffe300; color:#1d2c3d; border-radius:999px; padding:8px 20px; font-weight:900; font-size:18px; white-space:nowrap; }
+
+.lnd-sections { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.lnd-sec { flex:1; min-width:110px; background:#1c5288; border:1px solid #3b78b4; border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:3px; }
+.lnd-sec-badge { display:inline-block; width:22px; height:22px; border-radius:50%; background:#2f7ece; color:#fff; font-size:11px; font-weight:800; text-align:center; line-height:22px; margin-bottom:2px; }
+.lnd-sec strong { font-size:13px; font-weight:800; color:#e0f0ff; }
+.lnd-sec span:last-child { font-size:11px; color:#8bbde3; }
+
+.lnd-panel { padding:20px; }
+.lnd-exam-meta { font-size:13px; color:#4a7bab; margin:0 0 8px; font-weight:600; }
+.lnd-instructions { margin:0 0 16px; padding-left:18px; color:#325f8d; font-size:14px; line-height:1.7; }
+.lnd-choose { font-size:17px; font-weight:700; color:#1a4a78; margin:0 0 10px; }
+.exam-card { border-top:3px solid #2f7ece; }
+.study-card { border-top:3px solid #22a085; }
+.lnd-btn { width:100%; margin-top:4px; }
+
+.lnd-generate { margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.lnd-gen-btn { background:#1a4f7e; color:#c5e0f8; border:1px solid #3b78b4; min-width:250px; }
+.lnd-gen-msg { font-size:13px; text-align:center; padding:6px 14px; border-radius:8px; margin:0; }
+.lnd-gen-ok { background:#d8f5ea; color:#0d5c3a; border:1px solid #7acca8; }
+.lnd-gen-error { background:#fde8e8; color:#7a2020; border:1px solid #f5a0a0; }
+
 .itep-shell { max-width: 1260px; margin: 0 auto; min-height: 100vh; padding: 0 22px 12px; }
 .itep-header { display:flex; justify-content:space-between; align-items:center; padding:18px 4px 10px; }
 .logo-pill { width:100px; height:100px; border-radius:999px; background:#2b6ca8; border:2px solid #8bb9e4; display:flex; align-items:center; justify-content:center; font-weight:800; }
@@ -90,4 +118,8 @@ textarea { width:100%; min-height:260px; resize:vertical; border:1px solid #9dc1
   .oa-pill strong { font-size:30px; }
   .table-title { font-size:28px; }
   .mode-grid { grid-template-columns:1fr; }
+  .lnd-hero { flex-wrap:wrap; gap:12px; }
+  .lnd-hero-text h1 { font-size:18px; }
+  .lnd-sections { gap:6px; }
+  .lnd-sec { min-width:80px; padding:8px 10px; }
 }

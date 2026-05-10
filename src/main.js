@@ -641,7 +641,7 @@ async function startRecording() {
   if (state.speakingStatus === "preparing") return;
 
   state.speakingStatus = "preparing";
-  state.speakingPrepRemaining = Math.max(10, Math.min(20, Number(p.prepTime) || 15));
+  state.speakingPrepRemaining = Number.isFinite(Number(p.prepTime)) && Number(p.prepTime) > 0 ? Number(p.prepTime) : 45;
   render();
 
   if (state.speakingPrepTimerId) clearInterval(state.speakingPrepTimerId);
@@ -827,7 +827,7 @@ function renderSpeaking() {
       </div>`
     : (evalRaw ? `<div class="transcript"><h4>Speaking Feedback</h4><p>${esc(evalRaw)}</p></div>` : "");
   const speakingPart = state.speakingPartIndex === 0 ? "Part 1 (Read + Speak)" : "Part 2 (Opinion Response)";
-  return `<section class="panel"><h3>Speaking - ${speakingPart}</h3><p class="prompt">${esc(p.prompt)}</p><p class="muted">Prep 10-20s | Speak ${p.speakTime}s | Microphone starts automatically</p><div class="speak-meta"><span class="tag">${preparing ? "Preparing..." : recording ? "Recording..." : already ? "Recorded" : "Ready"}</span><span id="speaking-prep-remaining" class="muted">${preparing ? `${state.speakingPrepRemaining}s prep` : ""}</span><span id="speaking-remaining" class="muted">${recording ? `${state.speakingRemaining}s remaining` : ""}</span></div><button class="btn primary" data-action="start-recording" ${(recording || preparing || already) ? "disabled" : ""}>${already ? "Recorded" : preparing ? "Preparing..." : recording ? "Recording..." : "Start Recording"}</button><div class="wave ${(recording || preparing) ? "active" : ""}"></div><label class="muted">Notes</label><textarea id="speaking-notes" data-pid="${p.id}" placeholder="Write notes before speaking...">${esc(note)}</textarea><audio id="speaking-playback" controls style="display:${already ? "block" : "none"}"></audio>${evalBlock}</section>`;
+  return `<section class="panel"><h3>Speaking - ${speakingPart}</h3><p class="prompt">${esc(p.prompt)}</p><p class="muted">Prep ${p.prepTime}s | Speak ${p.speakTime}s | Microphone starts automatically</p><div class="speak-meta"><span class="tag">${preparing ? "Preparing..." : recording ? "Recording..." : already ? "Recorded" : "Ready"}</span><span id="speaking-prep-remaining" class="muted">${preparing ? `${state.speakingPrepRemaining}s prep` : ""}</span><span id="speaking-remaining" class="muted">${recording ? `${state.speakingRemaining}s remaining` : ""}</span></div><button class="btn primary" data-action="start-recording" ${(recording || preparing || already) ? "disabled" : ""}>${already ? "Recorded" : preparing ? "Preparing..." : recording ? "Recording..." : "Start Recording"}</button><div class="wave ${(recording || preparing) ? "active" : ""}"></div><label class="muted">Notes</label><textarea id="speaking-notes" data-pid="${p.id}" placeholder="Write notes before speaking...">${esc(note)}</textarea><audio id="speaking-playback" controls style="display:${already ? "block" : "none"}"></audio>${evalBlock}</section>`;
 }
 
 function renderExamBody() {
@@ -970,7 +970,51 @@ function render() {
   if (state.error) return (app.innerHTML = `<main class="wrap"><section class="panel"><h2>Error</h2><p>${esc(state.error)}</p></section></main>`);
 
   if (!state.started && state.view === "instructions") {
-    app.innerHTML = `<main class="wrap"><section class="panel landing"><h1>${esc(state.test.title)}</h1><p class="landing-sub">Choose how you want to practice.</p><ul>${state.test.instructions.map((i) => `<li>${esc(i)}</li>`).join("")}</ul><div class="mode-grid"><article class="mode-card"><h3>Exam Mode</h3><p>Official section timing, score at the end, and realistic exam flow.</p><button class="btn primary" data-action="start-exam">Start Exam Mode</button></article><article class="mode-card"><h3>Study Mode</h3><p>No section timer pressure and instant feedback under each objective question.</p><button class="btn" data-action="start-study">Start Study Mode</button></article></div><div class="actions"><button class="btn" data-action="generate-exam" ${state.generatingExam ? "disabled" : ""}>${state.generatingExam ? "Generating..." : "Generate New iTEP Exam"}</button></div>${state.generationMsg ? `<p class="muted">${esc(state.generationMsg)}</p>` : ""}</section></main>`;
+    const sec = state.test.sections;
+    const grammarCount = (sec.grammar?.questions || []).length;
+    const listeningCount = (sec.listening?.items || []).reduce((a, it) => a + (it.questions || []).length, 0);
+    const readingCount = (sec.reading?.passages || []).reduce((a, p) => a + (p.questions || []).length, 0);
+    const writingCount = (sec.writing?.prompts || []).length;
+    const speakingCount = (sec.speaking?.prompts || []).length;
+    const genMsgClass = state.generationMsg.startsWith("Generation failed") || state.generationMsg.startsWith("Add GROQ") ? "lnd-gen-error" : "lnd-gen-ok";
+    app.innerHTML = `<main class="wrap">
+  <div class="lnd-hero">
+    <div class="lnd-logo">iTEP</div>
+    <div class="lnd-hero-text">
+      <h1>iTEP Practice Simulator</h1>
+      <p>International Test of English Proficiency</p>
+    </div>
+    <div class="lnd-level-badge">B1</div>
+  </div>
+  <div class="lnd-sections">
+    <div class="lnd-sec"><span class="lnd-sec-badge">G</span><strong>Grammar</strong><span>${grammarCount} items &bull; 10 min</span></div>
+    <div class="lnd-sec"><span class="lnd-sec-badge">L</span><strong>Listening</strong><span>${listeningCount} items &bull; 6 min</span></div>
+    <div class="lnd-sec"><span class="lnd-sec-badge">R</span><strong>Reading</strong><span>${readingCount} items &bull; 20 min</span></div>
+    <div class="lnd-sec"><span class="lnd-sec-badge">W</span><strong>Writing</strong><span>${writingCount} prompts &bull; 25 min</span></div>
+    <div class="lnd-sec"><span class="lnd-sec-badge">S</span><strong>Speaking</strong><span>${speakingCount} prompts &bull; 3 min</span></div>
+  </div>
+  <section class="panel lnd-panel">
+    <p class="lnd-exam-meta">${esc(state.test.title)}</p>
+    <ul class="lnd-instructions">${state.test.instructions.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>
+    <p class="lnd-choose">How do you want to practice?</p>
+    <div class="mode-grid">
+      <article class="mode-card exam-card">
+        <h3>Exam Mode</h3>
+        <p>Official section timing, score at the end, and realistic exam flow.</p>
+        <button class="btn primary lnd-btn" data-action="start-exam">Start Exam Mode</button>
+      </article>
+      <article class="mode-card study-card">
+        <h3>Study Mode</h3>
+        <p>No section timer and instant feedback after each answer.</p>
+        <button class="btn lnd-btn" data-action="start-study">Start Study Mode</button>
+      </article>
+    </div>
+    <div class="lnd-generate">
+      <button class="btn lnd-gen-btn" data-action="generate-exam" ${state.generatingExam ? "disabled" : ""}>${state.generatingExam ? "Generating new exam..." : "Generate New Exam with AI"}</button>
+      ${state.generationMsg ? `<p class="lnd-gen-msg ${genMsgClass}">${esc(state.generationMsg)}</p>` : ""}
+    </div>
+  </section>
+</main>`;
     return;
   }
 
