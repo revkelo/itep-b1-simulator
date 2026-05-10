@@ -999,21 +999,22 @@ function render() {
     <p class="lnd-exam-meta">${esc(state.test.title)}</p>
     <ul class="lnd-instructions">${state.test.instructions.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>
     <p class="lnd-choose">How do you want to practice?</p>
-    <div class="mode-grid">
+    <div class="mode-grid ${state.generatingExam ? "lnd-locked" : ""}">
       <article class="mode-card exam-card">
         <h3>Exam Mode</h3>
         <p>Official section timing, score at the end, and realistic exam flow.</p>
-        <button class="btn primary lnd-btn" data-action="start-exam">Start Exam Mode</button>
+        <button class="btn primary lnd-btn" data-action="start-exam" ${state.generatingExam ? "disabled" : ""}>Start Exam Mode</button>
       </article>
       <article class="mode-card study-card">
         <h3>Study Mode</h3>
         <p>No section timer and instant feedback after each answer.</p>
-        <button class="btn lnd-btn" data-action="start-study">Start Study Mode</button>
+        <button class="btn lnd-btn" data-action="start-study" ${state.generatingExam ? "disabled" : ""}>Start Study Mode</button>
       </article>
     </div>
     <div class="lnd-generate">
       <button class="btn lnd-gen-btn" data-action="generate-exam" ${state.generatingExam ? "disabled" : ""}>${state.generatingExam ? "Generating new exam..." : "Generate New Exam with AI"}</button>
-      ${state.generationMsg ? `<p class="lnd-gen-msg ${genMsgClass}">${esc(state.generationMsg)}</p>` : ""}
+      ${state.generatingExam ? `<div class="lnd-spinner-row"><div class="lnd-spinner"></div><span class="lnd-spinner-msg">Building your exam with AI, please wait...</span></div>` : ""}
+      ${state.generationMsg && !state.generatingExam ? `<p class="lnd-gen-msg ${genMsgClass}">${esc(state.generationMsg)}</p>` : ""}
     </div>
   </section>
 </main>`;
