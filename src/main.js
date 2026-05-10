@@ -1023,7 +1023,7 @@ function render() {
 
   if (state.view === "section-break") {
     const n = state.sectionOrder[state.pendingSectionIndex];
-    app.innerHTML = `<main class="wrap"><section class="panel"><h2>${esc(state.sectionTransitionLabel)}</h2><p class="muted">Timer paused. Continue to start ${esc(n)}.</p><button class="btn primary" data-action="start-pending-section">Continue</button></section></main>`;
+    app.innerHTML = `<main class="section-break-shell"><section class="panel section-break-card"><h2>${esc(state.sectionTransitionLabel)}</h2><p class="muted">Timer paused. Continue to start ${esc(n)}.</p><button class="btn primary" data-action="start-pending-section">Continue</button></section></main>`;
     return;
   }
 
