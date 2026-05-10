@@ -196,7 +196,7 @@ function normalizeGeneratedTest(input) {
     speechRate: Number.isFinite(it?.speechRate) ? it.speechRate : 0.95,
     transcript: it?.transcript || "Listening transcript placeholder.",
     questions: toArray(it?.questions).map((q, qi) => ensureQuestionShape(q, `l${i + 1}q`, qi)),
-    answerTimeLimit: Number.isFinite(it?.answerTimeLimit) ? Math.max(10, it.answerTimeLimit) : (i < 2 ? 20 : i === 2 ? 120 : 180)
+    answerTimeLimit: Number.isFinite(it?.answerTimeLimit) ? Math.max(10, it.answerTimeLimit) : (i < 4 ? 20 : i === 4 ? 120 : 180)
   }));
 
   const readingPassages = toArray(sections.reading?.passages).map((p, i) => ({
@@ -250,7 +250,7 @@ function enforceGeneratedExamContract(test) {
   t.sections.listening.timeLimit = 380;
   t.sections.reading.timeLimit = 1200;
   t.sections.writing.timeLimit = 1500;
-  t.sections.speaking.timeLimit = 180;
+  t.sections.speaking.timeLimit = 240;
   t.sections.grammar.weight = 0.2;
   t.sections.listening.weight = 0.2;
   t.sections.reading.weight = 0.2;
@@ -267,8 +267,8 @@ function enforceGeneratedExamContract(test) {
     type: i < 13 ? "sentence_completion" : "error_detection"
   }));
 
-  t.sections.listening.items = toArray(t.sections.listening.items).slice(0, 4);
-  while (t.sections.listening.items.length < 4) {
+  t.sections.listening.items = toArray(t.sections.listening.items).slice(0, 6);
+  while (t.sections.listening.items.length < 6) {
     const i = t.sections.listening.items.length;
     t.sections.listening.items.push({
       id: `l${i + 1}`,
@@ -278,21 +278,24 @@ function enforceGeneratedExamContract(test) {
       speechRate: 0.95,
       transcript: "Listening transcript placeholder.",
       questions: [],
-      answerTimeLimit: i < 2 ? 20 : i === 2 ? 120 : 180
+      answerTimeLimit: i < 4 ? 20 : i === 4 ? 120 : 180
     });
   }
-  const listeningQuestionCounts = [1, 1, 3, 3];
+  // Part 1: l1-l4 (1q each), Part 2: l5 (4q), Part 3: l6 (6q)
+  const listeningQuestionCounts = [1, 1, 1, 1, 4, 6];
+  const listeningQIdBase = [1, 2, 3, 4, 5, 9];
   t.sections.listening.items = t.sections.listening.items.map((it, i) => {
     const target = listeningQuestionCounts[i];
+    const base = listeningQIdBase[i];
     let qs = toArray(it.questions).slice(0, target).map((q, qi) => ({
       ...ensureQuestionShape(q, `l${i + 1}q`, qi),
-      id: `l${i + 1}q${i === 0 ? 1 : i === 1 ? 2 : i === 2 ? qi + 3 : qi + 6}`
+      id: `l${i + 1}q${i < 4 ? base : base + qi}`
     }));
     while (qs.length < target) {
       const qi = qs.length;
       qs.push({
         ...ensureQuestionShape({}, `l${i + 1}q`, qi),
-        id: `l${i + 1}q${i === 0 ? 1 : i === 1 ? 2 : i === 2 ? qi + 3 : qi + 6}`
+        id: `l${i + 1}q${i < 4 ? base : base + qi}`
       });
     }
     return {
@@ -302,7 +305,7 @@ function enforceGeneratedExamContract(test) {
       playLimit: 1,
       voiceLang: "en-US",
       speechRate: Number.isFinite(it.speechRate) ? it.speechRate : 0.95,
-      answerTimeLimit: i < 2 ? 20 : i === 2 ? 120 : 180,
+      answerTimeLimit: i < 4 ? 20 : i === 4 ? 120 : 180,
       questions: qs
     };
   });
@@ -376,7 +379,7 @@ function mergeWithFallbackSection(generatedTest, fallbackTest) {
   if (!hasGoodGrammar) merged.sections.grammar = cloneJson(fallback.grammar);
 
   const hasGoodListening = Array.isArray(sec.listening?.items)
-    && sec.listening.items.length === 4
+    && sec.listening.items.length === 6
     && sec.listening.items.every((i) => (i?.transcript || "").trim().length > 20);
   if (!hasGoodListening) merged.sections.listening = cloneJson(fallback.listening);
 
@@ -416,7 +419,7 @@ async function generateNewExamWithGroq() {
     instructions: ["string"],
     sections: {
       grammar: { timeLimit: 600, weight: 0.2, questions: [{ id: "g1", prompt: "string", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }] },
-      listening: { timeLimit: 380, weight: 0.2, items: [{ id: "l1", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "long script", questions: [{ id: "l1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }], answerTimeLimit: 20 }] },
+      listening: { timeLimit: 380, weight: 0.2, items: [{ id: "l1", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "short dialogue", questions: [{ id: "l1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }], answerTimeLimit: 20 }, { id: "l5", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.94, transcript: "long conversation", questions: [{ id: "l5q5", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] }], answerTimeLimit: 120 }] },
       reading: { timeLimit: 1200, weight: 0.2, passages: [{ id: "r1", title: "string", text: "long text", questions: [{ id: "r1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }] }] },
       writing: { timeLimit: 1500, weight: 0.2, prompts: [{ id: "w1", prompt: "string", minWords: 50, maxWords: 75 }, { id: "w2", prompt: "string", minWords: 175, maxWords: 250 }] },
       speaking: { timeLimit: 180, weight: 0.2, prompts: [{ id: "s1", prompt: "string", prepTime: 45, speakTime: 60 }, { id: "s2", prompt: "string", prepTime: 45, speakTime: 60 }] }
@@ -428,7 +431,7 @@ async function generateNewExamWithGroq() {
     "Do NOT use student performance data.",
     "Follow EXACTLY the same structure as the data example contract.",
     "- Grammar: 25 questions, IDs g1..g25, first 13 sentence_completion and next 12 error_detection, timeLimit 600.",
-    "- Listening: exactly 4 items IDs l1..l4, TTS, playLimit 1, question IDs and counts exactly: l1q1 (1), l2q2 (1), l3q3-l3q5 (3), l4q6-l4q8 (3), answerTimeLimit [20,20,120,180], timeLimit 380.",
+    "- Listening: exactly 6 items IDs l1..l6, TTS, playLimit 1. Part 1 short convos: l1q1(1) l2q2(1) l3q3(1) l4q4(1) answerTimeLimit 20 each. Part 2 long conversation: l5 with questions l5q5-l5q8 (4 questions) answerTimeLimit 120. Part 3 lecture: l6 with questions l6q9-l6q14 (6 questions) answerTimeLimit 180. timeLimit 380.",
     "- Reading: exactly 2 passages IDs r1,r2 with question IDs r1q1-r1q4 and r2q5-r2q10, timeLimit 1200.",
     "- Writing: exactly 2 prompts w1 informal_note 50-75 words recommendedTime 300, w2 opinion_essay 175-250 words recommendedTime 1200, timeLimit 1500.",
     "- Speaking: exactly 2 prompts s1 personal_response and s2 integrated_opinion, both prepTime 45 and speakTime 60, timeLimit 180.",
@@ -609,7 +612,7 @@ function renderListening() {
   const remain = Math.max(0, row.item.playLimit - used);
   const note = state.notes.listening[row.item.id] || "";
   const unlocked = !!state.listeningUnlocked[row.item.id];
-  const listenPart = row.item.id === "l1" || row.item.id === "l2" ? "Part 1 (Short Conversations)" : row.item.id === "l3" ? "Part 2 (Long Conversation)" : "Part 3 (Lecture)";
+  const listenPart = ["l1","l2","l3","l4"].includes(row.item.id) ? "Part 1 (Short Conversations)" : row.item.id === "l5" ? "Part 2 (Long Conversation)" : "Part 3 (Lecture)";
   const questionPanel = unlocked
     ? `<p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p>${esc(row.question.prompt)}</p><div class="options">${row.question.options.map((o, i) => optionButton(row.question.id, o, i)).join("")}</div>${renderStudyFeedback(row.question)}`
     : `<p><strong>Question ${idx + 1} of ${rows.length}</strong></p><p class="muted">Play the audio first. Then the question will appear.</p>`;
@@ -984,14 +987,13 @@ function render() {
       <h1>iTEP Practice Simulator</h1>
       <p>International Test of English Proficiency</p>
     </div>
-    <div class="lnd-level-badge">B1</div>
   </div>
   <div class="lnd-sections">
     <div class="lnd-sec"><span class="lnd-sec-badge">G</span><strong>Grammar</strong><span>${grammarCount} items &bull; 10 min</span></div>
-    <div class="lnd-sec"><span class="lnd-sec-badge">L</span><strong>Listening</strong><span>${listeningCount} items &bull; 6 min</span></div>
+    <div class="lnd-sec"><span class="lnd-sec-badge">L</span><strong>Listening</strong><span>${listeningCount} items &bull; Variable</span></div>
     <div class="lnd-sec"><span class="lnd-sec-badge">R</span><strong>Reading</strong><span>${readingCount} items &bull; 20 min</span></div>
     <div class="lnd-sec"><span class="lnd-sec-badge">W</span><strong>Writing</strong><span>${writingCount} prompts &bull; 25 min</span></div>
-    <div class="lnd-sec"><span class="lnd-sec-badge">S</span><strong>Speaking</strong><span>${speakingCount} prompts &bull; 3 min</span></div>
+    <div class="lnd-sec"><span class="lnd-sec-badge">S</span><strong>Speaking</strong><span>${speakingCount} prompts &bull; ~3.5 min</span></div>
   </div>
   <section class="panel lnd-panel">
     <p class="lnd-exam-meta">${esc(state.test.title)}</p>

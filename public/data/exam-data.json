@@ -81,26 +81,54 @@
               "audioMode": "tts",
               "playLimit": 1,
               "voiceLang": "en-US",
-              "speechRate": 0.94,
-              "transcript": "Long conversation. Student A: I'm not sure about the assignment for economics. Student B: We need to compare two local businesses and explain their pricing strategies. Student A: Should we include interviews? Student B: Yes, at least one owner and five customers. Student A: Okay, I'll draft the questions tonight. Student B: Great, and let's meet on Thursday to organize the report.",
+              "speechRate": 0.95,
+              "transcript": "Conversation three. Man: Excuse me, is this seat taken? Woman: No, go ahead. The class starts in five minutes.",
               "questions": [
-                {"id":"l3q3","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"Why is Student A talking to Student B?","options":["To ask about an assignment","To invite B to a concert","To share internship news","To discuss exam scores"],"correctAnswer":0,"explanation":"Student A is unsure about the assignment."},
-                {"id":"l3q4","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What data should they collect?","options":["One professor interview","A market survey only","One owner and five customers","Ten customer emails"],"correctAnswer":2,"explanation":"Student B specifies one owner and five customers."},
-                {"id":"l3q5","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What will Student A probably do next?","options":["Cancel the project","Draft interview questions","Change courses","Write the final report alone"],"correctAnswer":1,"explanation":"Student A says they will draft questions tonight."}
+                {"id":"l3q3","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the woman say about the class?","options":["It already started","It starts in five minutes","It was canceled","It ends at noon"],"correctAnswer":1,"explanation":"The woman says the class starts in five minutes."}
               ],
-              "answerTimeLimit": 120
+              "answerTimeLimit": 20
             },
             {
               "id": "l4",
               "audioMode": "tts",
               "playLimit": 1,
               "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation four. Student: Have you registered for the spring semester yet? Advisor: Registration opens next Monday. Make sure you have your course list ready.",
+              "questions": [
+                {"id":"l4q4","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"When does registration open?","options":["Today","Next Monday","Next Friday","This Wednesday"],"correctAnswer":1,"explanation":"The advisor says registration opens next Monday."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l5",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.94,
+              "transcript": "Long conversation. Student A: I'm not sure about the assignment for economics. Student B: We need to compare two local businesses and explain their pricing strategies. Student A: Should we include interviews? Student B: Yes, at least one owner and five customers. Student A: Okay, I'll draft the questions tonight. Student B: Great, and let's meet on Thursday to organize the report.",
+              "questions": [
+                {"id":"l5q5","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"Why is Student A talking to Student B?","options":["To ask about an assignment","To invite B to a concert","To share internship news","To discuss exam scores"],"correctAnswer":0,"explanation":"Student A is unsure about the assignment."},
+                {"id":"l5q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What data should they collect?","options":["One professor interview","A market survey only","One owner and five customers","Ten customer emails"],"correctAnswer":2,"explanation":"Student B specifies one owner and five customers."},
+                {"id":"l5q7","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What will Student A probably do next?","options":["Cancel the project","Draft interview questions","Change courses","Write the final report alone"],"correctAnswer":1,"explanation":"Student A says they will draft questions tonight."},
+                {"id":"l5q8","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"When do they plan to meet to organize the report?","options":["Monday","Tuesday","Wednesday","Thursday"],"correctAnswer":3,"explanation":"Student B suggests meeting on Thursday."}
+              ],
+              "answerTimeLimit": 120
+            },
+            {
+              "id": "l6",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
               "speechRate": 0.93,
               "transcript": "Lecture. Professor: Today we will discuss riparian rights, which involve legal rights related to land next to rivers, lakes, and streams. These rights include access to water and limits on how landowners may use it. Modern law increasingly considers ecological impacts, because pollution in one area can affect entire water systems. Courts now balance private property interests with public health and environmental sustainability. This is why riparian law continues to evolve with scientific knowledge.",
               "questions": [
-                {"id":"l4q6","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the lecture mainly about?","options":["How to buy lake property","The legal meaning of riparian rights","Ancient maps of rivers","How dams are built"],"correctAnswer":1,"explanation":"The professor explains riparian rights and their evolution."},
-                {"id":"l4q7","type":"detail","difficulty":"B2","tags":["detail"],"prompt":"Why do modern courts consider ecology in these cases?","options":["Because land is cheaper","Because water impacts spread across systems","Because rivers are private","Because tourism requires it"],"correctAnswer":1,"explanation":"Pollution can affect larger hydrologic systems."},
-                {"id":"l4q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor imply about riparian law?","options":["It never changes","It is becoming irrelevant","It adapts as knowledge grows","It applies only to farms"],"correctAnswer":2,"explanation":"He says it continues to evolve with science."}
+                {"id":"l6q9","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the lecture mainly about?","options":["How to buy lake property","The legal meaning of riparian rights","Ancient maps of rivers","How dams are built"],"correctAnswer":1,"explanation":"The professor explains riparian rights and their evolution."},
+                {"id":"l6q10","type":"detail","difficulty":"B2","tags":["detail"],"prompt":"Why do modern courts consider ecology in these cases?","options":["Because land is cheaper","Because water impacts spread across systems","Because rivers are private","Because tourism requires it"],"correctAnswer":1,"explanation":"Pollution can affect larger hydrologic systems."},
+                {"id":"l6q11","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor imply about riparian law?","options":["It never changes","It is becoming irrelevant","It adapts as knowledge grows","It applies only to farms"],"correctAnswer":2,"explanation":"He says it continues to evolve with science."},
+                {"id":"l6q12","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What do riparian rights include?","options":["Air traffic above rivers","Access to water and limits on its use","Taxes on fishing licenses","City zoning regulations"],"correctAnswer":1,"explanation":"The professor says these rights include access to water and limits on how landowners may use it."},
+                {"id":"l6q13","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'ecological' in the lecture is closest in meaning to:","options":["financial","political","environmental","historical"],"correctAnswer":2,"explanation":"Ecological relates to the environment and natural systems."},
+                {"id":"l6q14","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred about how riparian law develops?","options":["It was settled in the 19th century","It evolves with science and public health needs","It applies only to private farms","It will soon be replaced"],"correctAnswer":1,"explanation":"The professor implies law evolves alongside scientific knowledge and public health concerns."}
               ],
               "answerTimeLimit": 180
             }
@@ -159,7 +187,7 @@
           ]
         },
         "speaking": {
-          "timeLimit": 180,
+          "timeLimit": 240,
           "weight": 0.2,
           "prompts": [
             {
