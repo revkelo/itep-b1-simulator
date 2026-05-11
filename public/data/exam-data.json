@@ -3,7 +3,7 @@
     "platform": "iTEP Practice Simulator",
     "version": "4.8",
     "level": "A1-C2",
-    "defaultTestId": "itep_practice_iii_001",
+    "defaultTestId": "itep_practice_iv_001",
     "source": "Based on pdf-itep-practice-test-ii_compress.pdf"
   },
   "tests": [
@@ -404,6 +404,207 @@
               "prepTime": 45,
               "speakTime": 60,
               "prompt": "Some people prefer to shop online, while others prefer to shop in physical stores. Which do you prefer and why? Consider the advantages and disadvantages of both options."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "itep_practice_iv_001",
+      "title": "iTEP Practice Test IV",
+      "instructions": [
+        "This exam follows an iTEP-style format with five sections.",
+        "Complete sections in order and manage your time carefully.",
+        "Listening is forward-only and each audio can be played once.",
+        "Speaking allows one recording per task."
+      ],
+      "sections": {
+        "grammar": {
+          "timeLimit": 600,
+          "weight": 0.2,
+          "questions": [
+            {"id":"g1","type":"sentence_completion","difficulty":"A1","tags":["present_simple"],"prompt":"She always ____ her homework before dinner.","options":["do","does","doing","is doing"],"correctAnswer":1,"explanation":"Third-person singular present simple requires -s."},
+            {"id":"g2","type":"sentence_completion","difficulty":"A2","tags":["articles"],"prompt":"I saw ____ amazing movie last night. You should watch it.","options":["a","an","the","-"],"correctAnswer":1,"explanation":"Use 'an' before a vowel sound. 'Amazing' begins with a vowel sound."},
+            {"id":"g3","type":"sentence_completion","difficulty":"B1","tags":["present_perfect"],"prompt":"They ____ here since they moved from Spain five years ago.","options":["live","lived","have lived","are living"],"correctAnswer":2,"explanation":"Present perfect with 'since' for an action that started in the past and continues to the present."},
+            {"id":"g4","type":"sentence_completion","difficulty":"A2","tags":["prepositions"],"prompt":"The museum opens ____ nine in the morning.","options":["in","on","at","by"],"correctAnswer":2,"explanation":"Use 'at' with specific times."},
+            {"id":"g5","type":"sentence_completion","difficulty":"B2","tags":["future_perfect"],"prompt":"By the time they arrive, the chef ____ cooking dinner.","options":["will finish","will be finishing","will have finished","would finish"],"correctAnswer":2,"explanation":"Future perfect expresses an action completed before a specific future moment."},
+            {"id":"g6","type":"sentence_completion","difficulty":"B1","tags":["gerund_infinitive"],"prompt":"The company decided ____ a new branch in the south of the city.","options":["open","opening","to open","to opening"],"correctAnswer":2,"explanation":"'Decide' is followed by the infinitive."},
+            {"id":"g7","type":"sentence_completion","difficulty":"A2","tags":["relative_clause"],"prompt":"The book ____ I borrowed from the library is very interesting.","options":["who","whom","that","whose"],"correctAnswer":2,"explanation":"'That' (or 'which') is used for things in a defining relative clause."},
+            {"id":"g8","type":"sentence_completion","difficulty":"B2","tags":["reported_speech"],"prompt":"The teacher said that the exam ____ the following morning.","options":["will take place","took place","would take place","has taken place"],"correctAnswer":2,"explanation":"In reported speech, 'will' shifts to 'would'."},
+            {"id":"g9","type":"sentence_completion","difficulty":"C1","tags":["conditionals"],"prompt":"Had she known about the cancellation, she ____ a different flight.","options":["books","booked","had booked","would have booked"],"correctAnswer":3,"explanation":"Third conditional inverted form: 'had + past participle' in the if-clause, 'would have + past participle' in the result."},
+            {"id":"g10","type":"sentence_completion","difficulty":"B1","tags":["passive"],"prompt":"The announcement ____ to all staff members by noon tomorrow.","options":["sends","will send","will be sent","is sending"],"correctAnswer":2,"explanation":"Future passive: 'will be + past participle'."},
+            {"id":"g11","type":"sentence_completion","difficulty":"A2","tags":["comparatives"],"prompt":"Your apartment is much ____ than mine.","options":["big","bigger","biggest","more big"],"correctAnswer":1,"explanation":"Comparative adjective for one-syllable words: add -er."},
+            {"id":"g12","type":"sentence_completion","difficulty":"B1","tags":["modals"],"prompt":"She ____ be at home now because her car is in the driveway.","options":["might","must","can","would"],"correctAnswer":1,"explanation":"'Must' expresses a logical deduction about the present."},
+            {"id":"g13","type":"sentence_completion","difficulty":"C1","tags":["inversion"],"prompt":"Rarely ____ such a talented musician in this region.","options":["we have seen","have we seen","we had seen","had we seen"],"correctAnswer":1,"explanation":"After 'Rarely', subject-auxiliary inversion is required."},
+            {"id":"g14","type":"error_detection","difficulty":"A2","tags":["subject_verb"],"prompt":"Each of the students are required to submit a written report.","options":["Each of","students","are required","submit"],"correctAnswer":2,"explanation":"'Each' is singular and requires a singular verb: 'is required'."},
+            {"id":"g15","type":"error_detection","difficulty":"B1","tags":["pronoun_case"],"prompt":"The scholarship was awarded to both Sarah and I.","options":["scholarship","awarded","to both Sarah","and I"],"correctAnswer":3,"explanation":"Object pronoun is required after a preposition: 'to both Sarah and me'."},
+            {"id":"g16","type":"error_detection","difficulty":"B1","tags":["verb_form"],"prompt":"She is used to work late every Friday at the office.","options":["is used","to work","every Friday","at the office"],"correctAnswer":1,"explanation":"'Be used to' requires a gerund: 'used to working', not the infinitive."},
+            {"id":"g17","type":"error_detection","difficulty":"A2","tags":["adjective_adverb"],"prompt":"He answered the questions very careful during the interview.","options":["answered","questions","very careful","during"],"correctAnswer":2,"explanation":"An adverb is needed to modify the verb: 'carefully', not 'careful'."},
+            {"id":"g18","type":"error_detection","difficulty":"B2","tags":["conditionals"],"prompt":"If the train would have been on time, we would not have missed the meeting.","options":["If","would have been","would not have missed","meeting"],"correctAnswer":1,"explanation":"Third conditional if-clause requires past perfect: 'had been', not 'would have been'."},
+            {"id":"g19","type":"error_detection","difficulty":"B1","tags":["passive"],"prompt":"The letters was delivered to the wrong address by the postman.","options":["letters","was delivered","wrong address","postman"],"correctAnswer":1,"explanation":"Plural subject 'letters' requires plural passive: 'were delivered'."},
+            {"id":"g20","type":"error_detection","difficulty":"A2","tags":["double_negative"],"prompt":"I don't know nothing about the new schedule changes.","options":["don't","know nothing","new schedule","changes"],"correctAnswer":1,"explanation":"Double negatives are non-standard; use 'anything': 'I don't know anything'."},
+            {"id":"g21","type":"error_detection","difficulty":"B1","tags":["prepositions"],"prompt":"She is very interested on learning about ancient history.","options":["very interested","on","learning about","ancient history"],"correctAnswer":1,"explanation":"The correct collocation is 'interested in', not 'interested on'."},
+            {"id":"g22","type":"error_detection","difficulty":"B1","tags":["verb_pattern"],"prompt":"They explained us how to use the new software at the workshop.","options":["explained us","how to use","new software","at the workshop"],"correctAnswer":0,"explanation":"'Explain' requires the preposition 'to' with an indirect object: 'explained to us'."},
+            {"id":"g23","type":"error_detection","difficulty":"B2","tags":["articles"],"prompt":"They spent their honeymoon in a countryside of southern France.","options":["spent","in a","countryside","southern"],"correctAnswer":1,"explanation":"'Countryside' is an uncountable noun used with the definite article: 'in the countryside'."},
+            {"id":"g24","type":"error_detection","difficulty":"C1","tags":["subjunctive"],"prompt":"The board demands that the director submits a full financial report.","options":["board demands","that","submits","financial report"],"correctAnswer":2,"explanation":"After 'demand that', the subjunctive requires the base form: 'submit', not 'submits'."},
+            {"id":"g25","type":"error_detection","difficulty":"C1","tags":["parallelism"],"prompt":"The new regulations require companies to reduce emissions, improving efficiency, and report annually.","options":["require companies","to reduce emissions","improving efficiency","report annually"],"correctAnswer":2,"explanation":"Parallel infinitive structure requires: 'to reduce...improve...and report' — not the gerund 'improving'."}
+          ]
+        },
+        "listening": {
+          "timeLimit": 380,
+          "weight": 0.2,
+          "items": [
+            {
+              "id": "l1",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation one. Customer: Excuse me, I bought this textbook last week but I already have the same edition. Can I get a refund? Cashier: Of course. Do you have the receipt? Customer: Yes, here it is. Cashier: Great. We can refund you today as long as the book is in good condition.",
+              "questions": [
+                {"id":"l1q1","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the cashier require for the refund?","options":["A student ID card","The receipt and good condition of the book","A written request form","Manager approval"],"correctAnswer":1,"explanation":"The cashier asks for the receipt and says the book must be in good condition."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l2",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation two. Woman: Have you started working on the quarterly report yet? Man: Not yet. I thought the deadline was next Friday. Woman: It was moved up. The director needs it by Wednesday afternoon.",
+              "questions": [
+                {"id":"l2q2","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the woman tell the man about the deadline?","options":["It has been extended to the following week","It remains the same as before","It was moved earlier to Wednesday","It was canceled entirely"],"correctAnswer":2,"explanation":"The woman says the deadline was moved up to Wednesday afternoon, meaning it is now earlier."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l3",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation three. Student: Professor, are your office hours still on Tuesdays? Professor: I had to change them this semester. They are now on Wednesdays from two to four.",
+              "questions": [
+                {"id":"l3q3","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What did the professor change this semester?","options":["The course syllabus","The exam format","His office hours schedule","His classroom location"],"correctAnswer":2,"explanation":"The professor says he changed his office hours to Wednesdays from two to four."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l4",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation four. Man: Excuse me, does this bus go to the central station? Woman: Yes, but only during peak hours. The last bus to the central station leaves at eight thirty in the evening.",
+              "questions": [
+                {"id":"l4q4","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"When does the last bus to the central station leave?","options":["Seven o'clock","Eight o'clock","Eight thirty","Nine o'clock"],"correctAnswer":2,"explanation":"The woman says the last bus to the central station leaves at eight thirty in the evening."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l5",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.94,
+              "transcript": "Long conversation. Student A: We need to finalize our community service project proposal. Have you decided on a topic? Student B: I was thinking about organizing a free tutoring program for elementary school students. Student A: That is a good idea. Who would be responsible for finding the tutors? Student B: We could recruit volunteers from our university's education department. Student A: Should we contact the school directly or go through the city education board? Student B: Let's contact the school first. It will be faster. Student A: What about funding? We might need to buy materials. Student B: We can apply for a small grant from the student activities office. They usually respond within two weeks.",
+              "questions": [
+                {"id":"l5q5","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What are the students mainly discussing?","options":["Planning a community service project proposal","Applying for a university scholarship","Organizing a campus fundraising event","Reviewing their class schedule for next term"],"correctAnswer":0,"explanation":"The students are finalizing their proposal for a community service project."},
+                {"id":"l5q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What type of program does Student B suggest?","options":["A sports program for teenagers","A free tutoring program for elementary school students","A mentoring program for working adults","A language exchange program at the library"],"correctAnswer":1,"explanation":"Student B suggests organizing a free tutoring program for elementary school students."},
+                {"id":"l5q7","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"Where does Student B suggest finding volunteer tutors?","options":["From a local community charity","From the city education board","From the university's education department","From an online volunteer network"],"correctAnswer":2,"explanation":"Student B says they could recruit volunteers from the university's education department."},
+                {"id":"l5q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What will the students most likely do first to move the project forward?","options":["Apply for the grant immediately","Contact the school directly","Meet with the city education board","Start recruiting tutors online"],"correctAnswer":1,"explanation":"Student B says contacting the school first will be faster, so that is the logical next step."}
+              ],
+              "answerTimeLimit": 120
+            },
+            {
+              "id": "l6",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.93,
+              "transcript": "Lecture. Professor: Today we will examine microplastics, which are tiny plastic particles smaller than five millimeters. These particles originate from two main sources: large plastic items that break down over time due to sunlight and physical wear, and microbeads, which are very small particles deliberately added to cosmetics and personal care products. Microplastics have been detected in oceans, rivers, soil, and even in the air we breathe. Scientists are particularly concerned about their impact on marine ecosystems, because small fish and invertebrates often ingest these particles mistakenly, which can damage their digestive systems and reduce reproductive rates. Microplastics can also enter the human food chain through seafood consumption. While research is still ongoing, early findings suggest that chronic exposure may pose health risks. Some governments have already banned microbeads in personal care products, but the broader problem of plastic pollution continues to require international cooperation and policy changes.",
+              "questions": [
+                {"id":"l6q9","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the lecture mainly about?","options":["New methods for recycling plastics","Microplastics, their origins, and their effects","How cosmetics are manufactured","Government bans on single-use plastics"],"correctAnswer":1,"explanation":"The lecture covers what microplastics are, where they come from, and their environmental and health impacts."},
+                {"id":"l6q10","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What are the two main sources of microplastics mentioned by the professor?","options":["Factory emissions and vehicle exhaust","Ocean currents and wind","Large plastic items breaking down and microbeads in personal care products","Plastic bags and food packaging only"],"correctAnswer":2,"explanation":"The professor mentions degraded plastic items and microbeads deliberately added to cosmetics."},
+                {"id":"l6q11","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor imply about the full health impact of microplastics on humans?","options":["It is now fully established by research","It is not yet fully understood","It has been proven to cause serious illness","It only affects people who eat seafood daily"],"correctAnswer":1,"explanation":"The professor says research is still ongoing and findings 'suggest' risks, implying certainty has not been established."},
+                {"id":"l6q12","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"Why are scientists concerned about fish ingesting microplastics?","options":["Fish may refuse to eat natural food","It can damage their digestive systems and reduce reproductive rates","It causes fish to migrate away from their habitats","Fish transmit diseases directly to humans"],"correctAnswer":1,"explanation":"The professor states microplastics can damage digestive systems and reduce reproductive rates in marine animals."},
+                {"id":"l6q13","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'ingest' in the lecture is closest in meaning to:","options":["release","avoid","swallow","absorb through the skin"],"correctAnswer":2,"explanation":"'Ingest' means to take food or another substance into the body by swallowing."},
+                {"id":"l6q14","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred about solving the broader microplastics problem?","options":["Banning microbeads alone is sufficient","It requires cooperation beyond individual countries","The problem is already fully addressed by existing laws","It is mainly the responsibility of the fishing industry"],"correctAnswer":1,"explanation":"The professor says banning microbeads is a start but the broader problem requires international cooperation and policy changes."}
+              ],
+              "answerTimeLimit": 180
+            }
+          ]
+        },
+        "reading": {
+          "timeLimit": 1200,
+          "weight": 0.2,
+          "passages": [
+            {
+              "id": "r1",
+              "title": "Sleep and Cognitive Performance",
+              "text": "Scientists have long recognized a strong connection between sleep and cognitive performance. During sleep, the brain consolidates memories, transferring information from short-term storage to long-term memory. Without sufficient sleep, this process is disrupted, and individuals may find it harder to recall information or focus effectively.\n\nResearch suggests that sleep deprivation can also impair judgment and decision-making. Studies involving both students and professionals show that performance declines significantly after even one night of insufficient rest. Some experts compare the cognitive effects of sleep loss to those of mild alcohol intoxication.\n\nDespite widespread awareness of these effects, many people continue to prioritize work or social activities over sleep. Adolescents are particularly vulnerable, as their biological sleep cycle naturally shifts later, yet school schedules often require early rising. Public health experts argue that adjusting school start times could improve student performance and overall well-being.",
+              "questions": [
+                {"id":"r1q1","type":"main_idea","difficulty":"A2","tags":["main_idea"],"prompt":"What is the passage mainly about?","options":["How schools can improve their teaching methods","The relationship between sleep and cognitive performance","Why professionals prefer working at night","New medical treatments for sleep disorders"],"correctAnswer":1,"explanation":"The passage explains how sleep affects memory, judgment, and learning ability."},
+                {"id":"r1q2","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What happens to memory during sleep according to the passage?","options":["New memories are permanently erased","Information is transferred from short-term to long-term memory","The brain stops processing all new information","Cognitive performance temporarily increases"],"correctAnswer":1,"explanation":"The passage states that during sleep the brain consolidates memories by moving information from short-term to long-term storage."},
+                {"id":"r1q3","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred about adolescents and current school schedules?","options":["Adolescents naturally prefer waking up early","School schedules may not align with adolescents' natural sleep patterns","Adolescents already get sufficient sleep each night","Earlier school start times always improve academic performance"],"correctAnswer":1,"explanation":"The passage explains that adolescents' biological clocks shift later, but schools still start early, suggesting a mismatch."},
+                {"id":"r1q4","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'consolidates' in the passage is closest in meaning to:","options":["creates randomly","strengthens and organizes","replaces permanently","temporarily ignores"],"correctAnswer":1,"explanation":"'Consolidate' means to strengthen or make more solid — here referring to organizing memories for long-term retention."}
+              ]
+            },
+            {
+              "id": "r2",
+              "title": "The Rise of Remote Work",
+              "text": "Remote work — performing job duties from locations outside the traditional office — has expanded dramatically in recent years. While some employees worked remotely before the 2020s, widespread adoption accelerated when global events forced many businesses to close physical offices. [A]\n\nProponents of remote work argue that it offers greater flexibility and can improve work-life balance. Employees who work from home often report lower commuting stress and more time for personal activities. Some studies also suggest that remote workers can be more productive in focused tasks when distractions are reduced. [B]\n\nHowever, critics point to significant drawbacks. Remote workers may feel isolated, and communication between colleagues can become less spontaneous and more fragmented. Managers sometimes find it challenging to monitor performance and maintain team cohesion without regular face-to-face interaction. [C] Additionally, not all job roles are suited to remote arrangements, particularly those requiring hands-on work or specialized equipment.\n\nAs businesses adapt to this evolving landscape, many have adopted hybrid models that combine in-office and remote work. [D] Whether this approach will become the new standard for professional life remains an open question, as both employers and employees continue to evaluate what works best for productivity and well-being.",
+              "questions": [
+                {"id":"r2q5","type":"summary","difficulty":"B1","tags":["summary"],"prompt":"Which statement best summarizes the passage?","options":["All companies now require employees to work remotely","Remote work has expanded and presents both benefits and challenges","Remote work is harmful and should be limited by law","Most employees strongly prefer working in physical offices"],"correctAnswer":1,"explanation":"The passage covers the growth of remote work, its advantages, drawbacks, and the emergence of hybrid models."},
+                {"id":"r2q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What do some studies suggest about remote workers' productivity?","options":["They are always more productive than office workers","They struggle with all types of professional tasks","They can be more productive in focused tasks when distractions are reduced","Their productivity depends entirely on internet connection quality"],"correctAnswer":2,"explanation":"The passage says some studies suggest remote workers can be more productive in focused tasks when distractions are reduced."},
+                {"id":"r2q7","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What challenge do managers face with remote teams?","options":["Finding reliable internet connections for staff","Maintaining team cohesion without face-to-face interaction","Managing employees across multiple office buildings","Dealing with a larger number of employees than before"],"correctAnswer":1,"explanation":"The passage states managers find it challenging to maintain team cohesion without regular face-to-face interaction."},
+                {"id":"r2q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the passage imply about hybrid work models?","options":["They are already proven to be the best option for all industries","They represent an ongoing compromise that is still being evaluated","They are only suitable for technology companies","They will eventually be replaced by fully remote work"],"correctAnswer":1,"explanation":"The passage notes hybrid models have emerged as a response, but whether they will become the standard 'remains an open question'."},
+                {"id":"r2q9","type":"vocabulary","difficulty":"B2","tags":["vocabulary"],"prompt":"The word 'cohesion' in the passage is closest in meaning to:","options":["competition between colleagues","unity and working well together","strict management control","individual productivity levels"],"correctAnswer":1,"explanation":"'Cohesion' refers to the quality of being united or working effectively together as a group."},
+                {"id":"r2q10","type":"insert_sentence","difficulty":"C1","tags":["coherence","organization"],"prompt":"Where would this sentence most logically appear in the passage? 'This shift represented one of the fastest changes in workplace culture in recent history.'","options":["A","B","C","D"],"correctAnswer":0,"explanation":"The sentence refers to the rapid adoption of remote work, which logically follows near [A] after the description of businesses closing offices and accelerating remote adoption."}
+              ]
+            }
+          ]
+        },
+        "writing": {
+          "timeLimit": 1500,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "w1",
+              "type": "informal_note",
+              "minWords": 50,
+              "maxWords": 75,
+              "recommendedTime": 300,
+              "prompt": "You need to miss several days of work due to an unexpected family situation. Write a note to your supervisor explaining your absence and requesting either remote work arrangements or approved leave."
+            },
+            {
+              "id": "w2",
+              "type": "opinion_essay",
+              "minWords": 175,
+              "maxWords": 250,
+              "recommendedTime": 1200,
+              "prompt": "Some people believe that governments should invest more in public transportation systems, while others think that expanding road infrastructure for private vehicles is more important. In your opinion, which approach benefits modern cities more? Support your answer with reasons and examples."
+            }
+          ]
+        },
+        "speaking": {
+          "timeLimit": 240,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "s1",
+              "type": "personal_response",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Describe a person who has had a significant influence on your life. Who is this person, and in what ways have they influenced you? Give specific details and examples."
+            },
+            {
+              "id": "s2",
+              "type": "integrated_opinion",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Some people think that living in a large city offers more opportunities and a better quality of life. Others believe that smaller towns or rural areas are preferable. Which type of place would you rather live in, and why? Consider the advantages and disadvantages of both options."
             }
           ]
         }
