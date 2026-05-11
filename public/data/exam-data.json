@@ -3,7 +3,7 @@
     "platform": "iTEP Practice Simulator",
     "version": "4.8",
     "level": "A1-C2",
-    "defaultTestId": "itep_pdf_ii_001",
+    "defaultTestId": "itep_practice_iii_001",
     "source": "Based on pdf-itep-practice-test-ii_compress.pdf"
   },
   "tests": [
@@ -203,6 +203,207 @@
               "prepTime": 45,
               "speakTime": 60,
               "prompt": "Some people believe technology like email and messaging has improved relationships; others think it has made communication less personal. Which view do you support and why?"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "itep_practice_iii_001",
+      "title": "iTEP Practice Test III",
+      "instructions": [
+        "This exam follows an iTEP-style format with five sections.",
+        "Complete sections in order and manage your time carefully.",
+        "Listening is forward-only and each audio can be played once.",
+        "Speaking allows one recording per task."
+      ],
+      "sections": {
+        "grammar": {
+          "timeLimit": 600,
+          "weight": 0.2,
+          "questions": [
+            {"id":"g1","type":"sentence_completion","difficulty":"A1","tags":["present_simple"],"prompt":"My brother always ___ breakfast before going to work.","options":["eat","eats","eating","is eating"],"correctAnswer":1,"explanation":"Third-person singular present simple requires -s."},
+            {"id":"g2","type":"sentence_completion","difficulty":"A2","tags":["articles"],"prompt":"She wants to become ___ architect when she graduates.","options":["a","an","the","-"],"correctAnswer":1,"explanation":"Use 'an' before a vowel sound."},
+            {"id":"g3","type":"sentence_completion","difficulty":"B1","tags":["past_perfect"],"prompt":"By the time we arrived, the concert ___ already started.","options":["has","have","had","was"],"correctAnswer":2,"explanation":"Past perfect (had + past participle) for an action completed before another past action."},
+            {"id":"g4","type":"sentence_completion","difficulty":"A2","tags":["prepositions"],"prompt":"The meeting is scheduled ___ Monday morning.","options":["in","on","at","by"],"correctAnswer":1,"explanation":"Use 'on' with specific days of the week."},
+            {"id":"g5","type":"sentence_completion","difficulty":"B2","tags":["passive"],"prompt":"The annual report ___ by the finance department every December.","options":["prepares","is prepared","prepared","was preparing"],"correctAnswer":1,"explanation":"Present simple passive for a regular, habitual action."},
+            {"id":"g6","type":"sentence_completion","difficulty":"B1","tags":["relative_clause"],"prompt":"The student ___ scored highest on the exam received a full scholarship.","options":["who","whom","whose","which"],"correctAnswer":0,"explanation":"'Who' refers to a person as the subject of the relative clause."},
+            {"id":"g7","type":"sentence_completion","difficulty":"A2","tags":["present_continuous"],"prompt":"She cannot come to the phone right now because she ___ a shower.","options":["takes","has taken","is taking","took"],"correctAnswer":2,"explanation":"Present continuous describes an action happening at the moment of speaking."},
+            {"id":"g8","type":"sentence_completion","difficulty":"B2","tags":["reported_speech"],"prompt":"The manager told his team that the project ___ completed by Friday.","options":["will be","would be","is","was"],"correctAnswer":1,"explanation":"In reported speech, 'will' shifts to 'would'."},
+            {"id":"g9","type":"sentence_completion","difficulty":"C1","tags":["subjunctive"],"prompt":"The doctor recommended that he ___ more water every day.","options":["drinks","drink","drank","drinking"],"correctAnswer":1,"explanation":"After 'recommend', use the base form (subjunctive mood)."},
+            {"id":"g10","type":"sentence_completion","difficulty":"B1","tags":["conditionals"],"prompt":"If she ___ more time, she would travel around the world.","options":["has","had","would have","have"],"correctAnswer":1,"explanation":"Second conditional: if + past simple in the if-clause."},
+            {"id":"g11","type":"sentence_completion","difficulty":"A2","tags":["superlatives"],"prompt":"This is ___ interesting book I have ever read.","options":["more","the most","most","the more"],"correctAnswer":1,"explanation":"Superlative adjectives require 'the most'."},
+            {"id":"g12","type":"sentence_completion","difficulty":"B1","tags":["present_perfect"],"prompt":"She ___ already submitted her application to three universities.","options":["has","have","is","was"],"correctAnswer":0,"explanation":"Present perfect with 'already': third-person singular uses 'has'."},
+            {"id":"g13","type":"sentence_completion","difficulty":"C1","tags":["inversion"],"prompt":"Not until he read the full report ___ the severity of the problem.","options":["he realized","did he realize","he did realize","realized he"],"correctAnswer":1,"explanation":"After negative adverbials like 'Not until', subject-auxiliary inversion is required."},
+            {"id":"g14","type":"error_detection","difficulty":"A2","tags":["subject_verb"],"prompt":"The news are very surprising to everyone in the community.","options":["news","are","surprising","community"],"correctAnswer":1,"explanation":"'News' is uncountable and takes a singular verb: 'is'."},
+            {"id":"g15","type":"error_detection","difficulty":"B1","tags":["pronoun_case"],"prompt":"My friend and me planned a trip to the mountains last summer.","options":["My friend","me","planned","mountains"],"correctAnswer":1,"explanation":"Subject of the verb requires subject pronoun: 'I', not 'me'."},
+            {"id":"g16","type":"error_detection","difficulty":"B1","tags":["comparative"],"prompt":"This exercise is more easier than the one we did before.","options":["exercise","more easier","than","before"],"correctAnswer":1,"explanation":"'Easier' is already comparative; 'more' is redundant."},
+            {"id":"g17","type":"error_detection","difficulty":"A2","tags":["verb_form"],"prompt":"She have been working at this company since 2018.","options":["She","have been","working","since"],"correctAnswer":1,"explanation":"Third-person singular requires 'has been', not 'have been'."},
+            {"id":"g18","type":"error_detection","difficulty":"B2","tags":["conditionals"],"prompt":"If I would know the answer, I would tell you immediately.","options":["If","would know","would tell","immediately"],"correctAnswer":1,"explanation":"Second conditional if-clause requires past simple: 'knew', not 'would know'."},
+            {"id":"g19","type":"error_detection","difficulty":"B2","tags":["passive"],"prompt":"The announcement will announced at tomorrow's press conference.","options":["announcement","will announced","tomorrow's","conference"],"correctAnswer":1,"explanation":"Passive voice requires auxiliary 'be': 'will be announced'."},
+            {"id":"g20","type":"error_detection","difficulty":"A2","tags":["articles"],"prompt":"He is best student in the entire class.","options":["He","best","student","class"],"correctAnswer":1,"explanation":"Superlative adjectives require the definite article: 'the best student'."},
+            {"id":"g21","type":"error_detection","difficulty":"A2","tags":["prepositions"],"prompt":"She arrived to the conference center before anyone else.","options":["arrived","to","conference center","anyone"],"correctAnswer":1,"explanation":"Use 'at' with specific locations: 'arrived at', not 'arrived to'."},
+            {"id":"g22","type":"error_detection","difficulty":"B1","tags":["modals"],"prompt":"You don't must eat or drink inside the library.","options":["You","don't must","eat or drink","library"],"correctAnswer":1,"explanation":"Prohibition is expressed with 'must not' or 'mustn't', not 'don't must'."},
+            {"id":"g23","type":"error_detection","difficulty":"B2","tags":["parallelism"],"prompt":"She spends her weekends reading, cooking, and to paint.","options":["weekends","reading","cooking","to paint"],"correctAnswer":3,"explanation":"Parallel structure requires the gerund: 'painting', not the infinitive 'to paint'."},
+            {"id":"g24","type":"error_detection","difficulty":"B1","tags":["word_order"],"prompt":"I do not understand what does he mean by that comment.","options":["do not understand","what","does he mean","comment"],"correctAnswer":2,"explanation":"Indirect questions use statement word order: 'what he means', not 'what does he mean'."},
+            {"id":"g25","type":"error_detection","difficulty":"C1","tags":["prepositions"],"prompt":"Despite of the heavy traffic, she arrived at the meeting on time.","options":["Despite","of","heavy traffic","meeting"],"correctAnswer":1,"explanation":"'Despite' does not take 'of'; use 'despite' alone or 'in spite of'."}
+          ]
+        },
+        "listening": {
+          "timeLimit": 380,
+          "weight": 0.2,
+          "items": [
+            {
+              "id": "l1",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation one. Student: Excuse me, when does the library close today? Librarian: The library closes at nine o'clock tonight. But remember, it closes at six on weekends.",
+              "questions": [
+                {"id":"l1q1","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What time does the library close today?","options":["Six o'clock","Eight o'clock","Nine o'clock","Ten o'clock"],"correctAnswer":2,"explanation":"The librarian says the library closes at nine o'clock tonight."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l2",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation two. Man: Excuse me, I am looking for Professor Martinez's office. Woman: She moved to the second floor last month. Her office is now room 214.",
+              "questions": [
+                {"id":"l2q2","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"Where is Professor Martinez's office now?","options":["Room 241 on the first floor","Room 214 on the second floor","Room 124 on the third floor","Room 412 on the ground floor"],"correctAnswer":1,"explanation":"The woman says the office moved to room 214 on the second floor."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l3",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation three. Student A: Are you going to the career fair next Thursday? Student B: I already registered. I hope to meet some recruiters from the technology sector.",
+              "questions": [
+                {"id":"l3q3","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does Student B say about the career fair?","options":["She has not decided to attend yet","She has already registered and hopes to meet recruiters","She is organizing the event","She missed the registration deadline"],"correctAnswer":1,"explanation":"Student B says she already registered and hopes to meet technology sector recruiters."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l4",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation four. Man: Do you need help choosing a course for next semester? Woman: Yes, I am thinking about environmental science or international relations. Man: Both are excellent choices. Environmental science involves more lab work.",
+              "questions": [
+                {"id":"l4q4","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the man say about environmental science?","options":["It is the most popular course on campus","It involves more lab work than the other option","It is easier than international relations","It does not require any lab sessions"],"correctAnswer":1,"explanation":"The man says environmental science involves more lab work."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l5",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.94,
+              "transcript": "Long conversation. Student A: I am really struggling with the presentation for our sociology class. Student B: What is the problem? Student A: I am not sure how to organize all the data we collected from the survey. Student B: You should start with the main findings and then explain each one with specific examples. Student A: That sounds helpful. Should we use slides? Student B: Definitely. Keep them simple and do not put too much text. Student A: How long should the presentation be? Student B: Professor Chen said ten to fifteen minutes. We should practice at least twice before Thursday.",
+              "questions": [
+                {"id":"l5q5","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"Why is Student A talking to Student B?","options":["To invite them to a party","To ask for help with a class presentation","To discuss their exam results","To borrow class notes"],"correctAnswer":1,"explanation":"Student A is struggling with organizing their sociology presentation and seeks advice."},
+                {"id":"l5q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What does Student B suggest about the slides?","options":["Use many detailed charts and graphs","Keep them simple without too much text","Avoid using slides altogether","Use only photographs"],"correctAnswer":1,"explanation":"Student B says to keep slides simple and avoid putting too much text on them."},
+                {"id":"l5q7","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"How long should the presentation be according to Professor Chen?","options":["Five to eight minutes","Eight to twelve minutes","Ten to fifteen minutes","Fifteen to twenty minutes"],"correctAnswer":2,"explanation":"Student B says Professor Chen specified ten to fifteen minutes."},
+                {"id":"l5q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What will the students most likely do before Thursday?","options":["Cancel the presentation","Practice the presentation at least twice","Submit a written report instead","Ask the professor for more time"],"correctAnswer":1,"explanation":"Student B says they should practice at least twice before Thursday."}
+              ],
+              "answerTimeLimit": 120
+            },
+            {
+              "id": "l6",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.93,
+              "transcript": "Lecture. Professor: Good morning everyone. Today we will discuss the impact of urbanization on biodiversity. As cities expand, natural habitats are destroyed or fragmented, making it difficult for many species to survive. However, some research suggests that well-planned urban green spaces, such as parks and rooftop gardens, can support a surprising variety of wildlife. Certain bird species, insects, and small mammals have adapted to urban environments and, in some cases, even thrive there. Scientists argue that city planners should consider ecological connectivity when designing new developments. This means creating corridors of green space that allow animals to move between habitat areas. Without such planning, urban expansion continues to be one of the main drivers of species loss worldwide.",
+              "questions": [
+                {"id":"l6q9","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the lecture mainly about?","options":["How to build more parks in cities","The effects of urbanization on biodiversity","Why some animals migrate to warmer climates","How cities prevent flooding"],"correctAnswer":1,"explanation":"The lecture discusses how urban expansion affects biodiversity and possible solutions."},
+                {"id":"l6q10","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What does research suggest about urban green spaces?","options":["They are too expensive to maintain","They can support a variety of wildlife","They are harmful to native plant species","They significantly reduce city temperatures"],"correctAnswer":1,"explanation":"The professor says research suggests well-planned green spaces can support wildlife."},
+                {"id":"l6q11","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor imply city planners should do?","options":["Stop approving new construction projects","Build taller buildings to conserve land","Include green corridors in urban designs","Focus solely on human population needs"],"correctAnswer":2,"explanation":"The professor says planners should consider ecological connectivity, meaning green corridors in development plans."},
+                {"id":"l6q12","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What are ecological corridors?","options":["Roads designed to reduce city traffic","Green pathways allowing animals to move between habitats","Underground tunnels built for commuters","Areas reserved exclusively for urban farming"],"correctAnswer":1,"explanation":"The professor defines corridors as green spaces that allow animals to move between habitat areas."},
+                {"id":"l6q13","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'fragmented' in the lecture is closest in meaning to:","options":["greatly expanded","broken into separate pieces","carefully protected","fully connected"],"correctAnswer":1,"explanation":"'Fragmented' means divided or broken into disconnected pieces."},
+                {"id":"l6q14","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor imply about urban expansion without ecological planning?","options":["It benefits local wildlife over time","It is slowing down in most countries","It contributes to the loss of species","It improves overall urban biodiversity"],"correctAnswer":2,"explanation":"The professor states that without proper planning, urban expansion is one of the main drivers of species loss."}
+              ],
+              "answerTimeLimit": 180
+            }
+          ]
+        },
+        "reading": {
+          "timeLimit": 1200,
+          "weight": 0.2,
+          "passages": [
+            {
+              "id": "r1",
+              "title": "Urban Farming and Food Security",
+              "text": "Urban farming — growing food in cities — has expanded rapidly in recent decades. Rooftop gardens, vertical farms, and community plots have emerged as responses to concerns about food security and the environmental impact of transporting food over long distances.\n\nSupporters of urban farming argue that it reduces dependence on large agricultural operations and allows city residents to access fresher produce. Some research suggests that locally grown food retains more nutrients than food that has traveled hundreds of miles before reaching the consumer.\n\nCritics, however, point out that urban farms currently produce only a small fraction of the food needed to sustain city populations. Land in cities is expensive, and the cost of setting up and maintaining urban farms can be high. Others argue that traditional agriculture remains more efficient for large-scale production.\n\nDespite these challenges, many urban governments are investing in food-growing initiatives as part of broader sustainability efforts. Whether urban farming will become a significant part of the food supply remains to be seen.",
+              "questions": [
+                {"id":"r1q1","type":"main_idea","difficulty":"A2","tags":["main_idea"],"prompt":"What is the passage mainly about?","options":["A new type of city restaurant","Urban farming and its advantages and challenges","How to grow plants indoors without sunlight","Why cities are experiencing food shortages"],"correctAnswer":1,"explanation":"The passage presents urban farming from multiple perspectives, discussing both benefits and drawbacks."},
+                {"id":"r1q2","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What do supporters of urban farming claim?","options":["It is always cheaper than traditional farming","It reduces dependence on large farms and provides fresher food","It already produces most of a city's food supply","It completely eliminates transportation costs"],"correctAnswer":1,"explanation":"Supporters say urban farming reduces dependence on large operations and offers fresher produce."},
+                {"id":"r1q3","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred from the critics' arguments?","options":["Urban farming is not worth pursuing at all","Urban farming alone cannot currently feed a city","Traditional agriculture is rapidly disappearing","City land is becoming more affordable"],"correctAnswer":1,"explanation":"Critics note that urban farms produce only a small fraction of what cities need, implying they cannot feed whole populations alone."},
+                {"id":"r1q4","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'sustain' in the passage is closest in meaning to:","options":["reduce","support","inspect","ignore"],"correctAnswer":1,"explanation":"'Sustain' means to maintain or support over time."}
+              ]
+            },
+            {
+              "id": "r2",
+              "title": "The History of Vaccination",
+              "text": "Vaccination is one of the most effective public health tools ever developed. The practice of introducing weakened or inactive forms of a pathogen into the body to stimulate an immune response dates back centuries. Early forms of immunization were recorded in China and the Ottoman Empire before the concept reached Europe.\n\nThe English physician Edward Jenner is often credited with pioneering modern vaccination in the late eighteenth century. [A] Jenner noticed that milkmaids who had contracted cowpox appeared to be protected against the more dangerous smallpox. By introducing material from a cowpox lesion into a healthy person, he demonstrated that protection could be achieved. [B]\n\nThe development of vaccines accelerated dramatically in the twentieth century, leading to the control or elimination of diseases such as polio, measles, and smallpox. [C] The World Health Organization declared smallpox eradicated in 1980, representing the first infectious disease to be eliminated through a global vaccination campaign. [D]\n\nToday, global vaccination programs continue to prevent millions of deaths each year, and ongoing research is expanding the range of diseases for which effective vaccines are available.",
+              "questions": [
+                {"id":"r2q5","type":"summary","difficulty":"B1","tags":["summary"],"prompt":"Which statement best summarizes the passage?","options":["Vaccines are no longer necessary in the modern world","Vaccination has a long history and has saved millions of lives","Vaccines were first invented in the twentieth century","Smallpox remains a major global health threat today"],"correctAnswer":1,"explanation":"The passage traces vaccination from ancient practices to its modern global impact."},
+                {"id":"r2q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What was Edward Jenner's key observation?","options":["That smallpox was more common than cowpox","That milkmaids who had cowpox appeared immune to smallpox","That vaccination was already common in ancient China","That polio could be prevented through a specific diet"],"correctAnswer":1,"explanation":"Jenner observed that milkmaids who had contracted cowpox seemed protected against smallpox."},
+                {"id":"r2q7","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"When did the World Health Organization declare smallpox eradicated?","options":["1960","1970","1980","1990"],"correctAnswer":2,"explanation":"The passage states the WHO declared smallpox eradicated in 1980."},
+                {"id":"r2q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the passage imply about modern vaccination research?","options":["It has stopped because most diseases are under control","It is expanding to cover more diseases","It focuses primarily on smallpox prevention","It has failed to produce effective new vaccines"],"correctAnswer":1,"explanation":"The final paragraph states that research is expanding the range of diseases for which vaccines are available."},
+                {"id":"r2q9","type":"vocabulary","difficulty":"B2","tags":["vocabulary"],"prompt":"The word 'eradicated' in the passage is closest in meaning to:","options":["managed temporarily","studied carefully","completely eliminated","partially controlled"],"correctAnswer":2,"explanation":"'Eradicated' means completely destroyed or eliminated."},
+                {"id":"r2q10","type":"insert_sentence","difficulty":"C1","tags":["coherence","organization"],"prompt":"Where would this sentence most logically appear? 'This discovery laid the groundwork for the science of immunology.'","options":["A","B","C","D"],"correctAnswer":1,"explanation":"After Jenner demonstrated that protection could be achieved [B], it is logical to note that this discovery founded the science of immunology."}
+              ]
+            }
+          ]
+        },
+        "writing": {
+          "timeLimit": 1500,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "w1",
+              "type": "informal_note",
+              "minWords": 50,
+              "maxWords": 75,
+              "recommendedTime": 300,
+              "prompt": "You are going on a two-week vacation and need someone to check on your apartment. Write a note to your neighbor asking them to look after your apartment and water your plants while you are away."
+            },
+            {
+              "id": "w2",
+              "type": "opinion_essay",
+              "minWords": 175,
+              "maxWords": 250,
+              "recommendedTime": 1200,
+              "prompt": "Some people believe that university education should be free for all students, while others think students should pay for their own education. In your opinion, should university education be free? Support your answer with reasons and examples."
+            }
+          ]
+        },
+        "speaking": {
+          "timeLimit": 240,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "s1",
+              "type": "personal_response",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Describe a time when you had to solve a difficult problem. What was the problem, and how did you resolve it? Give specific details and examples."
+            },
+            {
+              "id": "s2",
+              "type": "integrated_opinion",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Some people prefer to shop online, while others prefer to shop in physical stores. Which do you prefer and why? Consider the advantages and disadvantages of both options."
             }
           ]
         }
