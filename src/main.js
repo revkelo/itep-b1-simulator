@@ -491,13 +491,22 @@ function startTimer(sec) {
   state.timerId = setInterval(() => {
     state.sectionRemaining -= 1;
     const el = document.getElementById("timer");
-    if (el) el.textContent = formatTimer(state.sectionRemaining);
+    if (el) {
+      if (state.mode === "study") {
+        el.textContent = formatWritingTimer(state.sectionRemaining);
+        if (state.sectionRemaining < 0) el.classList.add("danger");
+        else el.classList.remove("danger");
+      } else {
+        el.textContent = formatTimer(state.sectionRemaining);
+        if (state.sectionRemaining <= 60) el.classList.add("danger");
+      }
+    }
     const wpt = document.getElementById("writing-part-timer");
-    if (wpt && sectionName() === "writing" && state.writingPartIndex === 1) {
+    if (wpt && sectionName() === "writing" && state.mode === "exam" && state.writingPartIndex === 1) {
       wpt.textContent = formatTimer(state.sectionRemaining);
       if (state.sectionRemaining <= 60) wpt.classList.add("danger");
     }
-    if (state.sectionRemaining <= 0) nextSection();
+    if (state.sectionRemaining <= 0 && state.mode === "exam") nextSection();
   }, 1000);
 }
 
@@ -589,8 +598,7 @@ function startPendingSection() {
   state.sectionIndex = state.pendingSectionIndex;
   state.view = "exam";
   stopWritingPartTimer();
-  if (state.mode === "exam") startTimer(sectionData().timeLimit);
-  else stopTimer();
+  startTimer(sectionData().timeLimit);
   if (sectionName() === "writing") {
     const p = sectionData().prompts[state.writingPartIndex];
     startWritingPartTimer(p.recommendedTime, state.mode === "exam" && state.writingPartIndex === 0);
@@ -620,8 +628,7 @@ function prevSection() {
   state.sectionIndex -= 1;
   stopWritingPartTimer();
   state.view = "exam";
-  if (state.mode === "exam") startTimer(sectionData().timeLimit);
-  else stopTimer();
+  startTimer(sectionData().timeLimit);
   render();
 }
 
@@ -1068,7 +1075,7 @@ function render() {
       </article>
       <article class="mode-card study-card">
         <h3>Study Mode</h3>
-        <p>No section timer and instant feedback after each answer.</p>
+        <p>Suggested timers (no auto-advance) and instant feedback after each answer.</p>
         <button class="btn lnd-btn" data-action="start-study" ${state.generatingExam ? "disabled" : ""}>Start Study Mode</button>
       </article>
     </div>
@@ -1093,7 +1100,7 @@ function render() {
 
   const sn = sectionName();
   const progress = Math.round(((state.sectionIndex + 1) / state.sectionOrder.length) * 100);
-  app.innerHTML = `<main class="itep-shell"><header class="itep-header"><div class="logo-pill">iTEP</div><div><h1>${sn[0].toUpperCase() + sn.slice(1)}</h1><p>Academic-Plus</p></div><button class="help-btn">${state.mode === "study" ? "Study Mode" : "Exam Mode"}</button></header><section class="instruction-bar">${state.mode === "study" ? "Study mode: answer and review feedback below each question." : "Follow iTEP rules for this section."}</section><div class="main-stage">${renderExamBody()}</div><footer class="itep-footer"><div class="status"><div><strong>${state.sectionIndex + 1}/${state.sectionOrder.length}</strong><span>Section</span></div><div><strong id="timer" class="${state.sectionRemaining <= 60 ? "danger" : ""}">${state.mode === "study" ? "--:--" : formatTimer(state.sectionRemaining)}</strong><span>${state.mode === "study" ? "Timer Off" : "Time Left"}</span></div></div><div class="nav"><button class="btn" data-action="prev-question" ${sn === "listening" || (sn === "writing" && state.mode === "exam") ? "disabled" : ""}>Back</button><button class="btn primary" data-action="next-question">Next</button></div><div class="nav"><button class="btn" data-action="prev-section" ${state.sectionIndex === 0 ? "disabled" : ""}>Prev Section</button><button class="btn primary" data-action="next-section">${state.sectionIndex === state.sectionOrder.length - 1 ? "Review" : "Next Section"}</button></div></footer><div class="progress"><span style="width:${progress}%"></span></div></main>`;
+  app.innerHTML = `<main class="itep-shell"><header class="itep-header"><div class="logo-pill">iTEP</div><div><h1>${sn[0].toUpperCase() + sn.slice(1)}</h1><p>Academic-Plus</p></div><button class="help-btn">${state.mode === "study" ? "Study Mode" : "Exam Mode"}</button></header><section class="instruction-bar">${state.mode === "study" ? "Study mode: answer and review feedback below each question." : "Follow iTEP rules for this section."}</section><div class="main-stage">${renderExamBody()}</div><footer class="itep-footer"><div class="status"><div><strong>${state.sectionIndex + 1}/${state.sectionOrder.length}</strong><span>Section</span></div><div><strong id="timer" class="${(state.mode === "exam" && state.sectionRemaining <= 60) || (state.mode === "study" && state.sectionRemaining < 0) ? "danger" : ""}">${state.mode === "study" ? formatWritingTimer(state.sectionRemaining) : formatTimer(state.sectionRemaining)}</strong><span>${state.mode === "study" ? "Suggested" : "Time Left"}</span></div></div><div class="nav"><button class="btn" data-action="prev-question" ${sn === "listening" || (sn === "writing" && state.mode === "exam") ? "disabled" : ""}>Back</button><button class="btn primary" data-action="next-question">Next</button></div><div class="nav"><button class="btn" data-action="prev-section" ${state.sectionIndex === 0 ? "disabled" : ""}>Prev Section</button><button class="btn primary" data-action="next-section">${state.sectionIndex === state.sectionOrder.length - 1 ? "Review" : "Next Section"}</button></div></footer><div class="progress"><span style="width:${progress}%"></span></div></main>`;
 }
 
 function navQuestion(dir) {
