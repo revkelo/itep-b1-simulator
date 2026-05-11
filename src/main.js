@@ -15,6 +15,8 @@ const state = {
   sectionTransitionLabel: "",
   questionIndexes: { grammar: 0, listening: 0, reading: 0 },
   writingPartIndex: 0,
+  writingPartRemaining: 0,
+  writingPartTimerId: null,
   speakingPartIndex: 0,
   answers: {},
   writingTexts: {},
@@ -490,6 +492,11 @@ function startTimer(sec) {
     state.sectionRemaining -= 1;
     const el = document.getElementById("timer");
     if (el) el.textContent = formatTimer(state.sectionRemaining);
+    const wpt = document.getElementById("writing-part-timer");
+    if (wpt && sectionName() === "writing" && state.writingPartIndex === 1) {
+      wpt.textContent = formatTimer(state.sectionRemaining);
+      if (state.sectionRemaining <= 60) wpt.classList.add("danger");
+    }
     if (state.sectionRemaining <= 0) nextSection();
   }, 1000);
 }
@@ -506,6 +513,41 @@ function formatTimer(sec) {
   return `${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}`;
 }
 
+function formatWritingTimer(sec) {
+  const abs = Math.abs(sec);
+  const m = Math.floor(abs / 60);
+  const s = abs % 60;
+  const str = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return sec < 0 ? `-${str}` : str;
+}
+
+function startWritingPartTimer(sec, autoAdvance) {
+  stopWritingPartTimer();
+  state.writingPartRemaining = sec;
+  state.writingPartTimerId = setInterval(() => {
+    state.writingPartRemaining -= 1;
+    const el = document.getElementById("writing-part-timer");
+    if (el) {
+      el.textContent = formatWritingTimer(state.writingPartRemaining);
+      if (state.writingPartRemaining < 0) el.classList.add("danger");
+      else el.classList.remove("danger");
+    }
+    if (autoAdvance && state.writingPartRemaining <= 0) {
+      stopWritingPartTimer();
+      state.writingPartIndex = 1;
+      if (state.mode === "study") {
+        startWritingPartTimer(sectionData().prompts[1].recommendedTime, false);
+      }
+      render();
+    }
+  }, 1000);
+}
+
+function stopWritingPartTimer() {
+  if (state.writingPartTimerId) clearInterval(state.writingPartTimerId);
+  state.writingPartTimerId = null;
+}
+
 function resetAttemptState() {
   state.answers = {};
   state.writingTexts = {};
@@ -519,6 +561,7 @@ function resetAttemptState() {
   state.writingEvaluation = {};
   state.questionIndexes = { grammar: 0, listening: 0, reading: 0 };
   state.writingPartIndex = 0;
+  state.writingPartRemaining = 0;
   state.speakingPartIndex = 0;
   state.speakingStatus = "idle";
   state.speakingAutoStartedFor = "";
@@ -545,8 +588,13 @@ function startExam(mode = "exam") {
 function startPendingSection() {
   state.sectionIndex = state.pendingSectionIndex;
   state.view = "exam";
+  stopWritingPartTimer();
   if (state.mode === "exam") startTimer(sectionData().timeLimit);
   else stopTimer();
+  if (sectionName() === "writing") {
+    const p = sectionData().prompts[state.writingPartIndex];
+    startWritingPartTimer(p.recommendedTime, state.mode === "exam" && state.writingPartIndex === 0);
+  }
   saveState();
   render();
 }
@@ -554,10 +602,12 @@ function startPendingSection() {
 function nextSection() {
   if (state.sectionIndex >= state.sectionOrder.length - 1) {
     stopTimer();
+    stopWritingPartTimer();
     state.view = "review";
     return render();
   }
   stopTimer();
+  stopWritingPartTimer();
   state.pendingSectionIndex = state.sectionIndex + 1;
   const n = state.sectionOrder[state.pendingSectionIndex];
   state.sectionTransitionLabel = `Section completed. Start ${n[0].toUpperCase() + n.slice(1)}.`;
@@ -568,6 +618,7 @@ function nextSection() {
 function prevSection() {
   if (state.sectionIndex === 0) return;
   state.sectionIndex -= 1;
+  stopWritingPartTimer();
   state.view = "exam";
   if (state.mode === "exam") startTimer(sectionData().timeLimit);
   else stopTimer();
@@ -634,7 +685,17 @@ function renderWriting() {
   const value = state.writingTexts[p.id] || "";
   const words = (value.trim().match(/\S+/g) || []).length;
   const writingPart = state.writingPartIndex === 0 ? "Part 1 (Short Note)" : "Part 2 (Essay)";
-  return `<section class="panel"><h3>Writing - ${writingPart}</h3><p class="prompt">${esc(p.prompt)}</p><textarea id="writing-input" data-pid="${p.id}" spellcheck="true">${esc(value)}</textarea><p id="writing-counter" class="muted">Words: ${words} | min ${p.minWords}${p.maxWords ? ` | max ${p.maxWords}` : ""}</p></section>`;
+  let timerHtml = "";
+  if (state.mode === "exam" && state.writingPartIndex === 0) {
+    const rem = state.writingPartRemaining;
+    timerHtml = `<p class="muted">Part 1 Time: <strong id="writing-part-timer" class="${rem <= 60 ? "danger" : ""}">${formatTimer(Math.max(0, rem))}</strong></p>`;
+  } else if (state.mode === "exam" && state.writingPartIndex === 1) {
+    timerHtml = `<p class="muted">Section Time Left: <strong id="writing-part-timer" class="${state.sectionRemaining <= 60 ? "danger" : ""}">${formatTimer(state.sectionRemaining)}</strong></p>`;
+  } else if (state.mode === "study") {
+    const rem = state.writingPartRemaining;
+    timerHtml = `<p class="muted">Suggested Time: <strong id="writing-part-timer" class="${rem < 0 ? "danger" : ""}">${formatWritingTimer(rem)}</strong></p>`;
+  }
+  return `<section class="panel"><h3>Writing - ${writingPart}</h3>${timerHtml}<p class="prompt">${esc(p.prompt)}</p><textarea id="writing-input" data-pid="${p.id}" spellcheck="true">${esc(value)}</textarea><p id="writing-counter" class="muted">Words: ${words} | min ${p.minWords}${p.maxWords ? ` | max ${p.maxWords}` : ""}</p></section>`;
 }
 
 async function startRecording() {
@@ -1032,7 +1093,7 @@ function render() {
 
   const sn = sectionName();
   const progress = Math.round(((state.sectionIndex + 1) / state.sectionOrder.length) * 100);
-  app.innerHTML = `<main class="itep-shell"><header class="itep-header"><div class="logo-pill">iTEP</div><div><h1>${sn[0].toUpperCase() + sn.slice(1)}</h1><p>Academic-Plus</p></div><button class="help-btn">${state.mode === "study" ? "Study Mode" : "Exam Mode"}</button></header><section class="instruction-bar">${state.mode === "study" ? "Study mode: answer and review feedback below each question." : "Follow iTEP rules for this section."}</section><div class="main-stage">${renderExamBody()}</div><footer class="itep-footer"><div class="status"><div><strong>${state.sectionIndex + 1}/${state.sectionOrder.length}</strong><span>Section</span></div><div><strong id="timer" class="${state.sectionRemaining <= 60 ? "danger" : ""}">${state.mode === "study" ? "--:--" : formatTimer(state.sectionRemaining)}</strong><span>${state.mode === "study" ? "Timer Off" : "Time Left"}</span></div></div><div class="nav"><button class="btn" data-action="prev-question" ${sn === "listening" ? "disabled" : ""}>Back</button><button class="btn primary" data-action="next-question">Next</button></div><div class="nav"><button class="btn" data-action="prev-section" ${state.sectionIndex === 0 ? "disabled" : ""}>Prev Section</button><button class="btn primary" data-action="next-section">${state.sectionIndex === state.sectionOrder.length - 1 ? "Review" : "Next Section"}</button></div></footer><div class="progress"><span style="width:${progress}%"></span></div></main>`;
+  app.innerHTML = `<main class="itep-shell"><header class="itep-header"><div class="logo-pill">iTEP</div><div><h1>${sn[0].toUpperCase() + sn.slice(1)}</h1><p>Academic-Plus</p></div><button class="help-btn">${state.mode === "study" ? "Study Mode" : "Exam Mode"}</button></header><section class="instruction-bar">${state.mode === "study" ? "Study mode: answer and review feedback below each question." : "Follow iTEP rules for this section."}</section><div class="main-stage">${renderExamBody()}</div><footer class="itep-footer"><div class="status"><div><strong>${state.sectionIndex + 1}/${state.sectionOrder.length}</strong><span>Section</span></div><div><strong id="timer" class="${state.sectionRemaining <= 60 ? "danger" : ""}">${state.mode === "study" ? "--:--" : formatTimer(state.sectionRemaining)}</strong><span>${state.mode === "study" ? "Timer Off" : "Time Left"}</span></div></div><div class="nav"><button class="btn" data-action="prev-question" ${sn === "listening" || (sn === "writing" && state.mode === "exam") ? "disabled" : ""}>Back</button><button class="btn primary" data-action="next-question">Next</button></div><div class="nav"><button class="btn" data-action="prev-section" ${state.sectionIndex === 0 ? "disabled" : ""}>Prev Section</button><button class="btn primary" data-action="next-section">${state.sectionIndex === state.sectionOrder.length - 1 ? "Review" : "Next Section"}</button></div></footer><div class="progress"><span style="width:${progress}%"></span></div></main>`;
 }
 
 function navQuestion(dir) {
@@ -1051,9 +1112,20 @@ function navQuestion(dir) {
     state.questionIndexes.reading = Math.max(0, Math.min(max, state.questionIndexes.reading + dir));
   }
   if (sn === "writing") {
-    if (dir < 0) return;
+    if (dir < 0 && state.mode === "exam") return;
     const max = sectionData().prompts.length - 1;
-    state.writingPartIndex = Math.max(0, Math.min(max, state.writingPartIndex + 1));
+    const newIdx = Math.max(0, Math.min(max, state.writingPartIndex + dir));
+    if (newIdx !== state.writingPartIndex) {
+      state.writingPartIndex = newIdx;
+      const pNew = sectionData().prompts[newIdx];
+      if (state.mode === "exam" && newIdx === 0) {
+        startWritingPartTimer(pNew.recommendedTime, true);
+      } else if (state.mode === "study") {
+        startWritingPartTimer(pNew.recommendedTime, false);
+      } else {
+        stopWritingPartTimer();
+      }
+    }
   }
   if (sn === "speaking") {
     if (dir < 0) return;
