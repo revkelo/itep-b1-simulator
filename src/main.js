@@ -791,7 +791,7 @@ async function startActualRecording(p) {
     const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
     // Give SpeechRecognition time to fire its final onresult before reading the transcript
     await new Promise((r) => setTimeout(r, 600));
-    const transcript = (state.speakingTranscripts[p.id] || state.speakingTranscript || "").trim();
+    let transcript = (state.speakingTranscripts[p.id] || state.speakingTranscript || "").trim();
     const note = (state.notes.speaking[p.id] || "").trim();
 
     if (blob.size === 0 && !transcript && !note) {
@@ -805,6 +805,16 @@ async function startActualRecording(p) {
       return render();
     }
 
+    // Fallback: if Web Speech API produced no transcript, use Groq Whisper
+    if (!transcript && blob.size > 0) {
+      const whisperText = await transcribeWithGroqWhisper(blob);
+      if (whisperText) {
+        transcript = whisperText;
+        state.speakingTranscripts[p.id] = transcript;
+        state.speakingTranscript = transcript;
+      }
+    }
+
     const url = URL.createObjectURL(blob);
     state.speakingAudioUrls[p.id] = url;
     const audio = document.getElementById("speaking-playback");
@@ -814,7 +824,7 @@ async function startActualRecording(p) {
     state.answers[p.id] = "[RECORDED]";
     state.speakingStatus = "done";
     saveState();
-    await promiseWithTimeout(evaluateSpeakingWithGroq(p), 12000, null);
+    await promiseWithTimeout(evaluateSpeakingWithGroq(p), 15000, null);
     // auto-advance to next speaking part if available
     const prompts = sectionData().prompts;
     if (state.speakingPartIndex < prompts.length - 1) {
@@ -827,6 +837,27 @@ async function startActualRecording(p) {
 
   rec.start();
   setTimeout(() => rec.stop(), p.speakTime * 1000);
+}
+
+async function transcribeWithGroqWhisper(blob) {
+  const key = import.meta.env.VITE_GROQ_API_KEY || "";
+  if (!key) return "";
+  try {
+    const form = new FormData();
+    form.append("file", blob, "recording.webm");
+    form.append("model", "whisper-large-v3");
+    form.append("language", "en");
+    const res = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}` },
+      body: form
+    });
+    if (!res.ok) return "";
+    const data = await res.json();
+    return data.text || "";
+  } catch {
+    return "";
+  }
 }
 
 async function evaluateSpeakingWithGroq(promptObj) {
@@ -1387,7 +1418,7 @@ app.addEventListener("click", async (e) => {
     }
     for (const sp of sPrompts) {
       if (state.speakingRecordings[sp.id] && !state.speakingEvaluation[sp.id]) {
-        jobs.push(promiseWithTimeout(evaluateSpeakingWithGroq(sp), 12000, null));
+        jobs.push(promiseWithTimeout(evaluateSpeakingWithGroq(sp), 20000, null));
       }
     }
     await Promise.allSettled(jobs);
