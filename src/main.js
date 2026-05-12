@@ -1340,11 +1340,6 @@ function handleTextInputs(e) {
 app.addEventListener("input", handleTextInputs);
 app.addEventListener("change", handleTextInputs);
 
-window.addEventListener("keydown", (e) => {
-  if (state.view !== "exam") return;
-  if (e.key === "ArrowRight") navQuestion(1);
-  if (e.key === "ArrowLeft") navQuestion(-1);
-});
 
 window.addEventListener("beforeunload", (e) => {
   e.preventDefault();
