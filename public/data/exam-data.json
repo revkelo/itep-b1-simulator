@@ -3,7 +3,7 @@
     "platform": "iTEP Practice Simulator",
     "version": "4.8",
     "level": "A1-C2",
-    "defaultTestId": "itep_practice_v_001",
+    "defaultTestId": "itep_practice_vi_001",
     "source": "Based on pdf-itep-practice-test-ii_compress.pdf"
   },
   "tests": [
@@ -806,6 +806,207 @@
               "prepTime": 45,
               "speakTime": 60,
               "prompt": "Some people believe that governments should prioritize economic growth even if it comes at the expense of environmental protection. Others argue that protecting the environment must come first. Which view do you support, and why? Consider both perspectives in your response."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "itep_practice_vi_001",
+      "title": "iTEP Practice Test VI",
+      "instructions": [
+        "This exam follows an iTEP-style format with five sections.",
+        "Complete sections in order and manage your time carefully.",
+        "Listening is forward-only and each audio can be played once.",
+        "Speaking allows one recording per task."
+      ],
+      "sections": {
+        "grammar": {
+          "timeLimit": 600,
+          "weight": 0.2,
+          "questions": [
+            {"id":"g1","type":"sentence_completion","difficulty":"A2","tags":["subject_verb"],"prompt":"There ____ a lot of students waiting outside the auditorium.","options":["is","are","be","were"],"correctAnswer":1,"explanation":"The subject 'a lot of students' is plural, requiring 'are'."},
+            {"id":"g2","type":"sentence_completion","difficulty":"B1","tags":["present_perfect"],"prompt":"I ____ her twice this week, but she hasn't replied yet.","options":["email","emailed","have emailed","was emailing"],"correctAnswer":2,"explanation":"Present perfect is used for actions within a period still ongoing ('this week')."},
+            {"id":"g3","type":"sentence_completion","difficulty":"A2","tags":["modals"],"prompt":"You ____ use your phone during the exam without prior permission.","options":["can","cannot","should","must"],"correctAnswer":1,"explanation":"'Cannot' expresses prohibition or lack of permission."},
+            {"id":"g4","type":"sentence_completion","difficulty":"B2","tags":["passive_perfect"],"prompt":"The bridge ____ for repairs before the storm hit last night.","options":["closes","was closed","had been closed","will close"],"correctAnswer":2,"explanation":"Past perfect passive ('had been + past participle') expresses an action completed before another past event."},
+            {"id":"g5","type":"sentence_completion","difficulty":"B1","tags":["unless"],"prompt":"We will cancel the event ____ at least fifty people register by Friday.","options":["if","unless","although","since"],"correctAnswer":1,"explanation":"'Unless' means 'except if' — the event is canceled if fifty people do NOT register."},
+            {"id":"g6","type":"sentence_completion","difficulty":"B2","tags":["causative"],"prompt":"She finally got her bicycle ____ after months of procrastinating.","options":["repair","repaired","repairing","to repair"],"correctAnswer":1,"explanation":"Causative 'get something done': get + object + past participle."},
+            {"id":"g7","type":"sentence_completion","difficulty":"C1","tags":["cleft_sentence"],"prompt":"It was the final paragraph ____ changed the entire meaning of the essay.","options":["that","which","what","who"],"correctAnswer":0,"explanation":"In a cleft sentence focusing on a thing, 'that' is the standard choice."},
+            {"id":"g8","type":"sentence_completion","difficulty":"B1","tags":["since_for"],"prompt":"She has been studying medicine ____ six years.","options":["since","for","during","ago"],"correctAnswer":1,"explanation":"Use 'for' with a duration (six years); 'since' is used with a point in time."},
+            {"id":"g9","type":"sentence_completion","difficulty":"B2","tags":["future_in_past"],"prompt":"He thought the conference ____ in Vienna, but it was moved to Berlin.","options":["will take place","would take place","takes place","has taken place"],"correctAnswer":1,"explanation":"'Would + base verb' expresses the future from a past perspective (future in the past)."},
+            {"id":"g10","type":"sentence_completion","difficulty":"A2","tags":["possessives"],"prompt":"Is this notebook ____? I found it on the floor of the classroom.","options":["your","yours","you","yourself"],"correctAnswer":1,"explanation":"Possessive pronouns (yours, mine, his, etc.) stand alone without a following noun."},
+            {"id":"g11","type":"sentence_completion","difficulty":"B1","tags":["enough"],"prompt":"The report was not detailed ____ for the board to make a final decision.","options":["enough","too","very","so"],"correctAnswer":0,"explanation":"'Enough' follows adjectives and adverbs: 'detailed enough'."},
+            {"id":"g12","type":"sentence_completion","difficulty":"C1","tags":["emphatic_do"],"prompt":"She ____ warn us about the risks, but we ignored her advice completely.","options":["does","did","had","was"],"correctAnswer":1,"explanation":"Emphatic 'did' stresses that a past action actually occurred: 'She did warn us'."},
+            {"id":"g13","type":"sentence_completion","difficulty":"C1","tags":["wish_past_perfect"],"prompt":"I wish I ____ the investment before the market crashed last year.","options":["sold","had sold","would sell","have sold"],"correctAnswer":1,"explanation":"'Wish + past perfect' expresses regret about a past action that cannot be changed."},
+            {"id":"g14","type":"error_detection","difficulty":"A2","tags":["comparative"],"prompt":"Her presentation was more better than I expected it to be.","options":["Her presentation","more better","than","I expected"],"correctAnswer":1,"explanation":"'Better' is already comparative; 'more' is redundant."},
+            {"id":"g15","type":"error_detection","difficulty":"B1","tags":["gerund_after_preposition"],"prompt":"The students are looking forward to meet the guest speaker next week.","options":["looking forward","to meet","guest speaker","next week"],"correctAnswer":1,"explanation":"'Look forward to' requires a gerund: 'to meeting'."},
+            {"id":"g16","type":"error_detection","difficulty":"B2","tags":["passive"],"prompt":"The report has wrote by three different researchers over two years.","options":["report","has wrote","three different","over two years"],"correctAnswer":1,"explanation":"Present perfect passive requires 'been + past participle': 'has been written'."},
+            {"id":"g17","type":"error_detection","difficulty":"A2","tags":["uncountable"],"prompt":"She needs to buy a new furniture for her apartment downtown.","options":["She needs","a new","furniture","apartment"],"correctAnswer":1,"explanation":"'Furniture' is uncountable and cannot take the indefinite article 'a': use 'some new furniture'."},
+            {"id":"g18","type":"error_detection","difficulty":"B1","tags":["conjunctions"],"prompt":"She studied hard, so she didn't pass the final exam.","options":["studied hard","so","didn't pass","the exam"],"correctAnswer":1,"explanation":"The ideas contrast each other; use 'but' or 'yet': 'She studied hard, but she didn't pass'."},
+            {"id":"g19","type":"error_detection","difficulty":"B2","tags":["modal_passive"],"prompt":"The samples must analyzed before the results can be published.","options":["samples","must analyzed","results","published"],"correctAnswer":1,"explanation":"Modal passive requires 'be + past participle': 'must be analyzed'."},
+            {"id":"g20","type":"error_detection","difficulty":"A2","tags":["past_continuous"],"prompt":"Yesterday, while I walk to the station, I saw an old friend.","options":["Yesterday","while I walk","to the station","I saw"],"correctAnswer":1,"explanation":"Past continuous is needed for the background action: 'while I was walking'."},
+            {"id":"g21","type":"error_detection","difficulty":"B1","tags":["verb_form"],"prompt":"He is used to live alone since moving to the new city last year.","options":["He is","used to live","since moving","new city"],"correctAnswer":1,"explanation":"'Be used to' requires a gerund: 'used to living', not the infinitive."},
+            {"id":"g22","type":"error_detection","difficulty":"B2","tags":["conditionals"],"prompt":"If I will finish early, I can help you with the presentation tomorrow.","options":["If","will finish","can help","presentation"],"correctAnswer":1,"explanation":"In first conditional if-clauses, use present simple, not 'will': 'If I finish'."},
+            {"id":"g23","type":"error_detection","difficulty":"C1","tags":["dangling_modifier"],"prompt":"Exhausted by the long journey, the hotel room was a welcome sight.","options":["Exhausted by","long journey","hotel room","welcome sight"],"correctAnswer":0,"explanation":"The participial phrase must refer to the subject. The hotel room wasn't exhausted; e.g., 'Exhausted by the journey, she found the hotel room a welcome sight'."},
+            {"id":"g24","type":"error_detection","difficulty":"C1","tags":["reported_speech"],"prompt":"The scientist announced that the new treatment proves effective in all trials.","options":["announced","that","proves","effective"],"correctAnswer":2,"explanation":"After a past reporting verb, the reported clause should use a past tense: 'had proved' or 'proved'."},
+            {"id":"g25","type":"error_detection","difficulty":"B2","tags":["gerund_infinitive"],"prompt":"She regrets to accept the offer without reading the contract first.","options":["She regrets","to accept","without reading","contract"],"correctAnswer":1,"explanation":"'Regret' referring to a past action takes a gerund: 'regrets accepting' — 'to accept' refers to future regret about something yet to happen."}
+          ]
+        },
+        "listening": {
+          "timeLimit": 380,
+          "weight": 0.2,
+          "items": [
+            {
+              "id": "l1",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation one. Student A: Are you joining the study group for the midterm? Student B: I signed up yesterday. We are meeting at the science library on Wednesday at seven.",
+              "questions": [
+                {"id":"l1q1","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"Where and when is the study group meeting?","options":["Main library on Tuesday at seven","Science library on Wednesday at seven","Campus café on Thursday at six","Student center on Wednesday at eight"],"correctAnswer":1,"explanation":"Student B says they are meeting at the science library on Wednesday at seven."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l2",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation two. Customer: I would like to return this jacket. I bought it ten days ago. Staff: Our policy allows exchanges within fourteen days, but we can only offer store credit, not a cash refund.",
+              "questions": [
+                {"id":"l2q2","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the staff member say about the return policy?","options":["Returns are not accepted after seven days","Only cash refunds are available","An exchange is possible but only as store credit","The customer must bring the original receipt"],"correctAnswer":2,"explanation":"The staff member says exchanges are possible within fourteen days but only as store credit, not cash."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l3",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation three. Student: I want to add a minor in data science. Is it too late to register? Advisor: The deadline is next Thursday. You will need my signature on the form before submitting it online.",
+              "questions": [
+                {"id":"l3q3","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What must the student do before submitting the form online?","options":["Pay a registration fee","Get the advisor's signature","Complete two prerequisite courses","Attend an orientation session"],"correctAnswer":1,"explanation":"The advisor says the student needs the advisor's signature on the form before submitting online."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l4",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation four. Woman: Did you get the email about the annual conference? Man: Yes, it says registration is free for employees but hotel costs are not covered. We have to book our own accommodation.",
+              "questions": [
+                {"id":"l4q4","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the man say about the annual conference?","options":["All employees must pay a registration fee","The company covers all travel and hotel costs","Registration is free but accommodation is not covered","The conference has been canceled this year"],"correctAnswer":2,"explanation":"The man says registration is free for employees but hotel costs are not covered and must be booked independently."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l5",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.94,
+              "transcript": "Long conversation. Student A: I am struggling with my research project on renewable energy adoption. I have the data but I am not sure how to present it. Student B: What kind of data did you collect? Student A: I surveyed two hundred households about their energy habits and attitudes toward solar panels. Student B: That is a solid sample. Have you considered using charts to present your findings visually? Student A: I was thinking about that. My professor said the analysis should focus on barriers to adoption, not just usage rates. Student B: That makes sense. You could group responses by income level and location. Those are usually the biggest factors. Student A: Good idea. Do you think I should include a section on policy recommendations? Student B: Definitely. That will make your project more practical. Include at least three specific recommendations based on your findings.",
+              "questions": [
+                {"id":"l5q5","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the conversation mainly about?","options":["Debating the benefits of solar energy","Discussing how to organize and present a research project","Planning a new survey for an ongoing study","Comparing energy policies in different countries"],"correctAnswer":1,"explanation":"Student A is seeking advice on how to organize and present data from a research project on renewable energy."},
+                {"id":"l5q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"How many households did Student A survey?","options":["One hundred","One hundred fifty","Two hundred","Two hundred fifty"],"correctAnswer":2,"explanation":"Student A says they surveyed two hundred households."},
+                {"id":"l5q7","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What did the professor say the analysis should focus on?","options":["Usage rates of renewable energy","Government funding for solar panels","Barriers to adoption","Cost comparisons between energy sources"],"correctAnswer":2,"explanation":"Student A reports that the professor said the analysis should focus on barriers to adoption."},
+                {"id":"l5q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What will Student A most likely do next based on the conversation?","options":["Repeat the survey with more participants","Reorganize the data by income level and location","Submit the project without further changes","Remove the section on solar panels from the project"],"correctAnswer":1,"explanation":"Student B suggests grouping responses by income level and location, and Student A responds positively, suggesting this is the logical next step."}
+              ],
+              "answerTimeLimit": 120
+            },
+            {
+              "id": "l6",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.93,
+              "transcript": "Lecture. Professor: Today we will discuss sustainable architecture, which involves designing buildings that minimize their environmental impact over their entire lifecycle. One core principle is energy efficiency, achieved through features such as insulation, triple-glazed windows, and solar panels integrated into the building's structure. Water conservation is another key element, with technologies like greywater recycling systems that reuse water from sinks and showers for toilet flushing and irrigation. Beyond technology, sustainable architecture also considers the social dimension of buildings, ensuring spaces are adaptable for different uses over time rather than requiring demolition and rebuilding. Critics sometimes argue that sustainable features increase construction costs significantly. However, research consistently shows that lower operating costs and government incentives offset the initial investment within eight to twelve years. As climate concerns intensify, sustainable design principles are increasingly being written into building codes around the world.",
+              "questions": [
+                {"id":"l6q9","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the lecture mainly about?","options":["How governments regulate the construction industry","Sustainable architecture, its principles, and its economic challenges","How solar panels are installed in modern buildings","Why traditional buildings are being demolished worldwide"],"correctAnswer":1,"explanation":"The lecture covers the principles of sustainable architecture, including energy efficiency, water conservation, social adaptability, and cost considerations."},
+                {"id":"l6q10","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What does a greywater recycling system do?","options":["It filters drinking water for residential use","It collects rainwater from rooftops for irrigation","It reuses water from sinks and showers for flushing and irrigation","It removes industrial pollutants from wastewater"],"correctAnswer":2,"explanation":"The professor says greywater recycling reuses water from sinks and showers for toilet flushing and irrigation."},
+                {"id":"l6q11","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor imply about the higher upfront cost of sustainable buildings?","options":["It makes sustainable buildings impractical for most projects","It is offset by long-term savings and government incentives","It is mainly caused by government regulations","It has prevented sustainable design from spreading globally"],"correctAnswer":1,"explanation":"The professor says lower operating costs and incentives offset the initial investment within eight to twelve years."},
+                {"id":"l6q12","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What is the social dimension of sustainable architecture according to the professor?","options":["Designing buildings affordable for all income levels","Making spaces adaptable for different uses over time","Creating green spaces within urban neighborhoods","Ensuring all building materials are sourced locally"],"correctAnswer":1,"explanation":"The professor says sustainable architecture ensures spaces are adaptable for different uses over time rather than requiring demolition."},
+                {"id":"l6q13","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'offset' in the lecture is closest in meaning to:","options":["increase significantly","eliminate entirely","compensate for","delay permanently"],"correctAnswer":2,"explanation":"'Offset' means to compensate for or balance out a cost or disadvantage with a corresponding benefit."},
+                {"id":"l6q14","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred about the future of sustainable architecture?","options":["It will remain a niche practice limited to wealthy clients","It is likely to become more widespread due to climate concerns and building codes","Governments are expected to reduce financial incentives for it","It will gradually replace all existing construction regulations"],"correctAnswer":1,"explanation":"The professor notes that sustainable design principles are increasingly being written into building codes worldwide, suggesting broader adoption ahead."}
+              ],
+              "answerTimeLimit": 180
+            }
+          ]
+        },
+        "reading": {
+          "timeLimit": 1200,
+          "weight": 0.2,
+          "passages": [
+            {
+              "id": "r1",
+              "title": "The Psychology of Motivation",
+              "text": "Motivation is a central topic in psychology, influencing how people set and pursue goals. Researchers broadly distinguish between two types: intrinsic motivation, which comes from within — driven by personal interest, curiosity, or satisfaction — and extrinsic motivation, which arises from external rewards or pressures such as grades, money, or recognition.\n\nStudies suggest that intrinsic motivation is generally associated with higher creativity, persistence, and overall well-being. When people engage in an activity because they find it genuinely interesting, they tend to explore it more deeply and perform better over time. In contrast, excessive reliance on external rewards can sometimes reduce intrinsic interest in a task — a phenomenon researchers call the 'overjustification effect'.\n\nHowever, the relationship between the two types is not always competitive. In many practical contexts, both forms of motivation work together. A student may initially study a subject because of a grade requirement but gradually develop genuine interest in the content. Educators and managers who understand this dynamic can design environments that support both types of motivation, fostering long-term engagement rather than short-term compliance.",
+              "questions": [
+                {"id":"r1q1","type":"main_idea","difficulty":"A2","tags":["main_idea"],"prompt":"What is the passage mainly about?","options":["Why grades are ineffective as motivation tools","The distinction between intrinsic and extrinsic motivation and their relationship","How to eliminate the use of external rewards in education","Why some people are naturally more motivated than others"],"correctAnswer":1,"explanation":"The passage explains intrinsic and extrinsic motivation, the overjustification effect, and how both types can work together."},
+                {"id":"r1q2","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What is the overjustification effect?","options":["The tendency to set goals that are too ambitious","The reduction in intrinsic interest caused by excessive external rewards","The difficulty of sustaining motivation over long periods","An increase in performance when rewards are removed"],"correctAnswer":1,"explanation":"The passage defines the overjustification effect as the reduction in intrinsic interest that can result from excessive reliance on external rewards."},
+                {"id":"r1q3","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred about well-designed learning or work environments?","options":["They rely entirely on grades or bonuses to motivate people","They discourage any form of external reward","They can support both intrinsic and extrinsic motivation","They focus mainly on fostering competition among participants"],"correctAnswer":2,"explanation":"The passage says educators and managers can design environments that support both types of motivation, implying effective environments address both."},
+                {"id":"r1q4","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'persistence' in the passage is closest in meaning to:","options":["natural talent","continued effort over time","specialized technical skill","immediate success in a task"],"correctAnswer":1,"explanation":"'Persistence' means continuing to work toward a goal despite difficulties or setbacks."}
+              ]
+            },
+            {
+              "id": "r2",
+              "title": "Coral Reefs and Climate Change",
+              "text": "Coral reefs are among the most biologically diverse ecosystems on Earth, providing habitat for approximately twenty-five percent of all marine species. Despite covering less than one percent of the ocean floor, they support fisheries that feed hundreds of millions of people and contribute billions of dollars to economies through tourism and coastal protection. [A]\n\nHowever, coral reefs are under severe threat. Rising ocean temperatures caused by climate change trigger a process called coral bleaching, in which corals expel the algae living in their tissues, turning white and becoming vulnerable to disease and death. [B] The Great Barrier Reef has experienced several mass bleaching events in recent decades.\n\nOcean acidification, a consequence of increasing carbon dioxide absorption by seawater, further weakens coral skeletons, making them more fragile and less able to recover from bleaching events. [C] Scientists warn that if global temperatures rise by more than 1.5 degrees Celsius above pre-industrial levels, most of the world's coral reefs may be permanently lost.\n\nConservation efforts include establishing marine protected areas, reducing local stressors such as overfishing and pollution, and developing coral restoration programs. [D] While these measures help, experts emphasize that long-term reef survival ultimately depends on reducing global greenhouse gas emissions.",
+              "questions": [
+                {"id":"r2q5","type":"summary","difficulty":"B1","tags":["summary"],"prompt":"Which statement best summarizes the passage?","options":["Coral reefs are already irreversibly damaged by climate change","Coral reefs are vital ecosystems facing serious threats from climate change and ocean acidification","Tourism is the main cause of coral reef destruction worldwide","Scientists have already found effective solutions to save all coral reefs"],"correctAnswer":1,"explanation":"The passage describes the ecological and economic importance of coral reefs, the threats they face, and the limitations of current conservation efforts."},
+                {"id":"r2q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What is coral bleaching?","options":["A natural seasonal color change in corals","A process in which corals expel their algae and turn white due to heat stress","A chemical treatment used to clean reefs of pollutants","A rapid growth phase triggered by warm water temperatures"],"correctAnswer":1,"explanation":"The passage defines coral bleaching as the process by which rising temperatures cause corals to expel their algae, turning white and becoming vulnerable."},
+                {"id":"r2q7","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What threat does ocean acidification specifically pose to corals?","options":["It reduces light penetration, limiting photosynthesis","It weakens coral skeletons, reducing their ability to recover","It increases the spread of disease among fish populations","It prevents new coral larvae from settling on reef surfaces"],"correctAnswer":1,"explanation":"The passage says ocean acidification weakens coral skeletons, making them more fragile and less able to recover from bleaching."},
+                {"id":"r2q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the passage imply about current conservation efforts?","options":["They are sufficient to guarantee reef survival without further changes","They are helpful but insufficient without reducing greenhouse gas emissions","They have been proven ineffective in recent scientific trials","They focus primarily on removing tourists from reef areas"],"correctAnswer":1,"explanation":"The passage says conservation measures help but experts emphasize that long-term survival 'ultimately depends on reducing greenhouse gas emissions'."},
+                {"id":"r2q9","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'fragile' in the passage is closest in meaning to:","options":["toxic","easily broken or damaged","transparent","rapidly growing"],"correctAnswer":1,"explanation":"'Fragile' means delicate and easily broken or damaged."},
+                {"id":"r2q10","type":"insert_sentence","difficulty":"C1","tags":["coherence","organization"],"prompt":"Where would this sentence most logically appear in the passage? 'These ecological and economic values make coral reef conservation a global priority.'","options":["A","B","C","D"],"correctAnswer":0,"explanation":"The sentence summarizes the importance of reefs — biodiversity, fisheries, and economy — established in the opening paragraph, making it a logical conclusion near [A] before the passage shifts to threats."}
+              ]
+            }
+          ]
+        },
+        "writing": {
+          "timeLimit": 1500,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "w1",
+              "type": "informal_note",
+              "minWords": 50,
+              "maxWords": 75,
+              "recommendedTime": 300,
+              "prompt": "Your friend helped you move to a new apartment last weekend. Write a note to your friend thanking them for their help and suggesting a specific way to return the favor."
+            },
+            {
+              "id": "w2",
+              "type": "opinion_essay",
+              "minWords": 175,
+              "maxWords": 250,
+              "recommendedTime": 1200,
+              "prompt": "Some people believe that learning to cook at home is an essential life skill that should be taught in schools. Others think that cooking is a personal choice and not something schools need to address. In your opinion, should cooking be a required subject in school? Support your answer with reasons and examples."
+            }
+          ]
+        },
+        "speaking": {
+          "timeLimit": 240,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "s1",
+              "type": "personal_response",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Describe a goal you set for yourself in the past and whether you achieved it. What challenges did you face, and what did you learn from the experience? Give specific details and examples."
+            },
+            {
+              "id": "s2",
+              "type": "integrated_opinion",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Some people think that space exploration is a waste of resources that should be spent solving problems on Earth. Others believe that space exploration is essential for humanity's future. Which view do you support, and why? Consider both perspectives in your response."
             }
           ]
         }
