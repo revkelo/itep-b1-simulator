@@ -384,12 +384,15 @@ function mergeWithFallbackSection(generatedTest, fallbackTest) {
 
   const hasGoodListening = Array.isArray(sec.listening?.items)
     && sec.listening.items.length === 6
-    && sec.listening.items.every((i) => (i?.transcript || "").trim().length > 20);
+    && sec.listening.items.slice(0, 4).every((i) => (i?.transcript || "").trim().length > 30)
+    && (sec.listening.items[4]?.transcript || "").trim().length > 200
+    && (sec.listening.items[5]?.transcript || "").trim().length > 300;
   if (!hasGoodListening) merged.sections.listening = cloneJson(fallback.listening);
 
   const hasGoodReading = Array.isArray(sec.reading?.passages)
     && sec.reading.passages.length === 2
-    && sec.reading.passages.every((p) => (p?.text || "").trim().length > 120);
+    && (sec.reading.passages[0]?.text || "").trim().length > 800
+    && (sec.reading.passages[1]?.text || "").trim().length > 1000;
   if (!hasGoodReading) merged.sections.reading = cloneJson(fallback.reading);
 
   const hasGoodWriting = Array.isArray(sec.writing?.prompts)
@@ -417,30 +420,88 @@ async function generateNewExamWithGroq() {
   state.generationMsg = "Generating new iTEP-style exam...";
   render();
 
+  const topicPool = [
+    "technology and daily life", "health and wellness", "education and careers",
+    "travel and culture", "environment and sustainability", "food and cooking",
+    "social media and communication", "arts and entertainment", "sports and hobbies",
+    "city life and transportation"
+  ];
+  const chosenTopics = topicPool.sort(() => Math.random() - 0.5).slice(0, 4);
+
   const schemaHint = {
     id: "string",
     title: "string",
     instructions: ["string"],
     sections: {
-      grammar: { timeLimit: 600, weight: 0.2, questions: [{ id: "g1", prompt: "string", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }] },
-      listening: { timeLimit: 380, weight: 0.2, items: [{ id: "l1", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "short dialogue", questions: [{ id: "l1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }], answerTimeLimit: 20 }, { id: "l5", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.94, transcript: "long conversation", questions: [{ id: "l5q5", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] }], answerTimeLimit: 120 }] },
-      reading: { timeLimit: 1200, weight: 0.2, passages: [{ id: "r1", title: "string", text: "long text", questions: [{ id: "r1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2|B1", tags: ["tag"] }] }] },
-      writing: { timeLimit: 1500, weight: 0.2, prompts: [{ id: "w1", prompt: "string", minWords: 50, maxWords: 75 }, { id: "w2", prompt: "string", minWords: 175, maxWords: 250 }] },
-      speaking: { timeLimit: 180, weight: 0.2, prompts: [{ id: "s1", prompt: "string", prepTime: 45, speakTime: 60 }, { id: "s2", prompt: "string", prepTime: 45, speakTime: 60 }] }
+      grammar: { timeLimit: 600, weight: 0.2, questions: [
+        { id: "g1", type: "sentence_completion", prompt: "She ___ to the store every day.", options: ["go", "goes", "going", "gone"], correctAnswer: 1, explanation: "Third person singular uses 'goes'.", difficulty: "A2", tags: ["verb_agreement"] },
+        { id: "g14", type: "error_detection", prompt: "She don't likes coffee in the morning.", options: ["She", "don't likes", "coffee", "in the morning"], correctAnswer: 1, explanation: "'Don't likes' should be 'doesn't like'.", difficulty: "B1", tags: ["negation"] }
+      ]},
+      listening: { timeLimit: 380, weight: 0.2, items: [
+        { id: "l1", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Are you coming to the party tonight? B: I'm not sure yet. I have a lot of work to finish.", questions: [{ id: "l1q1", prompt: "What is the woman unsure about?", options: ["Her work schedule", "Attending a party", "Finishing dinner", "Calling a friend"], correctAnswer: 1, explanation: "She says she is not sure about coming to the party.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
+        { id: "l2", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Did you remember to buy milk? B: Yes, I got two bottles from the store.", questions: [{ id: "l2q2", prompt: "How many bottles of milk did the man buy?", options: ["One", "Two", "Three", "None"], correctAnswer: 1, explanation: "He said he got two bottles.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
+        { id: "l3", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: The train leaves at 8:15, not 8:30. B: Oh, I thought it was 8:30. Thanks for telling me.", questions: [{ id: "l3q3", prompt: "When does the train leave?", options: ["8:00", "8:15", "8:30", "8:45"], correctAnswer: 1, explanation: "The man corrects the time to 8:15.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
+        { id: "l4", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Is the library open on Sundays? B: Yes, but only until 5 PM.", questions: [{ id: "l4q4", prompt: "When does the library close on Sundays?", options: ["3 PM", "4 PM", "5 PM", "6 PM"], correctAnswer: 2, explanation: "The woman says the library is open until 5 PM on Sundays.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
+        { id: "l5", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.94, transcript: "Long multi-turn conversation (150-200 words) between two people discussing a topic with clear main idea, supporting details, and a conclusion. Include speaker labels: Man: ... Woman: ...", questions: [
+          { id: "l5q5", prompt: "What is the main topic of the conversation?", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
+          { id: "l5q6", prompt: "Detail question about the conversation.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+          { id: "l5q7", prompt: "Inference question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
+          { id: "l5q8", prompt: "Conclusion or opinion question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["opinion"] }
+        ], answerTimeLimit: 120 },
+        { id: "l6", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.93, transcript: "Academic lecture or detailed monologue (250-350 words) on an academic or informational topic. Include factual claims, explanations, and examples.", questions: [
+          { id: "l6q9", prompt: "What is the lecture mainly about?", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
+          { id: "l6q10", prompt: "Detail question 1.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+          { id: "l6q11", prompt: "Detail question 2.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+          { id: "l6q12", prompt: "Vocabulary or meaning question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
+          { id: "l6q13", prompt: "Inference question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
+          { id: "l6q14", prompt: "Speaker purpose or tone question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["purpose"] }
+        ], answerTimeLimit: 180 }
+      ]},
+      reading: { timeLimit: 1200, weight: 0.2, passages: [
+        { id: "r1", title: "string", text: "Reading passage 1 — at least 250 words of connected prose on the chosen topic. Use natural paragraph structure.", questions: [
+          { id: "r1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2", tags: ["main_idea"] },
+          { id: "r1q2", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+          { id: "r1q3", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
+          { id: "r1q4", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] }
+        ]},
+        { id: "r2", title: "string", text: "Reading passage 2 — at least 350 words of connected prose on a different topic. Use natural paragraph structure.", questions: [
+          { id: "r2q5", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
+          { id: "r2q6", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+          { id: "r2q7", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+          { id: "r2q8", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
+          { id: "r2q9", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
+          { id: "r2q10", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["purpose"] }
+        ]}
+      ]},
+      writing: { timeLimit: 1500, weight: 0.2, prompts: [
+        { id: "w1", type: "informal_note", prompt: "Write a short informal note or message (50-75 words).", minWords: 50, maxWords: 75, recommendedTime: 300 },
+        { id: "w2", type: "opinion_essay", prompt: "Write an opinion essay (175-250 words) giving your view with reasons and examples.", minWords: 175, maxWords: 250, recommendedTime: 1200 }
+      ]},
+      speaking: { timeLimit: 240, weight: 0.2, prompts: [
+        { id: "s1", type: "personal_response", prompt: "Speak about a personal experience or opinion on a familiar topic.", prepTime: 45, speakTime: 60 },
+        { id: "s2", type: "integrated_opinion", prompt: "Give your opinion on a broader social or abstract topic with reasons.", prepTime: 45, speakTime: 60 }
+      ]}
     }
   };
 
   const prompt = [
-    "Create ONE brand-new iTEP-style B1 English exam in strict JSON only (no markdown).",
-    "Do NOT use student performance data.",
-    "Follow EXACTLY the same structure as the data example contract.",
-    "- Grammar: 25 questions, IDs g1..g25, first 13 sentence_completion and next 12 error_detection, timeLimit 600.",
-    "- Listening: exactly 6 items IDs l1..l6, TTS, playLimit 1. Part 1 short convos: l1q1(1) l2q2(1) l3q3(1) l4q4(1) answerTimeLimit 20 each. Part 2 long conversation: l5 with questions l5q5-l5q8 (4 questions) answerTimeLimit 120. Part 3 lecture: l6 with questions l6q9-l6q14 (6 questions) answerTimeLimit 180. timeLimit 380.",
-    "- Reading: exactly 2 passages IDs r1,r2 with question IDs r1q1-r1q4 and r2q5-r2q10, timeLimit 1200.",
-    "- Writing: exactly 2 prompts w1 informal_note 50-75 words recommendedTime 300, w2 opinion_essay 175-250 words recommendedTime 1200, timeLimit 1500.",
-    "- Speaking: exactly 2 prompts s1 personal_response and s2 integrated_opinion, both prepTime 45 and speakTime 60, timeLimit 180.",
-    "Each objective question must have 4 options, correctAnswer index, and explanation.",
-    "Return JSON object with key: test.",
+    "Create ONE brand-new iTEP-style B1 English exam in strict JSON only (no markdown, no code fences).",
+    `Use these topics across the exam for variety: ${chosenTopics.join(", ")}.`,
+    "Target CEFR B1 level throughout: clear sentences, common vocabulary, straightforward ideas.",
+    "STRUCTURE RULES (follow exactly):",
+    "- Grammar: 25 questions g1..g25. g1-g13 type sentence_completion (fill the blank). g14-g25 type error_detection (underline the error in one of 4 options). Each must have 4 options, correctAnswer (0-based index), and explanation.",
+    "- Listening: exactly 6 items l1..l6.",
+    "  l1-l4: short conversations (2-4 lines, speaker labels Man/Woman), 1 question each (l1q1, l2q2, l3q3, l4q4), answerTimeLimit 20.",
+    "  l5: conversation 150-200 words with speaker labels, 4 questions (l5q5, l5q6, l5q7, l5q8), answerTimeLimit 120.",
+    "  l6: academic lecture or monologue 250-350 words, 6 questions (l6q9..l6q14), answerTimeLimit 180.",
+    "  All items: audioMode tts, playLimit 1, voiceLang en-US, speechRate 0.95.",
+    "- Reading: exactly 2 passages r1,r2.",
+    "  r1: 250-300 words, 4 questions (r1q1..r1q4).",
+    "  r2: 350-450 words, 6 questions (r2q5..r2q10).",
+    "  Passage text must be real connected prose — NO placeholders.",
+    "- Writing: 2 prompts. w1 informal_note (50-75 words, recommendedTime 300). w2 opinion_essay (175-250 words, recommendedTime 1200). timeLimit 1500.",
+    "- Speaking: 2 prompts. s1 personal_response, s2 integrated_opinion. Both prepTime 45, speakTime 60. timeLimit 240.",
+    "Return ONLY a JSON object with key 'test'. All content must be real (no placeholders). Each question needs 4 options, correctAnswer (integer 0-3), and explanation.",
     `Schema hint: ${JSON.stringify(schemaHint)}`
   ].join("\n");
 
@@ -453,7 +514,8 @@ async function generateNewExamWithGroq() {
       },
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
-        temperature: 0.6,
+        temperature: 0.7,
+        max_tokens: 8000,
         response_format: { type: "json_object" },
         messages: [{ role: "user", content: prompt }]
       })
