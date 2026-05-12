@@ -770,6 +770,8 @@ async function startActualRecording(p) {
   rec.onstop = async () => {
     stream.getTracks().forEach((t) => t.stop());
     const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+    // Give SpeechRecognition time to fire its final onresult before reading the transcript
+    await new Promise((r) => setTimeout(r, 600));
     const transcript = (state.speakingTranscripts[p.id] || state.speakingTranscript || "").trim();
     const note = (state.notes.speaking[p.id] || "").trim();
 
@@ -1147,17 +1149,13 @@ function getEnglishVoices() {
   return speechSynthesis.getVoices().filter((v) => (v.lang || "").toLowerCase().startsWith("en"));
 }
 
-function pickMaleVoices() {
+function pickDialogueVoices() {
   const voices = getEnglishVoices();
   const maleHints = /david|guy|male|mark|tom|daniel|alex/i;
-  const male = voices.filter((v) => maleHints.test(v.name || ""));
-  if (male.length >= 2) return male.slice(0, 2);
-  if (male.length === 1 && voices.length > 1) {
-    const alt = voices.find((v) => v.name !== male[0].name) || male[0];
-    return [male[0], alt];
-  }
-  if (voices.length >= 2) return voices.slice(0, 2);
-  return voices.length ? [voices[0], voices[0]] : [null, null];
+  const femaleHints = /female|zira|hazel|samantha|victoria|karen|susan|fiona|moira|tessa|linda|emma|amy/i;
+  const male = voices.find((v) => maleHints.test(v.name || "")) || voices.find((v) => !femaleHints.test(v.name || "")) || voices[0] || null;
+  const female = voices.find((v) => femaleHints.test(v.name || "")) || voices.find((v) => v !== male) || male;
+  return { male, female };
 }
 
 function normalizeDialogueText(raw) {
@@ -1170,29 +1168,44 @@ function normalizeDialogueText(raw) {
 
 function splitDialogueTurns(raw) {
   const cleaned = normalizeDialogueText(raw);
-  const parts = cleaned.split(/(?=(?:Man|Woman|Student\s*[AB]|Speaker\s*\d+|Professor)\s*:)/gi).map((s) => s.trim()).filter(Boolean);
-  if (!parts.length) return [cleaned];
-  return parts.map((part) => part.replace(/^(Man|Woman|Student\s*[AB]|Speaker\s*\d+|Professor)\s*:\s*/i, "").trim()).filter(Boolean);
+  const parts = cleaned.split(/(?=(?:Man|Woman|Student\s*[AB]|Speaker\s*\d+|Professor|Customer|Cashier|Receptionist|Advisor|Teaching\s*Assistant)\s*:)/gi).map((s) => s.trim()).filter(Boolean);
+  if (!parts.length) return [{ text: cleaned, speaker: null }];
+  return parts.map((part) => {
+    const m = part.match(/^(Man|Woman|Student\s*[AB]|Speaker\s*\d+|Professor|Customer|Cashier|Receptionist|Advisor|Teaching\s*Assistant)\s*:\s*/i);
+    return { text: part.replace(/^(Man|Woman|Student\s*[AB]|Speaker\s*\d+|Professor|Customer|Cashier|Receptionist|Advisor|Teaching\s*Assistant)\s*:\s*/i, "").trim(), speaker: m ? m[1] : null };
+  }).filter((t) => t.text);
 }
 
 function speakTurns(turns, lang = "en-US", rate = 0.95) {
   if (!turns.length) return Promise.resolve();
-  const [voiceA, voiceB] = pickMaleVoices();
+  const { male, female } = pickDialogueVoices();
+  const speakerVoiceMap = {};
+  let altIdx = 0;
   return new Promise((resolve) => {
     let pending = turns.length;
-    turns.forEach((text, idx) => {
+    turns.forEach((turn) => {
+      const { text, speaker } = typeof turn === "string" ? { text: turn, speaker: null } : turn;
+      let voice;
+      if (speaker && /woman/i.test(speaker)) {
+        voice = female;
+      } else if (speaker && /^man$/i.test(speaker)) {
+        voice = male;
+      } else if (speaker) {
+        const key = speaker.toLowerCase().replace(/\s+/g, "");
+        if (!(key in speakerVoiceMap)) {
+          speakerVoiceMap[key] = altIdx % 2 === 0 ? male : female;
+          altIdx++;
+        }
+        voice = speakerVoiceMap[key];
+      } else {
+        voice = male;
+      }
       const u = new SpeechSynthesisUtterance(text);
       u.lang = lang;
       u.rate = rate;
-      u.voice = idx % 2 === 0 ? voiceA : voiceB;
-      u.onend = () => {
-        pending -= 1;
-        if (pending <= 0) resolve();
-      };
-      u.onerror = () => {
-        pending -= 1;
-        if (pending <= 0) resolve();
-      };
+      u.voice = voice;
+      u.onend = () => { pending -= 1; if (pending <= 0) resolve(); };
+      u.onerror = () => { pending -= 1; if (pending <= 0) resolve(); };
       speechSynthesis.speak(u);
     });
   });
