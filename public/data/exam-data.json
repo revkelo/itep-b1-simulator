@@ -3,7 +3,7 @@
     "platform": "iTEP Practice Simulator",
     "version": "4.8",
     "level": "A1-C2",
-    "defaultTestId": "itep_practice_iv_001",
+    "defaultTestId": "itep_practice_v_001",
     "source": "Based on pdf-itep-practice-test-ii_compress.pdf"
   },
   "tests": [
@@ -605,6 +605,207 @@
               "prepTime": 45,
               "speakTime": 60,
               "prompt": "Some people think that living in a large city offers more opportunities and a better quality of life. Others believe that smaller towns or rural areas are preferable. Which type of place would you rather live in, and why? Consider the advantages and disadvantages of both options."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "itep_practice_v_001",
+      "title": "iTEP Practice Test V",
+      "instructions": [
+        "This exam follows an iTEP-style format with five sections.",
+        "Complete sections in order and manage your time carefully.",
+        "Listening is forward-only and each audio can be played once.",
+        "Speaking allows one recording per task."
+      ],
+      "sections": {
+        "grammar": {
+          "timeLimit": 600,
+          "weight": 0.2,
+          "questions": [
+            {"id":"g1","type":"sentence_completion","difficulty":"A2","tags":["present_continuous_future"],"prompt":"We ____ our friends for dinner this Saturday evening.","options":["meet","are meeting","will meet","met"],"correctAnswer":1,"explanation":"Present continuous can express a planned future arrangement."},
+            {"id":"g2","type":"sentence_completion","difficulty":"A2","tags":["quantifiers"],"prompt":"There is ____ sugar left in the jar — not enough for the cake.","options":["few","a few","little","a little"],"correctAnswer":2,"explanation":"'Little' (without 'a') is used with uncountable nouns to mean 'not much'."},
+            {"id":"g3","type":"sentence_completion","difficulty":"B2","tags":["past_perfect_continuous"],"prompt":"By the time the doctor arrived, the patient ____ for over an hour.","options":["waited","has waited","was waiting","had been waiting"],"correctAnswer":3,"explanation":"Past perfect continuous describes an ongoing action completed before another past event."},
+            {"id":"g4","type":"sentence_completion","difficulty":"A2","tags":["question_tags"],"prompt":"She hasn't called yet, ____?","options":["has she","hasn't she","did she","doesn't she"],"correctAnswer":0,"explanation":"With a negative main clause, the question tag is positive: 'has she'."},
+            {"id":"g5","type":"sentence_completion","difficulty":"B2","tags":["causative"],"prompt":"We are going to have the kitchen ____ next month.","options":["renovate","renovated","renovating","to renovate"],"correctAnswer":1,"explanation":"Causative structure 'have something done': have + object + past participle."},
+            {"id":"g6","type":"sentence_completion","difficulty":"B1","tags":["wish"],"prompt":"I wish I ____ more time to prepare for the presentation.","options":["have","had","will have","would have"],"correctAnswer":1,"explanation":"'Wish' + past simple expresses a desire for a different present situation."},
+            {"id":"g7","type":"sentence_completion","difficulty":"A2","tags":["prepositions_time"],"prompt":"The delegation is scheduled to arrive ____ the end of the month.","options":["in","on","at","by"],"correctAnswer":3,"explanation":"Use 'by' to mean 'no later than' a specific deadline."},
+            {"id":"g8","type":"sentence_completion","difficulty":"C1","tags":["mixed_conditional"],"prompt":"If she had studied harder, she ____ in a better position now.","options":["would be","would have been","was","had been"],"correctAnswer":0,"explanation":"Mixed conditional: past condition (third conditional if-clause) + present result (second conditional main clause)."},
+            {"id":"g9","type":"sentence_completion","difficulty":"B2","tags":["future_continuous"],"prompt":"This time next week, we ____ on the beach in Hawaii.","options":["will lie","will be lying","would lie","lie"],"correctAnswer":1,"explanation":"Future continuous expresses an action in progress at a specific future moment."},
+            {"id":"g10","type":"sentence_completion","difficulty":"B1","tags":["gerund_subject"],"prompt":"____ a second language opens up many career opportunities.","options":["Learn","Learning","To learning","Learned"],"correctAnswer":1,"explanation":"Gerunds function as the subject of a sentence."},
+            {"id":"g11","type":"sentence_completion","difficulty":"A2","tags":["articles"],"prompt":"Could you pass me ____ book on the desk? I need to check something.","options":["a","some","the","any"],"correctAnswer":2,"explanation":"Use 'the' when referring to a specific item both speakers know about."},
+            {"id":"g12","type":"sentence_completion","difficulty":"B1","tags":["conjunctions"],"prompt":"She performed well ____ having very little time to prepare.","options":["although","despite","even","however"],"correctAnswer":1,"explanation":"'Despite' is a preposition and can be followed by a noun or gerund."},
+            {"id":"g13","type":"sentence_completion","difficulty":"C1","tags":["inversion"],"prompt":"Under no circumstances ____ leave this room during the examination.","options":["students should","should students","students must","did students"],"correctAnswer":1,"explanation":"After 'Under no circumstances', subject-auxiliary inversion is required."},
+            {"id":"g14","type":"error_detection","difficulty":"B1","tags":["stative_verbs"],"prompt":"She is knowing the answer to every question the teacher asks.","options":["is knowing","answer","every question","teacher asks"],"correctAnswer":0,"explanation":"'Know' is a stative verb and is not normally used in continuous tenses: 'She knows'."},
+            {"id":"g15","type":"error_detection","difficulty":"A2","tags":["uncountable"],"prompt":"The professor gave us many informations about the topic.","options":["professor","many informations","about","topic"],"correctAnswer":1,"explanation":"'Information' is an uncountable noun and cannot be pluralized; use 'much information' or 'a lot of information'."},
+            {"id":"g16","type":"error_detection","difficulty":"B1","tags":["gerund_after_preposition"],"prompt":"She left without to say goodbye to anyone in the office.","options":["left","without","to say","goodbye"],"correctAnswer":2,"explanation":"After a preposition, use a gerund, not an infinitive: 'without saying'."},
+            {"id":"g17","type":"error_detection","difficulty":"A2","tags":["superlative"],"prompt":"This is the most cheapest hotel in the entire city.","options":["This","most cheapest","hotel","entire city"],"correctAnswer":1,"explanation":"'Cheapest' is already a superlative; 'most' is redundant."},
+            {"id":"g18","type":"error_detection","difficulty":"B2","tags":["modals"],"prompt":"You ought not speak so loudly in the library.","options":["ought","not speak","so loudly","library"],"correctAnswer":1,"explanation":"The negative of 'ought to' requires 'to': 'ought not to speak'."},
+            {"id":"g19","type":"error_detection","difficulty":"B2","tags":["reported_speech"],"prompt":"She told me that she will call back as soon as she arrives.","options":["told me","will call","as soon as","arrives"],"correctAnswer":1,"explanation":"In reported speech with a past reporting verb, 'will' must shift to 'would': 'would call back'."},
+            {"id":"g20","type":"error_detection","difficulty":"A2","tags":["reflexive_pronouns"],"prompt":"He hurt him when he fell off the bicycle during training.","options":["hurt him","when","fell off","during training"],"correctAnswer":0,"explanation":"When the subject and object refer to the same person, use a reflexive pronoun: 'hurt himself'."},
+            {"id":"g21","type":"error_detection","difficulty":"B1","tags":["prepositions"],"prompt":"She congratulated him for his outstanding performance at the conference.","options":["congratulated him","for","outstanding performance","conference"],"correctAnswer":1,"explanation":"'Congratulate' takes the preposition 'on': 'congratulated him on his performance'."},
+            {"id":"g22","type":"error_detection","difficulty":"B2","tags":["future_perfect"],"prompt":"By next year, she completes her doctoral research at the university.","options":["By next year","she completes","doctoral research","at the university"],"correctAnswer":1,"explanation":"With 'by next year', future perfect is required: 'will have completed'."},
+            {"id":"g23","type":"error_detection","difficulty":"A2","tags":["pronoun_redundancy"],"prompt":"My brother, he always arrives late to family events.","options":["My brother","he","always arrives","late"],"correctAnswer":1,"explanation":"The pronoun 'he' is redundant when the subject 'My brother' is already stated."},
+            {"id":"g24","type":"error_detection","difficulty":"C1","tags":["dangling_modifier"],"prompt":"Walking along the riverbank, several rare birds were spotted.","options":["Walking along","riverbank","several rare birds","were spotted"],"correctAnswer":0,"explanation":"The participial phrase must logically refer to the subject. Since birds don't walk, this is a dangling modifier; e.g., 'Walking along the riverbank, we spotted several rare birds'."},
+            {"id":"g25","type":"error_detection","difficulty":"C1","tags":["absolute_adjective"],"prompt":"The results of this experiment are very unique compared to previous studies.","options":["results","very unique","compared to","previous studies"],"correctAnswer":1,"explanation":"'Unique' is an absolute adjective meaning 'one of a kind' and cannot be modified by 'very'; use 'truly unique' or simply 'unique'."}
+          ]
+        },
+        "listening": {
+          "timeLimit": 380,
+          "weight": 0.2,
+          "items": [
+            {
+              "id": "l1",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation one. Student: Excuse me, can I still submit my lab report today? It was due yesterday. Teaching Assistant: Normally, late work is not accepted. But Professor Kim said he will make an exception this time if you email it by five o'clock today.",
+              "questions": [
+                {"id":"l1q1","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What must the student do to submit the late lab report?","options":["Speak to the professor in person","Email it by five o'clock today","Submit a written excuse first","Wait until the next class"],"correctAnswer":1,"explanation":"The teaching assistant says Professor Kim will make an exception if the student emails the report by five today."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l2",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation two. Man: Have you tried the new project management software? Woman: Yes, I set it up last week. It takes some time to learn, but it makes tracking deadlines much easier.",
+              "questions": [
+                {"id":"l2q2","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the woman say about the new software?","options":["It is too complicated to use","It is very easy to learn immediately","It makes tracking deadlines much easier","It does not work properly yet"],"correctAnswer":2,"explanation":"The woman says it takes time to learn but makes tracking deadlines much easier."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l3",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation three. Student: Is the scholarship application still open? Advisor: The deadline was extended to the thirtieth. But all required documents must be uploaded online, not sent by mail.",
+              "questions": [
+                {"id":"l3q3","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"What does the advisor say about the scholarship application?","options":["The deadline has already passed","Documents must be sent by mail","The deadline was extended to the thirtieth","The scholarship is fully funded already"],"correctAnswer":2,"explanation":"The advisor says the deadline was extended to the thirtieth and documents must be uploaded online."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l4",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.95,
+              "transcript": "Conversation four. Receptionist: Good morning, this is Lakewood Dental. Man: I need to cancel my appointment on Thursday. Can I reschedule for next Monday? Receptionist: We have an opening at two thirty on Monday. Does that work for you? Man: That is perfect, thank you.",
+              "questions": [
+                {"id":"l4q4","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"When does the man reschedule his dental appointment?","options":["Thursday afternoon","Friday morning","Monday at two thirty","Tuesday at two thirty"],"correctAnswer":2,"explanation":"The receptionist offers Monday at two thirty and the man confirms it."}
+              ],
+              "answerTimeLimit": 20
+            },
+            {
+              "id": "l5",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.94,
+              "transcript": "Long conversation. Student A: I am seriously considering applying to the study abroad program in Portugal. Have you looked into it? Student B: Yes, I applied last semester. The application requires a personal essay and two letters of recommendation. Student A: How long did it take to hear back? Student B: About three weeks. But you have to meet the minimum GPA requirement. Student A: What is the minimum? Student B: A three point five. Student A: I have a three point seven so that should be fine. What was the experience like? Student B: Incredible. You attend classes in English but you are completely surrounded by the local culture. I would definitely recommend it.",
+              "questions": [
+                {"id":"l5q5","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the conversation mainly about?","options":["Planning a graduation trip to Europe","Discussing the study abroad program in Portugal","Comparing different universities in Europe","Asking about financial aid for international students"],"correctAnswer":1,"explanation":"Student A asks about the study abroad program in Portugal and Student B shares their experience and application details."},
+                {"id":"l5q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What does the application for the study abroad program require?","options":["Only a GPA transcript","A personal essay and two letters of recommendation","A language proficiency exam","A written interview and a deposit"],"correctAnswer":1,"explanation":"Student B says the application requires a personal essay and two letters of recommendation."},
+                {"id":"l5q7","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What is the minimum GPA required for the program?","options":["3.0","3.2","3.5","3.7"],"correctAnswer":2,"explanation":"Student B specifies the minimum GPA is 3.5."},
+                {"id":"l5q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred about Student A's eligibility for the program?","options":["Student A does not meet the GPA requirement","Student A likely meets the GPA requirement","Student A still needs to improve their GPA","Student A has already been rejected once"],"correctAnswer":1,"explanation":"Student A has a 3.7 GPA, which is above the 3.5 minimum, so they likely meet the requirement."}
+              ],
+              "answerTimeLimit": 120
+            },
+            {
+              "id": "l6",
+              "audioMode": "tts",
+              "playLimit": 1,
+              "voiceLang": "en-US",
+              "speechRate": 0.93,
+              "transcript": "Lecture. Professor: Today we will look at behavioral economics, which examines how psychological factors influence financial decisions. Traditional economic theory assumes that people always make rational choices based on self-interest. However, research by psychologists and economists shows that human decisions are often influenced by cognitive biases. One well-known example is the anchoring effect, where people rely too heavily on the first piece of information they encounter. For instance, if a product is initially displayed at a high price and then marked down, consumers tend to perceive the discounted price as a good deal, even if it is still expensive. Another important concept is loss aversion, which refers to the tendency to prefer avoiding losses over acquiring equivalent gains. Studies show that the emotional impact of losing one hundred dollars is approximately twice as strong as the pleasure of gaining the same amount. Understanding these biases has practical implications for marketing, public policy, and personal financial planning.",
+              "questions": [
+                {"id":"l6q9","type":"main_idea","difficulty":"B1","tags":["main_idea"],"prompt":"What is the lecture mainly about?","options":["How banks manage financial risk","Psychological factors that influence economic decisions","A comparison of economic systems around the world","How prices are set in competitive markets"],"correctAnswer":1,"explanation":"The lecture focuses on behavioral economics and the cognitive biases that affect financial decisions."},
+                {"id":"l6q10","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What is the anchoring effect?","options":["The tendency to avoid financial losses at all costs","The habit of relying too heavily on the first information received","The preference for local products over imports","The resistance to changing long-held economic beliefs"],"correctAnswer":1,"explanation":"The professor defines anchoring as relying too heavily on the first piece of information encountered."},
+                {"id":"l6q11","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor imply about traditional economic theory?","options":["It accurately predicts all human financial behavior","It underestimates the role of psychology in decision-making","It was developed only recently","It focuses too much on government spending"],"correctAnswer":1,"explanation":"By contrasting traditional theory with behavioral findings, the professor implies it oversimplifies human behavior by assuming full rationality."},
+                {"id":"l6q12","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What does loss aversion describe?","options":["Preferring to save money rather than invest it","The tendency to prefer avoiding losses over acquiring equivalent gains","Avoiding all risky investments permanently","The fear of inflation in long-term financial planning"],"correctAnswer":1,"explanation":"The professor defines loss aversion as preferring to avoid losses over acquiring equivalent gains."},
+                {"id":"l6q13","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'biases' in the lecture is closest in meaning to:","options":["random choices","systematic tendencies that affect judgment","financial investment strategies","logical and rational conclusions"],"correctAnswer":1,"explanation":"'Biases' refers to systematic tendencies or inclinations that affect judgment in a consistent, often irrational way."},
+                {"id":"l6q14","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the professor suggest about the practical value of understanding cognitive biases?","options":["They can only be studied in a laboratory setting","They have no real-world application outside academia","Knowledge of them is useful across several fields","They are unique to financial decision-making"],"correctAnswer":2,"explanation":"The professor mentions implications for marketing, public policy, and personal financial planning — multiple real-world fields."}
+              ],
+              "answerTimeLimit": 180
+            }
+          ]
+        },
+        "reading": {
+          "timeLimit": 1200,
+          "weight": 0.2,
+          "passages": [
+            {
+              "id": "r1",
+              "title": "Social Media and Mental Health",
+              "text": "The relationship between social media use and mental health has become a subject of growing research interest. Studies suggest that while social media platforms can foster connection and support, excessive use is associated with increased rates of anxiety, depression, and feelings of inadequacy.\n\nOne proposed explanation is social comparison theory, which holds that people naturally evaluate themselves against others. On social media, users are constantly exposed to curated images of others' lives, which can distort perceptions of what is normal or desirable. This effect appears to be particularly strong among adolescents and young adults.\n\nHowever, researchers caution against assuming a simple cause-and-effect relationship. Some studies indicate that individuals who are already experiencing mental health difficulties may be more likely to engage heavily with social media, suggesting that the relationship is bidirectional. Additionally, the type of use matters: passive scrolling is more consistently linked to negative outcomes than active engagement such as direct messaging or sharing content.\n\nExperts recommend that individuals set boundaries on screen time and seek offline social interaction as a complement to their digital lives.",
+              "questions": [
+                {"id":"r1q1","type":"main_idea","difficulty":"A2","tags":["main_idea"],"prompt":"What is the passage mainly about?","options":["Why social media platforms are becoming more popular","The relationship between social media use and mental health","How to design healthier social media applications","Why adolescents spend more time online than adults"],"correctAnswer":1,"explanation":"The passage examines the complex relationship between social media use and mental health outcomes."},
+                {"id":"r1q2","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"What does social comparison theory suggest?","options":["People are not affected by others' opinions online","People naturally evaluate themselves in comparison to others","Social media users prefer positive content only","People avoid comparing themselves to people they know"],"correctAnswer":1,"explanation":"The passage defines social comparison theory as the natural tendency to evaluate oneself against others."},
+                {"id":"r1q3","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What can be inferred about the relationship between social media and mental health?","options":["Social media always causes mental health problems","The relationship is fully understood by researchers","The relationship is complex and may operate in both directions","Only teenagers are significantly affected by social media use"],"correctAnswer":2,"explanation":"The passage says the relationship is 'bidirectional' — heavy social media use may worsen mental health, and poor mental health may increase social media use."},
+                {"id":"r1q4","type":"vocabulary","difficulty":"B1","tags":["vocabulary"],"prompt":"The word 'curated' in the passage is closest in meaning to:","options":["randomly selected","carefully chosen and presented","automatically generated","publicly reported"],"correctAnswer":1,"explanation":"'Curated' means carefully selected and arranged to present a particular image or impression."}
+              ]
+            },
+            {
+              "id": "r2",
+              "title": "The Development of Antibiotics",
+              "text": "Antibiotics are among the most important medical discoveries in history, having saved millions of lives since their introduction in the twentieth century. The accidental discovery of penicillin by Alexander Fleming in 1928 is widely regarded as the beginning of the antibiotic era. [A] Fleming noticed that a mold contaminating one of his bacterial cultures appeared to kill the surrounding bacteria.\n\nFollowing this discovery, scientists worked to isolate, purify, and eventually mass-produce penicillin. [B] By the Second World War, it was being used to treat infected wounds, dramatically reducing mortality rates among soldiers. The success of penicillin led to the discovery and development of numerous other antibiotics over the following decades.\n\nHowever, the overuse and misuse of antibiotics has led to a serious global challenge: antibiotic resistance. [C] When bacteria are repeatedly exposed to antibiotics, they can evolve mechanisms to survive the treatment, rendering the drugs ineffective. The World Health Organization has identified antibiotic resistance as one of the greatest threats to global health.\n\nAddressing this challenge requires careful prescribing practices, investment in new drug development, and global coordination. [D]",
+              "questions": [
+                {"id":"r2q5","type":"summary","difficulty":"B1","tags":["summary"],"prompt":"Which statement best summarizes the passage?","options":["Antibiotics were discovered recently and are now widely available","Antibiotics have saved many lives but have also contributed to a global health challenge","Fleming's discovery was not considered important until recently","Antibiotic resistance has already been solved by modern medicine"],"correctAnswer":1,"explanation":"The passage traces the discovery and impact of antibiotics while highlighting the challenge of antibiotic resistance."},
+                {"id":"r2q6","type":"detail","difficulty":"B1","tags":["detail"],"prompt":"How did Alexander Fleming discover penicillin?","options":["He deliberately tested different molds on bacterial cultures","He accidentally noticed that a mold was killing bacteria in a contaminated culture","He was searching specifically for a treatment for the flu","He observed bacteria developing resistance to earlier drugs"],"correctAnswer":1,"explanation":"The passage says Fleming noticed a mold contaminating a culture appeared to kill surrounding bacteria — an accidental discovery."},
+                {"id":"r2q7","type":"detail","difficulty":"A2","tags":["detail"],"prompt":"During which major historical event was penicillin first widely used to treat wounds?","options":["World War One","The Korean War","World War Two","The Cold War"],"correctAnswer":2,"explanation":"The passage states penicillin was being used to treat infected wounds by the Second World War."},
+                {"id":"r2q8","type":"inference","difficulty":"B2","tags":["inference"],"prompt":"What does the passage imply about solving the antibiotic resistance problem?","options":["New antibiotics will quickly solve the resistance problem","Resistance is already declining due to better prescribing","It requires sustained, multi-faceted global effort","Antibiotic research has stopped entirely"],"correctAnswer":2,"explanation":"The passage says addressing resistance requires careful prescribing, investment in new drugs, and global coordination — implying a complex, ongoing challenge."},
+                {"id":"r2q9","type":"vocabulary","difficulty":"B2","tags":["vocabulary"],"prompt":"The word 'rendering' in the passage is closest in meaning to:","options":["improving","providing","making","testing"],"correctAnswer":2,"explanation":"'Rendering' here means causing something to become a certain way: making the drugs ineffective."},
+                {"id":"r2q10","type":"insert_sentence","difficulty":"C1","tags":["coherence","organization"],"prompt":"Where would this sentence most logically appear in the passage? 'This process took several years and required the collaboration of chemists and medical researchers.'","options":["A","B","C","D"],"correctAnswer":1,"explanation":"The sentence describes the multi-year collaborative effort to isolate and produce penicillin, which logically follows near [B] after the mention of scientists working to isolate, purify, and mass-produce it."}
+              ]
+            }
+          ]
+        },
+        "writing": {
+          "timeLimit": 1500,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "w1",
+              "type": "informal_note",
+              "minWords": 50,
+              "maxWords": 75,
+              "recommendedTime": 300,
+              "prompt": "You accidentally damaged a borrowed item belonging to a friend. Write a note to your friend apologizing for the damage and explaining how you plan to resolve the situation."
+            },
+            {
+              "id": "w2",
+              "type": "opinion_essay",
+              "minWords": 175,
+              "maxWords": 250,
+              "recommendedTime": 1200,
+              "prompt": "Some people believe that social media has had a positive impact on society by improving communication and access to information. Others argue that its negative effects — such as the spread of misinformation and reduced privacy — outweigh the benefits. In your opinion, do the advantages of social media outweigh the disadvantages? Support your answer with reasons and examples."
+            }
+          ]
+        },
+        "speaking": {
+          "timeLimit": 240,
+          "weight": 0.2,
+          "prompts": [
+            {
+              "id": "s1",
+              "type": "personal_response",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Describe a time when you made a mistake and what you learned from it. What happened, and how did the experience change the way you approach similar situations? Give specific details and examples."
+            },
+            {
+              "id": "s2",
+              "type": "integrated_opinion",
+              "prepTime": 45,
+              "speakTime": 60,
+              "prompt": "Some people believe that governments should prioritize economic growth even if it comes at the expense of environmental protection. Others argue that protecting the environment must come first. Which view do you support, and why? Consider both perspectives in your response."
             }
           ]
         }
