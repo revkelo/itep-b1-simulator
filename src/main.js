@@ -27,6 +27,7 @@ const state = {
   speakingTranscript: "",
   speakingTranscripts: {},
   speakingEvaluation: {},
+  speakingAudioUrls: {},
   writingEvaluation: {},
   speakingStatus: "idle",
   speakingAutoStartedFor: "",
@@ -567,6 +568,7 @@ function resetAttemptState() {
   state.speakingTranscript = "";
   state.speakingTranscripts = {};
   state.speakingEvaluation = {};
+  state.speakingAudioUrls = {};
   state.writingEvaluation = {};
   state.questionIndexes = { grammar: 0, listening: 0, reading: 0 };
   state.writingPartIndex = 0;
@@ -787,6 +789,7 @@ async function startActualRecording(p) {
     }
 
     const url = URL.createObjectURL(blob);
+    state.speakingAudioUrls[p.id] = url;
     const audio = document.getElementById("speaking-playback");
     if (audio) { audio.src = url; audio.style.display = "block"; }
 
@@ -996,14 +999,17 @@ function renderReport() {
 
   const blockWrong = (title, arr, withAudio = false) => `<h3>${title}</h3>${arr.length ? arr.map((x) => `<div class="transcript"><p><strong>${esc(x.id)}</strong>: ${esc(x.prompt)}</p><p><strong>Your answer:</strong> ${x.chosen ?? "No answer"} | <strong>Correct:</strong> ${x.correct}</p><p><strong>Why:</strong> ${esc(x.why)}</p>${withAudio ? `<p><strong>Audio text for review:</strong> ${esc(x.audioContext)}</p>` : ""}</div>`).join("") : "<p>No mistakes.</p>"}`;
   const blockRight = (title, arr) => `<h3>${title}</h3>${arr.length ? arr.map((x) => `<div class="transcript"><p><strong>${esc(x.id)}</strong>: ${esc(x.prompt)}</p></div>`).join("") : "<p>No correct answers recorded.</p>"}`;
-  const renderFeedbackCards = (obj, title) => {
+  const renderFeedbackCards = (obj, title, audioUrls = {}) => {
     const entries = Object.entries(obj);
     if (!entries.length) return `<p>No ${esc(title)} feedback available.</p>`;
     return entries.map(([id, txt]) => {
       const parsed = safeParseJsonObject(txt);
-      if (!parsed) return `<div class="transcript"><p><strong>${esc(id)}:</strong></p><p>${esc(txt)}</p></div>`;
+      const audioUrl = audioUrls[id] || "";
+      const audioHtml = audioUrl ? `<audio controls src="${audioUrl}" style="width:100%;margin-bottom:0.5rem"></audio>` : "";
+      if (!parsed) return `<div class="transcript">${audioHtml}<p><strong>${esc(id)}:</strong></p><p>${esc(txt)}</p></div>`;
       return `<div class="feedback-card">
         <h4>${esc(id)} - ${esc(title)} Feedback</h4>
+        ${audioHtml}
         <div class="feedback-grid">
           <div><strong>Score</strong><span>${Number.isFinite(Number(parsed.score)) ? Number(parsed.score) : "-"}</span></div>
           <div><strong>CEFR</strong><span>${esc(parsed.cefr || "-")}</span></div>
@@ -1034,7 +1040,7 @@ function renderReport() {
   </table>
   ${blockWrong("Listening - Incorrect", rpt.listeningWrong, true)}${blockRight("Listening - Correct", rpt.listeningRight)}${blockWrong("Reading - Incorrect", rpt.readingWrong)}${blockRight("Reading - Correct", rpt.readingRight)}${blockWrong("Grammar - Incorrect", rpt.grammarWrong)}${blockRight("Grammar - Correct", rpt.grammarRight)}
   <h3>Writing AI Feedback</h3>${renderFeedbackCards(state.writingEvaluation, "Writing")}
-  <h3>Speaking AI Feedback</h3>${renderFeedbackCards(state.speakingEvaluation, "Speaking")}
+  <h3>Speaking AI Feedback</h3>${renderFeedbackCards(state.speakingEvaluation, "Speaking", state.speakingAudioUrls)}
   <button class="btn" data-action="restart">Restart Exam</button></section></main>`;
 }
 
