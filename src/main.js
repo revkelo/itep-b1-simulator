@@ -734,9 +734,23 @@ async function startRecording() {
 async function startActualRecording(p) {
   if (state.speakingStatus === "recording") return;
 
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const preferredMime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "";
-  const rec = preferredMime ? new MediaRecorder(stream, { mimeType: preferredMime }) : new MediaRecorder(stream);
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch {
+    state.speakingStatus = "idle";
+    state.speakingAutoStartedFor = "";
+    state.speakingEvaluation[p.id] = JSON.stringify({ score: 0, cefr: "A1", feedback: "Microphone access denied. Please allow microphone permission and click Start Recording." });
+    return render();
+  }
+
+  let rec;
+  try {
+    const preferredMime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "";
+    rec = preferredMime ? new MediaRecorder(stream, { mimeType: preferredMime }) : new MediaRecorder(stream);
+  } catch {
+    rec = new MediaRecorder(stream);
+  }
   const chunks = [];
 
   state.speakingStatus = "recording";
@@ -756,17 +770,19 @@ async function startActualRecording(p) {
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SR) {
-    const sr = new SR();
-    sr.lang = "en-US";
-    sr.continuous = true;
-    sr.interimResults = true;
-    sr.onresult = (ev) => {
-      const txt = Array.from(ev.results).map((r) => r[0].transcript).join(" ");
-      state.speakingTranscript = txt;
-      state.speakingTranscripts[p.id] = txt;
-    };
-    sr.start();
-    setTimeout(() => sr.stop(), p.speakTime * 1000);
+    try {
+      const sr = new SR();
+      sr.lang = "en-US";
+      sr.continuous = true;
+      sr.interimResults = true;
+      sr.onresult = (ev) => {
+        const txt = Array.from(ev.results).map((r) => r[0].transcript).join(" ");
+        state.speakingTranscript = txt;
+        state.speakingTranscripts[p.id] = txt;
+      };
+      sr.start();
+      setTimeout(() => sr.stop(), p.speakTime * 1000);
+    } catch {}
   }
 
   rec.ondataavailable = (e) => chunks.push(e.data);
