@@ -28,6 +28,7 @@ const state = {
   speakingTranscripts: {},
   speakingEvaluation: {},
   speakingAudioUrls: {},
+  deviceCheck: { pendingMode: null, micStatus: "idle", micUrl: null, audioStatus: "idle" },
   writingEvaluation: {},
   speakingStatus: "idle",
   speakingAutoStartedFor: "",
@@ -1044,6 +1045,79 @@ function renderReport() {
   <button class="btn" data-action="restart">Restart Exam</button></section></main>`;
 }
 
+function renderDeviceCheck() {
+  const { micStatus, micUrl, audioStatus, pendingMode } = state.deviceCheck;
+  const micLabel = micStatus === "testing" ? "Recording… (3s)" : micStatus === "idle" ? "Test Microphone" : "Test Again";
+  const audioLabel = audioStatus === "testing" ? "Playing…" : audioStatus === "idle" ? "Test Audio" : "Play Again";
+  const micResult = micStatus === "ok" && micUrl
+    ? `<p class="lnd-gen-msg lnd-gen-ok">Microphone working — play back your recording below.</p><audio controls src="${micUrl}" style="width:100%;margin-top:0.5rem"></audio>`
+    : micStatus === "error"
+    ? `<p class="lnd-gen-msg lnd-gen-error">Microphone not accessible. Allow microphone permission and try again.</p>`
+    : "";
+  const audioResult = audioStatus === "ok"
+    ? `<p class="lnd-gen-msg lnd-gen-ok">Audio is working correctly.</p>`
+    : "";
+  const modeLabel = pendingMode === "study" ? "Study Mode" : "Exam Mode";
+  return `<main class="section-break-shell"><section class="panel section-break-card" style="max-width:520px">
+    <h2>Device Check</h2>
+    <p class="muted">Verify your microphone and speakers before starting the exam.</p>
+    <div style="display:flex;flex-direction:column;gap:1.25rem;margin:1.5rem 0">
+      <div class="transcript" style="padding:1rem">
+        <h4 style="margin:0 0 0.4rem">Microphone Test</h4>
+        <p class="muted" style="margin:0 0 0.75rem">Records 3 seconds and plays it back so you can confirm your mic is working.</p>
+        <button class="btn primary" data-action="test-mic" ${micStatus === "testing" ? "disabled" : ""}>${micLabel}</button>
+        ${micResult}
+      </div>
+      <div class="transcript" style="padding:1rem">
+        <h4 style="margin:0 0 0.4rem">Audio / Listening Test</h4>
+        <p class="muted" style="margin:0 0 0.75rem">Plays a short phrase — confirm you can hear it clearly.</p>
+        <button class="btn primary" data-action="test-audio" ${audioStatus === "testing" ? "disabled" : ""}>${audioLabel}</button>
+        ${audioResult}
+      </div>
+    </div>
+    <button class="btn primary" data-action="device-check-continue" style="width:100%">Continue to ${esc(modeLabel)}</button>
+  </section></main>`;
+}
+
+async function runMicTest() {
+  state.deviceCheck.micStatus = "testing";
+  render();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const rec = new MediaRecorder(stream);
+    const chunks = [];
+    rec.ondataavailable = (e) => chunks.push(e.data);
+    rec.onstop = () => {
+      stream.getTracks().forEach((t) => t.stop());
+      const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+      state.deviceCheck.micUrl = URL.createObjectURL(blob);
+      state.deviceCheck.micStatus = "ok";
+      render();
+    };
+    rec.start();
+    setTimeout(() => rec.stop(), 3000);
+  } catch {
+    state.deviceCheck.micStatus = "error";
+    render();
+  }
+}
+
+function runAudioTest() {
+  state.deviceCheck.audioStatus = "testing";
+  render();
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance("This is your audio test. If you can hear this, your speakers are working correctly.");
+  u.lang = "en-US";
+  u.rate = 0.95;
+  u.onend = () => { state.deviceCheck.audioStatus = "ok"; render(); };
+  u.onerror = () => { state.deviceCheck.audioStatus = "ok"; render(); };
+  if (!speechSynthesis.getVoices().length) {
+    speechSynthesis.onvoiceschanged = () => { speechSynthesis.onvoiceschanged = null; speechSynthesis.speak(u); };
+  } else {
+    speechSynthesis.speak(u);
+  }
+}
+
 function render() {
   if (state.loading) return (app.innerHTML = `<main class="wrap"><section class="panel">Loading...</section></main>`);
   if (state.error) return (app.innerHTML = `<main class="wrap"><section class="panel"><h2>Error</h2><p>${esc(state.error)}</p></section></main>`);
@@ -1096,6 +1170,8 @@ function render() {
 </main>`;
     return;
   }
+
+  if (state.view === "device-check") return (app.innerHTML = renderDeviceCheck());
 
   if (state.view === "section-break") {
     const n = state.sectionOrder[state.pendingSectionIndex];
@@ -1268,8 +1344,11 @@ app.addEventListener("click", async (e) => {
   if (!btn) return;
   const action = btn.dataset.action;
 
-  if (action === "start-exam") return startExam("exam");
-  if (action === "start-study") return startExam("study");
+  if (action === "start-exam") { state.deviceCheck = { pendingMode: "exam", micStatus: "idle", micUrl: null, audioStatus: "idle" }; state.view = "device-check"; return render(); }
+  if (action === "start-study") { state.deviceCheck = { pendingMode: "study", micStatus: "idle", micUrl: null, audioStatus: "idle" }; state.view = "device-check"; return render(); }
+  if (action === "test-mic") return runMicTest();
+  if (action === "test-audio") return runAudioTest();
+  if (action === "device-check-continue") return startExam(state.deviceCheck.pendingMode);
   if (action === "generate-exam") return generateNewExamWithGroq();
   if (action === "start-pending-section") return startPendingSection();
   if (action === "next-section") return nextSection();
