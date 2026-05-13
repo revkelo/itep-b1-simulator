@@ -135,3 +135,21 @@ textarea { width:100%; min-height:260px; resize:vertical; border:1px solid #9dc1
   .lnd-sections { gap:6px; }
   .lnd-sec { min-width:80px; padding:8px 10px; }
 }
+
+/* Verb Tense Reference */
+.verb-tense-ref { margin:0; }
+.verb-tense-ref summary { cursor:pointer; font-size:15px; color:#1a4a78; padding:4px 0; user-select:none; list-style:none; display:flex; align-items:center; gap:6px; }
+.verb-tense-ref summary::before { content:"▶"; font-size:11px; color:#2f7ece; transition:transform .2s; }
+.verb-tense-ref[open] summary::before { transform:rotate(90deg); }
+.verb-tense-body { margin-top:14px; }
+.verb-tense-intro { margin:0 0 14px; font-size:13px; color:#325f8d; }
+.verb-tense-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:18px; }
+.vt-group { background:#eef5fb; border:1px solid #b5d2eb; border-radius:12px; padding:12px 14px; }
+.vt-group h4 { margin:0 0 8px; font-size:13px; color:#1a4f7e; text-transform:uppercase; letter-spacing:.04em; }
+.vt-group ul { margin:0; padding-left:16px; font-size:13px; color:#325f8d; line-height:1.8; }
+.vt-sample-title { margin:0 0 10px; font-size:13px; color:#1a4a78; text-transform:uppercase; letter-spacing:.04em; }
+.vt-sample { background:#eef5fb; border-left:3px solid #2f7ece; border-radius:0 10px 10px 0; padding:10px 14px; margin-bottom:10px; font-size:13px; color:#27496d; }
+.vt-sample p { margin:0 0 4px; }
+.vt-choices { font-size:12px; color:#4a7bab; }
+.vt-explain { font-size:12px; color:#22a085; font-style:italic; margin-top:4px; }
+@media (max-width:600px) { .verb-tense-grid { grid-template-columns:1fr; } }

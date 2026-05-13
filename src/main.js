@@ -1276,6 +1276,64 @@ function render() {
       ${state.generationMsg && !state.generatingExam ? `<p class="lnd-gen-msg ${genMsgClass}">${esc(state.generationMsg)}</p>` : ""}
     </div>
   </section>
+  <section class="panel lnd-panel">
+    <details class="verb-tense-ref">
+      <summary><strong>Grammar Reference: 12 Verb Tenses for iTEP</strong></summary>
+      <div class="verb-tense-body">
+        <p class="verb-tense-intro">Mastering these verb tenses will help your iTEP grammar score and your English skills in general.</p>
+        <div class="verb-tense-grid">
+          <div class="vt-group">
+            <h4>Simple Tenses</h4>
+            <ul>
+              <li><strong>Simple Present:</strong> I eat.</li>
+              <li><strong>Simple Past:</strong> I ate yesterday.</li>
+              <li><strong>Simple Future:</strong> I will eat tomorrow.</li>
+            </ul>
+          </div>
+          <div class="vt-group">
+            <h4>Continuous Tenses</h4>
+            <ul>
+              <li><strong>Present Continuous:</strong> I am eating right now.</li>
+              <li><strong>Past Continuous:</strong> I was eating when the phone rang.</li>
+              <li><strong>Future Continuous:</strong> I will be eating at 9 a.m. tomorrow.</li>
+            </ul>
+          </div>
+          <div class="vt-group">
+            <h4>Perfect Tenses</h4>
+            <ul>
+              <li><strong>Present Perfect:</strong> I have eaten eggs every day this week.</li>
+              <li><strong>Past Perfect:</strong> I had eaten eggs every day until yesterday.</li>
+              <li><strong>Future Perfect:</strong> By tomorrow, I will have eaten eggs every day.</li>
+            </ul>
+          </div>
+          <div class="vt-group">
+            <h4>Perfect Continuous Tenses</h4>
+            <ul>
+              <li><strong>Present Perfect Continuous:</strong> I have been eating for ten minutes.</li>
+              <li><strong>Past Perfect Continuous:</strong> I had been eating when the phone rang.</li>
+              <li><strong>Future Perfect Continuous:</strong> I will have just finished eating by the time you come tomorrow.</li>
+            </ul>
+          </div>
+        </div>
+        <h4 class="vt-sample-title">Sample iTEP Questions</h4>
+        <div class="vt-sample">
+          <p><strong>Q1.</strong> Susan is not coming with us because she ________ that movie already.</p>
+          <p class="vt-choices">A) will see &nbsp; B) was seeing &nbsp; C) will have seen &nbsp; <strong>D) has seen</strong> ✓</p>
+          <p class="vt-explain">Present perfect — the action is complete but relevant to the present situation.</p>
+        </div>
+        <div class="vt-sample">
+          <p><strong>Q2.</strong> While on my way to the cafeteria, I noticed that I ________ my wallet.</p>
+          <p class="vt-choices">A) forget &nbsp; B) sometimes forget &nbsp; C) am forgetting &nbsp; <strong>D) had forgotten</strong> ✓</p>
+          <p class="vt-explain">Past perfect — the forgetting happened before the noticing.</p>
+        </div>
+        <div class="vt-sample">
+          <p><strong>Q3.</strong> If I ________ able to go to the play, she would not have had to drive her car.</p>
+          <p class="vt-choices">A) was &nbsp; B) have been &nbsp; C) am going to be &nbsp; <strong>D) had been</strong> ✓</p>
+          <p class="vt-explain">Past perfect in a third conditional — both conditions are in the unreal past.</p>
+        </div>
+      </div>
+    </details>
+  </section>
 </main>`;
     return;
   }
