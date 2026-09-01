@@ -3,10 +3,14 @@ const STORAGE_KEY = "itep_v4_state";
 const state = {
   loading: true,
   error: "",
-  generatingExam: false,
   mode: "exam",
-  generationMsg: "",
   test: null,
+  builtInTest: null,
+  usingImportedExam: false,
+  importOpen: false,
+  importStatus: "",
+  importMsg: "",
+  importPasteText: "",
   started: false,
   view: "instructions",
   sectionOrder: ["grammar", "listening", "reading", "writing", "speaking"],
@@ -94,6 +98,9 @@ async function init() {
     const data = await res.json();
     state.test = data.tests.find((t) => t.id === data.meta.defaultTestId) || data.tests[0];
     if (!state.test) throw new Error("No test found");
+    /* Copia intacta: al importar un examen se usa como relleno de las secciones
+       que vengan incompletas, y es a donde vuelve el boton de restablecer. */
+    state.builtInTest = cloneJson(state.test);
     state.loading = false;
   } catch (e) {
     state.loading = false;
@@ -130,41 +137,6 @@ function sanitizeJsonString(raw) {
   s = s.replace(/[\u201C\u201D]/g, "\"").replace(/[\u2018\u2019]/g, "'");
   s = s.replace(/,\s*([}\]])/g, "$1");
   return s;
-}
-
-async function requestGroqJsonRepair(key, brokenJsonText) {
-  const repairPrompt = [
-    "Fix this malformed JSON and return ONLY valid JSON.",
-    "Do not add explanations or markdown.",
-    brokenJsonText
-  ].join("\n");
-  const repairRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${key}`
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      temperature: 0,
-      response_format: { type: "json_object" },
-      messages: [{ role: "user", content: repairPrompt }]
-    })
-  });
-  if (!repairRes.ok) throw new Error(`GROQ repair ${repairRes.status}`);
-  const repairData = await repairRes.json();
-  return repairData.choices?.[0]?.message?.content || "";
-}
-
-async function parseGroqGeneratedExam(key, content) {
-  const firstTry = sanitizeJsonString(extractLikelyJsonBlock(content));
-  try {
-    return JSON.parse(firstTry);
-  } catch {}
-
-  const repaired = await requestGroqJsonRepair(key, firstTry);
-  const secondTry = sanitizeJsonString(extractLikelyJsonBlock(repaired));
-  return JSON.parse(secondTry);
 }
 
 function toArray(value) {
@@ -408,145 +380,192 @@ function mergeWithFallbackSection(generatedTest, fallbackTest) {
   return merged;
 }
 
-async function generateNewExamWithGroq() {
-  const key = import.meta.env.VITE_GROQ_API_KEY || "";
-  if (!key) {
-    state.generationMsg = "Add GROQ API key first.";
-    render();
-    return;
-  }
-
-  state.generatingExam = true;
-  state.generationMsg = "Generating new iTEP-style exam...";
-  render();
-
-  const topicPool = [
-    "technology and daily life", "health and wellness", "education and careers",
-    "travel and culture", "environment and sustainability", "food and cooking",
-    "social media and communication", "arts and entertainment", "sports and hobbies",
-    "city life and transportation"
-  ];
-  const chosenTopics = topicPool.sort(() => Math.random() - 0.5).slice(0, 4);
-
-  const schemaHint = {
-    id: "string",
-    title: "string",
-    instructions: ["string"],
-    sections: {
-      grammar: { timeLimit: 600, weight: 0.2, questions: [
-        { id: "g1", type: "sentence_completion", prompt: "She ___ to the store every day.", options: ["go", "goes", "going", "gone"], correctAnswer: 1, explanation: "Third person singular uses 'goes'.", difficulty: "A2", tags: ["verb_agreement"] },
-        { id: "g14", type: "error_detection", prompt: "She don't likes coffee in the morning.", options: ["She", "don't likes", "coffee", "in the morning"], correctAnswer: 1, explanation: "'Don't likes' should be 'doesn't like'.", difficulty: "B1", tags: ["negation"] }
+/* El mismo esquema que antes le describiamos al modelo, ahora al reves: es la
+   plantilla que se descarga para saber que forma tiene un examen valido. Un
+   ejemplo concreto explica el formato mejor que cualquier especificacion, y de
+   paso se puede abrir y editar sin escribir nada desde cero. */
+const EXAM_TEMPLATE = {
+  id: "string",
+  title: "string",
+  instructions: ["string"],
+  sections: {
+    grammar: { timeLimit: 600, weight: 0.2, questions: [
+      { id: "g1", type: "sentence_completion", prompt: "She ___ to the store every day.", options: ["go", "goes", "going", "gone"], correctAnswer: 1, explanation: "Third person singular uses 'goes'.", difficulty: "A2", tags: ["verb_agreement"] },
+      { id: "g14", type: "error_detection", prompt: "She don't likes coffee in the morning.", options: ["She", "don't likes", "coffee", "in the morning"], correctAnswer: 1, explanation: "'Don't likes' should be 'doesn't like'.", difficulty: "B1", tags: ["negation"] }
+    ]},
+    listening: { timeLimit: 380, weight: 0.2, items: [
+      { id: "l1", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Are you coming to the party tonight? B: I'm not sure yet. I have a lot of work to finish.", questions: [{ id: "l1q1", prompt: "What is the woman unsure about?", options: ["Her work schedule", "Attending a party", "Finishing dinner", "Calling a friend"], correctAnswer: 1, explanation: "She says she is not sure about coming to the party.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
+      { id: "l2", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Did you remember to buy milk? B: Yes, I got two bottles from the store.", questions: [{ id: "l2q2", prompt: "How many bottles of milk did the man buy?", options: ["One", "Two", "Three", "None"], correctAnswer: 1, explanation: "He said he got two bottles.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
+      { id: "l3", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: The train leaves at 8:15, not 8:30. B: Oh, I thought it was 8:30. Thanks for telling me.", questions: [{ id: "l3q3", prompt: "When does the train leave?", options: ["8:00", "8:15", "8:30", "8:45"], correctAnswer: 1, explanation: "The man corrects the time to 8:15.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
+      { id: "l4", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Is the library open on Sundays? B: Yes, but only until 5 PM.", questions: [{ id: "l4q4", prompt: "When does the library close on Sundays?", options: ["3 PM", "4 PM", "5 PM", "6 PM"], correctAnswer: 2, explanation: "The woman says the library is open until 5 PM on Sundays.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
+      { id: "l5", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.94, transcript: "Long multi-turn conversation (150-200 words) between two people discussing a topic with clear main idea, supporting details, and a conclusion. Include speaker labels: Man: ... Woman: ...", questions: [
+        { id: "l5q5", prompt: "What is the main topic of the conversation?", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
+        { id: "l5q6", prompt: "Detail question about the conversation.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+        { id: "l5q7", prompt: "Inference question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
+        { id: "l5q8", prompt: "Conclusion or opinion question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["opinion"] }
+      ], answerTimeLimit: 120 },
+      { id: "l6", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.93, transcript: "Academic lecture or detailed monologue (250-350 words) on an academic or informational topic. Include factual claims, explanations, and examples.", questions: [
+        { id: "l6q9", prompt: "What is the lecture mainly about?", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
+        { id: "l6q10", prompt: "Detail question 1.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+        { id: "l6q11", prompt: "Detail question 2.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+        { id: "l6q12", prompt: "Vocabulary or meaning question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
+        { id: "l6q13", prompt: "Inference question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
+        { id: "l6q14", prompt: "Speaker purpose or tone question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["purpose"] }
+      ], answerTimeLimit: 180 }
+    ]},
+    reading: { timeLimit: 1200, weight: 0.2, passages: [
+      { id: "r1", title: "string", text: "Reading passage 1 - at least 250 words of connected prose on the chosen topic. Use natural paragraph structure.", questions: [
+        { id: "r1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2", tags: ["main_idea"] },
+        { id: "r1q2", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+        { id: "r1q3", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
+        { id: "r1q4", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] }
       ]},
-      listening: { timeLimit: 380, weight: 0.2, items: [
-        { id: "l1", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Are you coming to the party tonight? B: I'm not sure yet. I have a lot of work to finish.", questions: [{ id: "l1q1", prompt: "What is the woman unsure about?", options: ["Her work schedule", "Attending a party", "Finishing dinner", "Calling a friend"], correctAnswer: 1, explanation: "She says she is not sure about coming to the party.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
-        { id: "l2", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Did you remember to buy milk? B: Yes, I got two bottles from the store.", questions: [{ id: "l2q2", prompt: "How many bottles of milk did the man buy?", options: ["One", "Two", "Three", "None"], correctAnswer: 1, explanation: "He said he got two bottles.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
-        { id: "l3", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: The train leaves at 8:15, not 8:30. B: Oh, I thought it was 8:30. Thanks for telling me.", questions: [{ id: "l3q3", prompt: "When does the train leave?", options: ["8:00", "8:15", "8:30", "8:45"], correctAnswer: 1, explanation: "The man corrects the time to 8:15.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
-        { id: "l4", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.95, transcript: "A: Is the library open on Sundays? B: Yes, but only until 5 PM.", questions: [{ id: "l4q4", prompt: "When does the library close on Sundays?", options: ["3 PM", "4 PM", "5 PM", "6 PM"], correctAnswer: 2, explanation: "The woman says the library is open until 5 PM on Sundays.", difficulty: "A2", tags: ["detail"] }], answerTimeLimit: 20 },
-        { id: "l5", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.94, transcript: "Long multi-turn conversation (150-200 words) between two people discussing a topic with clear main idea, supporting details, and a conclusion. Include speaker labels: Man: ... Woman: ...", questions: [
-          { id: "l5q5", prompt: "What is the main topic of the conversation?", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
-          { id: "l5q6", prompt: "Detail question about the conversation.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
-          { id: "l5q7", prompt: "Inference question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
-          { id: "l5q8", prompt: "Conclusion or opinion question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["opinion"] }
-        ], answerTimeLimit: 120 },
-        { id: "l6", audioMode: "tts", playLimit: 1, voiceLang: "en-US", speechRate: 0.93, transcript: "Academic lecture or detailed monologue (250-350 words) on an academic or informational topic. Include factual claims, explanations, and examples.", questions: [
-          { id: "l6q9", prompt: "What is the lecture mainly about?", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
-          { id: "l6q10", prompt: "Detail question 1.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
-          { id: "l6q11", prompt: "Detail question 2.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
-          { id: "l6q12", prompt: "Vocabulary or meaning question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
-          { id: "l6q13", prompt: "Inference question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
-          { id: "l6q14", prompt: "Speaker purpose or tone question.", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["purpose"] }
-        ], answerTimeLimit: 180 }
-      ]},
-      reading: { timeLimit: 1200, weight: 0.2, passages: [
-        { id: "r1", title: "string", text: "Reading passage 1 — at least 250 words of connected prose on the chosen topic. Use natural paragraph structure.", questions: [
-          { id: "r1q1", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "A2", tags: ["main_idea"] },
-          { id: "r1q2", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
-          { id: "r1q3", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
-          { id: "r1q4", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] }
-        ]},
-        { id: "r2", title: "string", text: "Reading passage 2 — at least 350 words of connected prose on a different topic. Use natural paragraph structure.", questions: [
-          { id: "r2q5", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
-          { id: "r2q6", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
-          { id: "r2q7", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
-          { id: "r2q8", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
-          { id: "r2q9", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
-          { id: "r2q10", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["purpose"] }
-        ]}
-      ]},
-      writing: { timeLimit: 1500, weight: 0.2, prompts: [
-        { id: "w1", type: "informal_note", prompt: "Write a short informal note or message (50-75 words).", minWords: 50, maxWords: 75, recommendedTime: 300 },
-        { id: "w2", type: "opinion_essay", prompt: "Write an opinion essay (175-250 words) giving your view with reasons and examples.", minWords: 175, maxWords: 250, recommendedTime: 1200 }
-      ]},
-      speaking: { timeLimit: 240, weight: 0.2, prompts: [
-        { id: "s1", type: "personal_response", prompt: "Speak about a personal experience or opinion on a familiar topic.", prepTime: 45, speakTime: 60 },
-        { id: "s2", type: "integrated_opinion", prompt: "Give your opinion on a broader social or abstract topic with reasons.", prepTime: 45, speakTime: 60 }
+      { id: "r2", title: "string", text: "Reading passage 2 - at least 350 words of connected prose on a different topic. Use natural paragraph structure.", questions: [
+        { id: "r2q5", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["main_idea"] },
+        { id: "r2q6", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+        { id: "r2q7", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["detail"] },
+        { id: "r2q8", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["vocabulary"] },
+        { id: "r2q9", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["inference"] },
+        { id: "r2q10", prompt: "string", options: ["A","B","C","D"], correctAnswer: 0, explanation: "string", difficulty: "B1", tags: ["purpose"] }
       ]}
-    }
-  };
-
-  const prompt = [
-    "Create ONE brand-new iTEP-style English exam in strict JSON only (no markdown, no code fences).",
-    `Use these topics across the exam for variety: ${chosenTopics.join(", ")}.`,
-    "Spread difficulty across CEFR A2 to C1 so the exam separates levels instead of testing one: start easy and build up within each section.",
-    "STRUCTURE RULES (follow exactly):",
-    "- Grammar: 25 questions g1..g25. g1-g13 type sentence_completion (fill the blank). g14-g25 type error_detection (underline the error in one of 4 options). Each must have 4 options, correctAnswer (0-based index), and explanation.",
-    "- Listening: exactly 6 items l1..l6.",
-    "  l1-l4: short conversations (2-4 lines, speaker labels Man/Woman), 1 question each (l1q1, l2q2, l3q3, l4q4), answerTimeLimit 20.",
-    "  l5: conversation 150-200 words with speaker labels, 4 questions (l5q5, l5q6, l5q7, l5q8), answerTimeLimit 120.",
-    "  l6: academic lecture or monologue 250-350 words, 6 questions (l6q9..l6q14), answerTimeLimit 180.",
-    "  All items: audioMode tts, playLimit 1, voiceLang en-US, speechRate 0.95.",
-    "- Reading: exactly 2 passages r1,r2.",
-    "  r1: 250-300 words, 4 questions (r1q1..r1q4).",
-    "  r2: 350-450 words, 6 questions (r2q5..r2q10).",
-    "  Passage text must be real connected prose — NO placeholders.",
-    "- Writing: 2 prompts. w1 informal_note (50-75 words, recommendedTime 300). w2 opinion_essay (175-250 words, recommendedTime 1200). timeLimit 1500.",
-    "- Speaking: 2 prompts. s1 personal_response, s2 integrated_opinion. Both prepTime 45, speakTime 60. timeLimit 240.",
-    "Return ONLY a JSON object with key 'test'. All content must be real (no placeholders). Each question needs 4 options, correctAnswer (integer 0-3), and explanation.",
-    `Schema hint: ${JSON.stringify(schemaHint)}`
-  ].join("\n");
-
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.7,
-        max_tokens: 8000,
-        response_format: { type: "json_object" },
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-    if (!res.ok) throw new Error(`GROQ ${res.status}`);
-    const data = await res.json();
-    const content = data.choices?.[0]?.message?.content || "";
-    const parsed = await parseGroqGeneratedExam(key, content);
-    const rawTest = parsed.test || parsed;
-    const enforced = enforceGeneratedExamContract(rawTest);
-    const test = mergeWithFallbackSection(enforced, state.test);
-    if (!validateGeneratedTest(test)) throw new Error("Generated JSON does not match required structure");
-
-    state.test = test;
-    state.answers = {};
-    state.writingTexts = {};
-    state.notes = { listening: {}, speaking: {} };
-    state.speakingRecordings = {};
-    state.speakingEvaluation = {};
-    state.writingEvaluation = {};
-    state.questionIndexes = { grammar: 0, listening: 0, reading: 0 };
-    state.writingPartIndex = 0;
-    state.speakingPartIndex = 0;
-    state.sectionIndex = 0;
-    state.generationMsg = "New exam generated.";
-  } catch (e) {
-    state.generationMsg = `Generation failed: ${e.message || "unknown error"}`;
-  } finally {
-    state.generatingExam = false;
-    render();
+    ]},
+    writing: { timeLimit: 1500, weight: 0.2, prompts: [
+      { id: "w1", type: "informal_note", prompt: "Write a short informal note or message (50-75 words).", minWords: 50, maxWords: 75, recommendedTime: 300 },
+      { id: "w2", type: "opinion_essay", prompt: "Write an opinion essay (175-250 words) giving your view with reasons and examples.", minWords: 175, maxWords: 250, recommendedTime: 1200 }
+    ]},
+    speaking: { timeLimit: 240, weight: 0.2, prompts: [
+      { id: "s1", type: "personal_response", prompt: "Speak about a personal experience or opinion on a familiar topic.", prepTime: 45, speakTime: 60 },
+      { id: "s2", type: "integrated_opinion", prompt: "Give your opinion on a broader social or abstract topic with reasons.", prepTime: 45, speakTime: 60 }
+    ]}
   }
+};
+
+function downloadExamTemplate() {
+  const blob = new Blob([JSON.stringify(EXAM_TEMPLATE, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "itep-exam-template.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  /* Sin esto el blob se queda en memoria hasta que se cierre la pestana, y en
+     un examen largo el usuario puede descargar la plantilla varias veces. */
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* Un archivo exportado por examia trae el examen envuelto; uno escrito a mano
+   suele venir pelado. Se aceptan las dos formas en vez de exigir una. */
+function unwrapImportedExam(parsed) {
+  if (!parsed || typeof parsed !== "object") return null;
+  if (parsed.sections) return parsed;
+  if (parsed.test?.sections) return parsed.test;
+  if (Array.isArray(parsed.tests) && parsed.tests.length) {
+    const preferred = parsed.tests.find((t) => t.id === parsed.meta?.defaultTestId);
+    return preferred || parsed.tests[0];
+  }
+  return null;
+}
+
+function describeImportedExam(test) {
+  const sec = test.sections || {};
+  const g = (sec.grammar?.questions || []).length;
+  const l = (sec.listening?.items || []).reduce((a, it) => a + (it.questions || []).length, 0);
+  const r = (sec.reading?.passages || []).reduce((a, p) => a + (p.questions || []).length, 0);
+  const w = (sec.writing?.prompts || []).length;
+  const s = (sec.speaking?.prompts || []).length;
+  return `${g} grammar, ${l} listening, ${r} reading, ${w} writing, ${s} speaking`;
+}
+
+function applyImportedExam(test, label) {
+  state.test = test;
+  state.usingImportedExam = true;
+  state.answers = {};
+  state.writingTexts = {};
+  state.notes = { listening: {}, speaking: {} };
+  state.speakingRecordings = {};
+  state.speakingTranscripts = {};
+  state.speakingEvaluation = {};
+  state.writingEvaluation = {};
+  state.questionIndexes = { grammar: 0, listening: 0, reading: 0 };
+  state.writingPartIndex = 0;
+  state.speakingPartIndex = 0;
+  state.sectionIndex = 0;
+  state.importStatus = "ok";
+  state.importMsg = `Loaded "${test.title || label}" - ${describeImportedExam(test)}.`;
+}
+
+function importExamFromText(raw, label) {
+  const text = String(raw || "").trim();
+  if (!text) {
+    state.importStatus = "error";
+    state.importMsg = "Nothing to import: paste the JSON or choose a file.";
+    return render();
+  }
+
+  let parsed;
+  try {
+    /* Se tolera lo que trae un copiar y pegar real: cercas de markdown, comillas
+       tipograficas, una coma de mas al final. El error que se muestra es el de
+       verdad, no el de la basura de alrededor. */
+    parsed = JSON.parse(sanitizeJsonString(extractLikelyJsonBlock(text)));
+  } catch (e) {
+    state.importStatus = "error";
+    state.importMsg = `That is not valid JSON: ${e.message || "parse error"}`;
+    return render();
+  }
+
+  const candidate = unwrapImportedExam(parsed);
+  if (!candidate) {
+    state.importStatus = "error";
+    state.importMsg = "Valid JSON, but no exam inside it. It needs a \"sections\" object - download the template to see the shape.";
+    return render();
+  }
+
+  let test;
+  try {
+    test = mergeWithFallbackSection(enforceGeneratedExamContract(candidate), state.builtInTest || state.test);
+  } catch (e) {
+    state.importStatus = "error";
+    state.importMsg = `Could not read that exam: ${e.message || "unknown error"}`;
+    return render();
+  }
+
+  if (!validateGeneratedTest(test)) {
+    state.importStatus = "error";
+    state.importMsg = "The exam is missing sections. It needs grammar, listening, reading, writing and speaking.";
+    return render();
+  }
+
+  applyImportedExam(test, label || "imported exam");
+  state.importPasteText = "";
+  render();
+}
+
+function importExamFromFile(file) {
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    state.importStatus = "error";
+    state.importMsg = "That file is over 5 MB. An exam is text; something else is in there.";
+    return render();
+  }
+  const reader = new FileReader();
+  reader.onload = () => importExamFromText(reader.result, file.name);
+  reader.onerror = () => {
+    state.importStatus = "error";
+    state.importMsg = "Could not read that file.";
+    render();
+  };
+  reader.readAsText(file);
+}
+
+function resetToBuiltInExam() {
+  if (!state.builtInTest) return;
+  applyImportedExam(cloneJson(state.builtInTest), "built-in exam");
+  state.usingImportedExam = false;
+  state.importStatus = "ok";
+  state.importMsg = "Back to the built-in exam.";
+  render();
 }
 
 function startTimer(sec) {
@@ -1159,12 +1178,12 @@ function renderDeviceCheck() {
   const micLabel = micStatus === "testing" ? "Recording… (3s)" : micStatus === "idle" ? "Test Microphone" : "Test Again";
   const audioLabel = audioStatus === "testing" ? "Playing…" : audioStatus === "idle" ? "Test Audio" : "Play Again";
   const micResult = micStatus === "ok" && micUrl
-    ? `<p class="lnd-gen-msg lnd-gen-ok">Microphone working — play back your recording below.</p><audio controls src="${micUrl}" style="width:100%;margin-top:0.5rem"></audio>`
+    ? `<p class="lnd-msg lnd-msg-ok">Microphone working - play back your recording below.</p><audio controls src="${micUrl}" style="width:100%;margin-top:0.5rem"></audio>`
     : micStatus === "error"
-    ? `<p class="lnd-gen-msg lnd-gen-error">Microphone not accessible. Allow microphone permission and try again.</p>`
+    ? `<p class="lnd-msg lnd-msg-error">Microphone not accessible. Allow microphone permission and try again.</p>`
     : "";
   const audioResult = audioStatus === "ok"
-    ? `<p class="lnd-gen-msg lnd-gen-ok">Audio is working correctly.</p>`
+    ? `<p class="lnd-msg lnd-msg-ok">Audio is working correctly.</p>`
     : "";
   const modeLabel = pendingMode === "study" ? "Study Mode" : "Exam Mode";
   return `<main class="section-break-shell"><section class="panel section-break-card" style="max-width:520px">
@@ -1179,7 +1198,7 @@ function renderDeviceCheck() {
       </div>
       <div class="transcript" style="padding:1rem">
         <h4 style="margin:0 0 0.4rem">Audio / Listening Test</h4>
-        <p class="muted" style="margin:0 0 0.75rem">Plays a short phrase — confirm you can hear it clearly.</p>
+        <p class="muted" style="margin:0 0 0.75rem">Plays a short phrase - confirm you can hear it clearly.</p>
         <button class="btn primary" data-action="test-audio" ${audioStatus === "testing" ? "disabled" : ""}>${audioLabel}</button>
         ${audioResult}
       </div>
@@ -1238,15 +1257,22 @@ function render() {
     const readingCount = (sec.reading?.passages || []).reduce((a, p) => a + (p.questions || []).length, 0);
     const writingCount = (sec.writing?.prompts || []).length;
     const speakingCount = (sec.speaking?.prompts || []).length;
-    const genMsgClass = state.generationMsg.startsWith("Generation failed") || state.generationMsg.startsWith("Add GROQ") ? "lnd-gen-error" : "lnd-gen-ok";
+    const importClass = state.importStatus === "error" ? "lnd-msg-error" : "lnd-msg-ok";
     app.innerHTML = `<main class="wrap">
-  <div class="lnd-hero">
-    <div class="lnd-logo">iTEP</div>
+  <header class="lnd-hero">
+    <img class="lnd-logo" src="${import.meta.env.BASE_URL}logo.svg" alt="" width="62" height="62">
     <div class="lnd-hero-text">
       <h1>iTEP Practice Simulator</h1>
       <p>International Test of English Proficiency</p>
     </div>
-  </div>
+    <span class="lnd-hero-tag">Free &bull; No account</span>
+  </header>
+
+  <p class="lnd-pitch">
+    A full run of the exam, timed like the real thing. Five sections back to
+    back, then a CEFR report from A1 to C2 based on how you actually answered.
+  </p>
+
   <div class="lnd-sections">
     <div class="lnd-sec"><span class="lnd-sec-badge">G</span><strong>Grammar</strong><span>${grammarCount} items &bull; 10 min</span></div>
     <div class="lnd-sec"><span class="lnd-sec-badge">L</span><strong>Listening</strong><span>${listeningCount} items &bull; Variable</span></div>
@@ -1254,28 +1280,70 @@ function render() {
     <div class="lnd-sec"><span class="lnd-sec-badge">W</span><strong>Writing</strong><span>${writingCount} prompts &bull; 25 min</span></div>
     <div class="lnd-sec"><span class="lnd-sec-badge">S</span><strong>Speaking</strong><span>${speakingCount} prompts &bull; ~3.5 min</span></div>
   </div>
+
   <section class="panel lnd-panel">
-    <p class="lnd-exam-meta">${esc(state.test.title)}</p>
+    <p class="lnd-exam-meta">
+      ${esc(state.test.title)}
+      ${state.usingImportedExam ? `<span class="lnd-badge-imported">imported</span>` : ""}
+    </p>
     <ul class="lnd-instructions">${state.test.instructions.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>
+
     <p class="lnd-choose">How do you want to practice?</p>
-    <div class="mode-grid ${state.generatingExam ? "lnd-locked" : ""}">
+    <div class="mode-grid">
       <article class="mode-card exam-card">
         <h3>Exam Mode</h3>
-        <p>Official section timing, score at the end, and realistic exam flow.</p>
-        <button class="btn primary lnd-btn" data-action="start-exam" ${state.generatingExam ? "disabled" : ""}>Start Exam Mode</button>
+        <p>Official section timing, no feedback until the end, full score report on submit.</p>
+        <button class="btn primary lnd-btn" data-action="start-exam">Start Exam Mode</button>
       </article>
       <article class="mode-card study-card">
         <h3>Study Mode</h3>
-        <p>Suggested timers (no auto-advance) and instant feedback after each answer.</p>
-        <button class="btn lnd-btn" data-action="start-study" ${state.generatingExam ? "disabled" : ""}>Start Study Mode</button>
+        <p>Suggested timers with no auto-advance, and instant feedback after each answer.</p>
+        <button class="btn lnd-btn" data-action="start-study">Start Study Mode</button>
       </article>
     </div>
-    <div class="lnd-generate">
-      <button class="btn lnd-gen-btn" data-action="generate-exam" ${state.generatingExam ? "disabled" : ""}>${state.generatingExam ? "Generating new exam..." : "Generate New Exam with AI"}</button>
-      ${state.generatingExam ? `<div class="lnd-spinner-row"><div class="lnd-spinner"></div><span class="lnd-spinner-msg">Building your exam with AI, please wait...</span></div>` : ""}
-      ${state.generationMsg && !state.generatingExam ? `<p class="lnd-gen-msg ${genMsgClass}">${esc(state.generationMsg)}</p>` : ""}
-    </div>
   </section>
+
+  <section class="panel lnd-panel lnd-import">
+    <button class="lnd-import-head" data-action="toggle-import" aria-expanded="${state.importOpen}">
+      <span>
+        <strong>Use your own exam</strong>
+        <em>Load a question bank from a JSON file</em>
+      </span>
+      <span class="lnd-import-chev">${state.importOpen ? "&minus;" : "+"}</span>
+    </button>
+
+    ${state.importOpen ? `
+    <div class="lnd-import-body">
+      <p class="lnd-import-note">
+        The exam above is the built-in one. To sit a different exam, load a JSON
+        file with the same shape - download the template to see it, fill it with
+        your own questions, and bring it back here.
+      </p>
+
+      <div class="lnd-import-actions">
+        <button class="btn primary" data-action="pick-exam-file">Choose JSON file</button>
+        <button class="btn" data-action="download-template">Download template</button>
+        ${state.usingImportedExam ? `<button class="btn" data-action="reset-exam">Back to built-in exam</button>` : ""}
+      </div>
+      <input type="file" id="examFile" accept="application/json,.json" hidden>
+
+      <details class="lnd-paste" ${state.importPasteText || state.importStatus === "error" ? "open" : ""}>
+        <summary>Or paste the JSON</summary>
+        <textarea id="examPaste" rows="7" spellcheck="false" placeholder='{ "title": "My exam", "sections": { ... } }'>${esc(state.importPasteText)}</textarea>
+        <button class="btn" data-action="import-pasted">Load pasted exam</button>
+      </details>
+
+      ${state.importMsg ? `<p class="lnd-msg ${importClass}">${esc(state.importMsg)}</p>` : ""}
+
+      <p class="lnd-import-cta">
+        Need the questions written for you? That is what
+        <a href="https://examia.kgstudio.top/" target="_blank" rel="noopener">examia</a>
+        does: it generates a bank for any certification exam and exports it as
+        JSON. Bring that file here.
+      </p>
+    </div>` : ""}
+  </section>
+
   <section class="panel lnd-panel">
     <details class="verb-tense-ref">
       <summary><strong>Grammar Reference: 12 Verb Tenses for iTEP</strong></summary>
@@ -1319,17 +1387,17 @@ function render() {
         <div class="vt-sample">
           <p><strong>Q1.</strong> Susan is not coming with us because she ________ that movie already.</p>
           <p class="vt-choices">A) will see &nbsp; B) was seeing &nbsp; C) will have seen &nbsp; <strong>D) has seen</strong> ✓</p>
-          <p class="vt-explain">Present perfect — the action is complete but relevant to the present situation.</p>
+          <p class="vt-explain">Present perfect - the action is complete but relevant to the present situation.</p>
         </div>
         <div class="vt-sample">
           <p><strong>Q2.</strong> While on my way to the cafeteria, I noticed that I ________ my wallet.</p>
           <p class="vt-choices">A) forget &nbsp; B) sometimes forget &nbsp; C) am forgetting &nbsp; <strong>D) had forgotten</strong> ✓</p>
-          <p class="vt-explain">Past perfect — the forgetting happened before the noticing.</p>
+          <p class="vt-explain">Past perfect - the forgetting happened before the noticing.</p>
         </div>
         <div class="vt-sample">
           <p><strong>Q3.</strong> If I ________ able to go to the play, she would not have had to drive her car.</p>
           <p class="vt-choices">A) was &nbsp; B) have been &nbsp; C) am going to be &nbsp; <strong>D) had been</strong> ✓</p>
-          <p class="vt-explain">Past perfect in a third conditional — both conditions are in the unreal past.</p>
+          <p class="vt-explain">Past perfect in a third conditional - both conditions are in the unreal past.</p>
         </div>
       </div>
     </details>
@@ -1506,6 +1574,20 @@ function autoStartSpeakingIfNeeded() {
   startRecording().catch(() => {});
 }
 
+/* El input de archivo se dispara con `change`, no con `click`, y el elemento se
+   vuelve a crear en cada render. Por eso el listener va delegado en `app` y en
+   fase de captura: `change` no burbujea en todos los navegadores. */
+app.addEventListener("input", (e) => {
+  if (e.target?.id === "examPaste") state.importPasteText = e.target.value;
+});
+
+app.addEventListener("change", (e) => {
+  if (e.target?.id !== "examFile") return;
+  const file = e.target.files?.[0];
+  e.target.value = "";
+  importExamFromFile(file);
+}, true);
+
 app.addEventListener("click", async (e) => {
   const btn = e.target.closest("[data-action]");
   if (!btn) return;
@@ -1516,7 +1598,11 @@ app.addEventListener("click", async (e) => {
   if (action === "test-mic") return runMicTest();
   if (action === "test-audio") return runAudioTest();
   if (action === "device-check-continue") return startExam(state.deviceCheck.pendingMode);
-  if (action === "generate-exam") return generateNewExamWithGroq();
+  if (action === "toggle-import") { state.importOpen = !state.importOpen; return render(); }
+  if (action === "pick-exam-file") { document.getElementById("examFile")?.click(); return; }
+  if (action === "import-pasted") return importExamFromText(state.importPasteText, "pasted exam");
+  if (action === "download-template") return downloadExamTemplate();
+  if (action === "reset-exam") return resetToBuiltInExam();
   if (action === "start-pending-section") return startPendingSection();
   if (action === "next-section") return nextSection();
   if (action === "prev-section") return prevSection();

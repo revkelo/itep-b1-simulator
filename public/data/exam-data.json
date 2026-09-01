@@ -4,7 +4,7 @@
     "version": "4.8",
     "level": "A1-C2",
     "defaultTestId": "itep_practice_iii_001",
-    "source": "iTEP Practice Test III – Original Content"
+    "source": "iTEP Practice Test III - Original Content"
   },
   "tests": [
     {
@@ -66,7 +66,7 @@
               "type": "sentence_completion",
               "difficulty": "A2",
               "tags": ["going_to_future"],
-              "prompt": "Look at those clouds — it ____ rain any minute now.",
+              "prompt": "Look at those clouds - it ____ rain any minute now.",
               "options": ["will", "is going to", "goes to", "shall"],
               "correctAnswer": 1,
               "explanation": "'Going to' expresses a prediction based on present evidence (the clouds we can see)."
@@ -249,7 +249,7 @@
               "prompt": "If she had practiced more consistently, she would be a professional musician now.",
               "options": ["If she had practiced", "more consistently", "she would be", "a professional musician now"],
               "correctAnswer": -1,
-              "explanation": "This sentence is grammatically correct — it is a mixed conditional: past perfect in the if-clause (past) and 'would + base form' in the result (present).",
+              "explanation": "This sentence is grammatically correct - it is a mixed conditional: past perfect in the if-clause (past) and 'would + base form' in the result (present).",
               "note": "This question tests recognition of correct grammar; -1 indicates no error."
             },
             {
@@ -284,7 +284,7 @@
               "playLimit": 1,
               "voiceLang": "en-US",
               "speechRate": 0.95,
-              "transcript": "Conversation one. Woman: Have you tried the new café near the campus library? Man: Not yet. Is it any good? Woman: The coffee is great and they have free Wi-Fi, but it gets really crowded after noon. Man: Good to know — I will go early tomorrow.",
+              "transcript": "Conversation one. Woman: Have you tried the new café near the campus library? Man: Not yet. Is it any good? Woman: The coffee is great and they have free Wi-Fi, but it gets really crowded after noon. Man: Good to know - I will go early tomorrow.",
               "questions": [
                 {
                   "id": "l1q1",
@@ -336,7 +336,7 @@
               "playLimit": 1,
               "voiceLang": "en-US",
               "speechRate": 0.95,
-              "transcript": "Conversation three. Woman A: I am so nervous about the presentation tomorrow. Woman B: Have you rehearsed it yet? Woman A: Twice, but I keep forgetting the third slide. Woman B: Try recording yourself — it really helps to hear where you pause too long.",
+              "transcript": "Conversation three. Woman A: I am so nervous about the presentation tomorrow. Woman B: Have you rehearsed it yet? Woman A: Twice, but I keep forgetting the third slide. Woman B: Try recording yourself - it really helps to hear where you pause too long.",
               "questions": [
                 {
                   "id": "l3q3",
@@ -558,7 +558,7 @@
             {
               "id": "r1",
               "title": "The Rise of Slow Travel",
-              "text": "In recent years, a growing number of travelers have begun to reject fast-paced itineraries in favor of a more deliberate approach known as slow travel. Rather than rushing from city to city in order to check destinations off a list, slow travelers choose to spend extended periods in a single location, immersing themselves in local culture, forming connections with residents, and developing a deeper understanding of the places they visit.\n\nThe slow travel movement draws on principles similar to those of the slow food movement, which advocates for quality and mindfulness over speed and convenience. Proponents argue that spending a week or a month in one place — cooking local ingredients, using public transportation, and attending neighborhood events — produces a far richer experience than a conventional two-week tour of ten countries.\n\nSlow travel also tends to be more environmentally sustainable. Fewer flights means a lower carbon footprint, and staying in locally owned accommodations rather than international hotel chains keeps money circulating within the local economy. Despite its advantages, slow travel requires resources that not everyone has: time, flexibility, and often a location-independent income.",
+              "text": "In recent years, a growing number of travelers have begun to reject fast-paced itineraries in favor of a more deliberate approach known as slow travel. Rather than rushing from city to city in order to check destinations off a list, slow travelers choose to spend extended periods in a single location, immersing themselves in local culture, forming connections with residents, and developing a deeper understanding of the places they visit.\n\nThe slow travel movement draws on principles similar to those of the slow food movement, which advocates for quality and mindfulness over speed and convenience. Proponents argue that spending a week or a month in one place - cooking local ingredients, using public transportation, and attending neighborhood events - produces a far richer experience than a conventional two-week tour of ten countries.\n\nSlow travel also tends to be more environmentally sustainable. Fewer flights means a lower carbon footprint, and staying in locally owned accommodations rather than international hotel chains keeps money circulating within the local economy. Despite its advantages, slow travel requires resources that not everyone has: time, flexibility, and often a location-independent income.",
               "questions": [
                 {
                   "id": "r1q1",
@@ -633,14 +633,14 @@
                     "Anyone willing to reduce their spending on accommodation"
                   ],
                   "correctAnswer": 0,
-                  "explanation": "The passage notes that slow travel requires time, flexibility, and often a location-independent income — traits more common among remote workers or retirees."
+                  "explanation": "The passage notes that slow travel requires time, flexibility, and often a location-independent income - traits more common among remote workers or retirees."
                 }
               ]
             },
             {
               "id": "r2",
               "title": "The Neuroscience of Music",
-              "text": "Music is one of the most complex stimuli the human brain processes. Unlike language or visual perception, music activates an unusually broad network of brain regions simultaneously, including areas responsible for auditory processing, memory, emotion, and movement. Neuroscientists have used brain imaging techniques such as fMRI to map these responses, revealing that the brain does not simply hear music passively but actively predicts and responds to it in real time. [A]\n\nOne of the most studied phenomena is the 'chills' response — the physical sensation of goosebumps or shivers that some people experience when listening to emotionally powerful music. Research suggests that this response involves the release of dopamine, the brain's reward chemical, in the nucleus accumbens, a region also associated with the pleasures of food and social bonding. Interestingly, not everyone experiences this response, and those who do tend to score higher on measures of openness to experience. [B]\n\nMusic also has well-documented effects on memory and mood. It is widely used in therapeutic contexts for patients with Alzheimer's disease, many of whom can remember song lyrics even when other forms of memory have significantly deteriorated. [C] Music-based interventions have been shown to reduce anxiety in hospital settings and improve motor coordination in patients undergoing rehabilitation after a stroke.\n\nDespite the growing body of research, much remains unknown about why music affects humans as profoundly as it does. [D] Some researchers propose that music's emotional power derives from its structural parallels with human speech — specifically, its use of rhythm, pitch, and timing to convey meaning and intention.",
+              "text": "Music is one of the most complex stimuli the human brain processes. Unlike language or visual perception, music activates an unusually broad network of brain regions simultaneously, including areas responsible for auditory processing, memory, emotion, and movement. Neuroscientists have used brain imaging techniques such as fMRI to map these responses, revealing that the brain does not simply hear music passively but actively predicts and responds to it in real time. [A]\n\nOne of the most studied phenomena is the 'chills' response - the physical sensation of goosebumps or shivers that some people experience when listening to emotionally powerful music. Research suggests that this response involves the release of dopamine, the brain's reward chemical, in the nucleus accumbens, a region also associated with the pleasures of food and social bonding. Interestingly, not everyone experiences this response, and those who do tend to score higher on measures of openness to experience. [B]\n\nMusic also has well-documented effects on memory and mood. It is widely used in therapeutic contexts for patients with Alzheimer's disease, many of whom can remember song lyrics even when other forms of memory have significantly deteriorated. [C] Music-based interventions have been shown to reduce anxiety in hospital settings and improve motor coordination in patients undergoing rehabilitation after a stroke.\n\nDespite the growing body of research, much remains unknown about why music affects humans as profoundly as it does. [D] Some researchers propose that music's emotional power derives from its structural parallels with human speech - specifically, its use of rhythm, pitch, and timing to convey meaning and intention.",
               "questions": [
                 {
                   "id": "r2q5",

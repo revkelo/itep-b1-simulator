@@ -70,15 +70,37 @@ banco de preguntas — se copia tal cual a la raíz del build.
 
 ---
 
-## Personalizar el banco de preguntas
+## Cambiar el banco de preguntas
 
-Todas las preguntas están en un solo archivo JSON:
+Hay dos formas, y ninguna toca el código.
+
+**Desde la app.** En la portada, `Use your own exam` abre un panel donde se
+carga un `.json` o se pega directamente. `Download template` baja un ejemplo
+completo con la forma exacta que espera el simulador: se llena con las
+preguntas propias y se vuelve a subir. El examen importado se marca en la
+portada, y `Back to built-in exam` devuelve al de fábrica.
+
+Se acepta el JSON tal como salga de donde salga: envuelto en `{ "test": ... }`,
+en el formato de `exam-data.json` con `meta` y `tests`, o el objeto pelado. Si
+viene con cercas de markdown o una coma de más, se limpia solo. Si le falta una
+sección, se rellena con la del examen de fábrica en vez de fallar.
+
+**Editando el archivo.** El examen que viene por defecto está en:
 
 ```
 public/data/exam-data.json
 ```
 
-Contiene las secciones `grammar`, `listening`, `reading`, `writing` y `speaking` con sus pesos, tiempos, explicaciones y metadata. Puedes editarlo para agregar o modificar preguntas sin tocar el código.
+Contiene las secciones `grammar`, `listening`, `reading`, `writing` y `speaking`
+con sus pesos, tiempos, explicaciones y metadata.
+
+### ¿Y generarlas con IA?
+
+Eso lo hace [examia](https://examia.kgstudio.top/), que es el sitio de la zona
+dedicado a construir bancos de preguntas para cualquier examen de certificación
+y exportarlos en JSON. Este simulador importa ese archivo. Separar las dos cosas
+mantiene el simulador funcionando sin llaves de API y sin depender de que un
+modelo responda.
 
 ---
 
@@ -88,6 +110,19 @@ Por defecto usa TTS del navegador. Para usar archivos de audio propios:
 
 1. Colocar los `.mp3` en `public/audio/`
 2. En `exam-data.json`, cambiar `"audioMode": "tts"` por `"audioMode": "file"` y añadir la ruta del archivo
+
+---
+
+## Pruebas
+
+```bash
+npm test
+```
+
+Monta la app en jsdom y recorre la portada de punta a punta: que se pinta, que
+los dos modos están, que el panel de importar abre, que acepta un examen válido
+en sus tres formatos, que rechaza lo que no lo es sin perder lo que el usuario
+pegó, y que se puede volver al examen de fábrica.
 
 ---
 

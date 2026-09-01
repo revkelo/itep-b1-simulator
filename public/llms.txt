@@ -1,4 +1,4 @@
-# iTEP Practice Simulator — itep.kgstudio.top
+# iTEP Practice Simulator - itep.kgstudio.top
 
 > A free, full practice run of the iTEP English proficiency exam, in the
 > browser. Five sections with real per-section timing and a CEFR score report
@@ -18,19 +18,19 @@ report places the candidate between A1 and C2 based on how they answered.
 
 ## Sections
 
-- **Grammar** — sentence completion and error detection. 10 minutes.
-- **Listening** — short conversations, a longer conversation and an academic
+- **Grammar** - sentence completion and error detection. 10 minutes.
+- **Listening** - short conversations, a longer conversation and an academic
   lecture, each played once. Delivered by browser speech synthesis.
-- **Reading** — two passages with comprehension questions. 20 minutes.
-- **Writing** — timed written responses. 25 minutes.
-- **Speaking** — recorded answers with preparation time, transcribed in the
+- **Reading** - two passages with comprehension questions. 20 minutes.
+- **Writing** - timed written responses. 25 minutes.
+- **Speaking** - recorded answers with preparation time, transcribed in the
   browser.
 
 ## Modes
 
-- **Exam mode** — official section timing, no feedback until the end, full
+- **Exam mode** - official section timing, no feedback until the end, full
   score report on submit.
-- **Study mode** — suggested timers with no auto-advance, and feedback right
+- **Study mode** - suggested timers with no auto-advance, and feedback right
   after each answer.
 
 ## How it works
@@ -44,7 +44,7 @@ with feedback.
 ## Who it is for
 
 Students who have to certify their English for a degree, a university
-admission or a scholarship and want a realistic run-through — including anyone
+admission or a scholarship and want a realistic run-through - including anyone
 sitting the iTEP Academic or iTEP SLATE.
 
 ## Author

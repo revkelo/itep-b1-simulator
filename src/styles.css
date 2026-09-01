@@ -12,11 +12,12 @@ body { margin:0; font-family:"Segoe UI", Arial, sans-serif; background:linear-gr
 
 /* Landing hero & sections */
 .lnd-hero { display:flex; align-items:center; gap:18px; background:linear-gradient(135deg,#1a4a78,#2568a8); border-radius:18px; padding:22px 24px; margin-bottom:14px; }
-.lnd-logo { width:62px; height:62px; border-radius:50%; background:#fff; color:#1a4f7e; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:17px; flex-shrink:0; border:2px solid #6aabde; }
+.lnd-logo { width:62px; height:62px; flex-shrink:0; display:block; }
 .lnd-hero-text { flex:1; }
 .lnd-hero-text h1 { margin:0 0 4px; font-size:22px; color:#fff; font-weight:800; }
 .lnd-hero-text p { margin:0; font-size:13px; color:#a8d4f5; }
-.lnd-level-badge { background:#ffe300; color:#1d2c3d; border-radius:999px; padding:8px 20px; font-weight:900; font-size:18px; white-space:nowrap; }
+.lnd-hero-tag { background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#dbeeff; border-radius:999px; padding:6px 14px; font-size:12px; font-weight:700; white-space:nowrap; }
+.lnd-pitch { margin:0 0 14px; font-size:15px; line-height:1.65; color:#325f8d; max-width:62ch; }
 
 .lnd-sections { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
 .lnd-sec { flex:1; min-width:110px; background:#1c5288; border:1px solid #3b78b4; border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:3px; }
@@ -32,11 +33,36 @@ body { margin:0; font-family:"Segoe UI", Arial, sans-serif; background:linear-gr
 .study-card { border-top:3px solid #22a085; }
 .lnd-btn { width:100%; margin-top:4px; }
 
-.lnd-generate { margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:8px; }
-.lnd-gen-btn { background:#1a4f7e; color:#c5e0f8; border:1px solid #3b78b4; min-width:250px; }
-.lnd-gen-msg { font-size:13px; text-align:center; padding:6px 14px; border-radius:8px; margin:0; }
-.lnd-gen-ok { background:#d8f5ea; color:#0d5c3a; border:1px solid #7acca8; }
-.lnd-gen-error { background:#fde8e8; color:#7a2020; border:1px solid #f5a0a0; }
+/* Importar un examen propio es lo secundario: casi todo el mundo entra y
+   arranca con el que ya viene. Por eso el bloque va plegado, y la cabecera es
+   el boton que lo abre. */
+.lnd-import { padding:0; overflow:hidden; }
+.lnd-import-head { width:100%; display:flex; align-items:center; justify-content:space-between; gap:14px;
+  background:none; border:0; padding:16px 20px; text-align:left; cursor:pointer; font:inherit; color:inherit; }
+.lnd-import-head:hover { background:#f2f7fc; }
+.lnd-import-head strong { display:block; font-size:15px; font-weight:700; color:#1a4a78; }
+.lnd-import-head em { display:block; font-style:normal; font-size:13px; color:#5b83ab; margin-top:2px; }
+.lnd-import-chev { font-size:20px; font-weight:700; color:#3b78b4; line-height:1; }
+
+.lnd-import-body { padding:0 20px 20px; border-top:1px solid #dce8f2; }
+.lnd-import-note { font-size:13.5px; line-height:1.65; color:#4a7bab; margin:14px 0 14px; max-width:62ch; }
+.lnd-import-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.lnd-badge-imported { display:inline-block; margin-left:8px; background:#d8f5ea; color:#0d5c3a;
+  border:1px solid #7acca8; border-radius:999px; padding:1px 9px; font-size:11px; font-weight:700; }
+
+.lnd-paste { margin-top:14px; }
+.lnd-paste summary { cursor:pointer; font-size:13.5px; color:#3b78b4; font-weight:600; }
+.lnd-paste textarea { width:100%; margin:10px 0 8px; padding:10px 12px; border:1px solid #c3d8e9; border-radius:10px;
+  font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; line-height:1.5; resize:vertical; }
+
+/* Mensaje de estado. Lo usan el panel de importar y el chequeo de microfono,
+   asi que el nombre no puede apellidarse por ninguno de los dos. */
+.lnd-msg { font-size:13px; padding:8px 14px; border-radius:8px; margin:14px 0 0; line-height:1.5; }
+.lnd-msg-ok { background:#d8f5ea; color:#0d5c3a; border:1px solid #7acca8; }
+.lnd-msg-error { background:#fde8e8; color:#7a2020; border:1px solid #f5a0a0; }
+
+.lnd-import-cta { font-size:13px; line-height:1.65; color:#5b83ab; margin:14px 0 0; max-width:62ch; }
+.lnd-import-cta a { color:#1a4f7e; font-weight:600; }
 
 .section-break-shell { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
 .section-break-card { max-width:480px; width:100%; text-align:center; padding:36px 32px; }
@@ -44,11 +70,7 @@ body { margin:0; font-family:"Segoe UI", Arial, sans-serif; background:linear-gr
 .section-break-card .muted { margin:0 0 24px; font-size:16px; }
 .section-break-card .btn { min-width:160px; }
 
-.lnd-locked { opacity:.45; pointer-events:none; }
-.lnd-spinner-row { display:flex; align-items:center; gap:10px; margin-top:4px; }
-.lnd-spinner { width:20px; height:20px; border:3px solid #a8d4f5; border-top-color:#2f7ece; border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0; }
-.lnd-spinner-msg { font-size:13px; color:#3b6fa0; }
-@keyframes spin { to { transform:rotate(360deg); } }
+
 
 .itep-shell { max-width: 1260px; margin: 0 auto; min-height: 100vh; padding: 0 22px 12px; }
 .itep-header { display:flex; justify-content:space-between; align-items:center; padding:18px 4px 10px; }
