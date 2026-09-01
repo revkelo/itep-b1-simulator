@@ -229,7 +229,7 @@ function normalizeGeneratedTest(input) {
 
   return {
     id: t.id || `generated_${Date.now()}`,
-    title: t.title || "Generated iTEP B1 Exam",
+    title: t.title || "Generated iTEP Practice Exam",
     instructions: toArray(t.instructions).length ? t.instructions : [
       "Complete sections in order.",
       "Listening is forward-only.",
@@ -485,9 +485,9 @@ async function generateNewExamWithGroq() {
   };
 
   const prompt = [
-    "Create ONE brand-new iTEP-style B1 English exam in strict JSON only (no markdown, no code fences).",
+    "Create ONE brand-new iTEP-style English exam in strict JSON only (no markdown, no code fences).",
     `Use these topics across the exam for variety: ${chosenTopics.join(", ")}.`,
-    "Target CEFR B1 level throughout: clear sentences, common vocabulary, straightforward ideas.",
+    "Spread difficulty across CEFR A2 to C1 so the exam separates levels instead of testing one: start easy and build up within each section.",
     "STRUCTURE RULES (follow exactly):",
     "- Grammar: 25 questions g1..g25. g1-g13 type sentence_completion (fill the blank). g14-g25 type error_detection (underline the error in one of 4 options). Each must have 4 options, correctAnswer (0-based index), and explanation.",
     "- Listening: exactly 6 items l1..l6.",
@@ -942,7 +942,7 @@ async function evaluateSpeakingWithGroq(promptObj) {
       model: "llama-3.3-70b-versatile",
       temperature: 0.2,
       response_format: { type: "json_object" },
-      messages: [{ role: "user", content: `Evaluate iTEP B1 speaking response. Return JSON with keys score, cefr, fluency, pronunciation, grammar, vocabulary, coherence, feedback. Prompt: ${promptObj.prompt}\nTranscript: ${transcript}\nNotes: ${note}` }]
+      messages: [{ role: "user", content: `Evaluate this iTEP speaking response and place it on the CEFR scale (A1-C2). Return JSON with keys score, cefr, fluency, pronunciation, grammar, vocabulary, coherence, feedback. Prompt: ${promptObj.prompt}\nTranscript: ${transcript}\nNotes: ${note}` }]
     };
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -974,7 +974,7 @@ async function evaluateWritingWithGroq(promptObj, text) {
       model: "llama-3.3-70b-versatile",
       temperature: 0.2,
       response_format: { type: "json_object" },
-      messages: [{ role: "user", content: `Evaluate iTEP B1 writing response. Return JSON with keys score, cefr, grammar, coherence, vocabulary, fluency, corrections, feedback, improvedVersion. Prompt: ${promptObj.prompt}\nResponse: ${text}` }]
+      messages: [{ role: "user", content: `Evaluate this iTEP writing response and place it on the CEFR scale (A1-C2). Return JSON with keys score, cefr, grammar, coherence, vocabulary, fluency, corrections, feedback, improvedVersion. Prompt: ${promptObj.prompt}\nResponse: ${text}` }]
     };
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",

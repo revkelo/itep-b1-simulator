@@ -3,11 +3,182 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>iTEP B1 Simulator</title>
+
+    <title>iTEP Practice Simulator — Free full English exam with real timing</title>
+    <meta name="description"
+      content="Free iTEP practice test with all five sections — Grammar, Listening, Reading, Writing and Speaking — real per-section timing, autosave and a CEFR score report (A1–C2). No account, no download." />
+    <meta name="author" content="Kevin Gonzalez" />
+    <link rel="canonical" href="https://itep.kgstudio.top/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="theme-color" content="#0f172a" />
+
+    <!-- El enlace circula entre estudiantes por WhatsApp y grupos de clase.
+         Sin tarjeta se comparte como una URL pelada y nadie la abre. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://itep.kgstudio.top/" />
+    <meta property="og:site_name" content="iTEP Practice Simulator" />
+    <meta property="og:title" content="iTEP Practice Simulator — free full English exam" />
+    <meta property="og:description"
+      content="All five iTEP sections with real timing and a CEFR score report at the end. Free, in the browser, no account." />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="es_CO" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="iTEP Practice Simulator — free full English exam" />
+    <meta name="twitter:description"
+      content="All five iTEP sections with real timing and a CEFR score report at the end. Free, in the browser, no account." />
+
+    <!-- Favicon en línea: el sitio no tiene imágenes propias, y una petición
+         menos en el arranque se nota en un examen cronometrado. -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
     <link rel="stylesheet" href="/src/styles.css" />
+
+    <!--
+      Ficha para buscadores. La app se pinta con JavaScript, así que sin esto
+      un rastreador que no ejecute JS no encuentra ni un dato: ni qué examen
+      es, ni que es gratis, ni quién lo hizo.
+
+      Va como @graph y cita la entidad de Kevin en kgstudio.top con su @id,
+      que es lo que ata este sitio al resto de la zona en vez de dejarlo como
+      un dominio suelto más.
+    -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://itep.kgstudio.top/#website",
+          "url": "https://itep.kgstudio.top/",
+          "name": "iTEP Practice Simulator",
+          "inLanguage": "en",
+          "author": { "@id": "https://kgstudio.top/#kevin" },
+          "publisher": { "@id": "https://kgstudio.top/#kevin" }
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://itep.kgstudio.top/#app",
+          "name": "iTEP Practice Simulator",
+          "url": "https://itep.kgstudio.top/",
+          "applicationCategory": "EducationalApplication",
+          "applicationSubCategory": "Language exam practice",
+          "operatingSystem": "Any modern web browser",
+          "browserRequirements": "Requires JavaScript. Microphone needed for the Speaking section.",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "description": "Full iTEP practice exam in the browser: Grammar, Listening, Reading, Writing and Speaking, with real per-section timing, autosave, exam and study modes, and a CEFR score report from A1 to C2.",
+          "featureList": [
+            "All five iTEP sections in one sitting",
+            "Real per-section countdown timers",
+            "Exam mode and study mode with instant feedback",
+            "Autosave — closing the tab does not lose the attempt",
+            "Listening delivered by browser speech synthesis",
+            "Speaking recorded and transcribed in the browser",
+            "CEFR score report from A1 to C2"
+          ],
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "author": { "@id": "https://kgstudio.top/#kevin" }
+        },
+        {
+          "@type": "LearningResource",
+          "@id": "https://itep.kgstudio.top/#recurso",
+          "name": "iTEP practice exam",
+          "url": "https://itep.kgstudio.top/",
+          "learningResourceType": "Practice exam",
+          "educationalLevel": "CEFR A1–C2",
+          "teaches": "English language proficiency for the iTEP exam",
+          "inLanguage": "en",
+          "isAccessibleForFree": true,
+          "author": { "@id": "https://kgstudio.top/#kevin" }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://itep.kgstudio.top/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Is this simulator free?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. It runs entirely in the browser, with no account, no download and no payment."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Which sections does it cover?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "All five sections of the iTEP exam: Grammar, Listening, Reading, Writing and Speaking, each with its own countdown."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What level is the exam?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "It is a full iTEP exam, not a single-level test. Difficulty spans the CEFR scale and the report places you between A1 and C2 based on how you actually answered."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is this the official iTEP exam?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. It is an independent practice simulator built to match the structure and timing of the exam. It is not affiliated with or endorsed by iTEP International."
+              }
+            }
+          ]
+        },
+        {
+          "@type": "Person",
+          "@id": "https://kgstudio.top/#kevin",
+          "name": "Kevin Gonzalez",
+          "alternateName": "kagonzalezdev",
+          "url": "https://kgstudio.top/"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
-    <div id="app"></div>
+    <!--
+      Lo de adentro de #app es lo que ve quien llega sin JavaScript: un
+      rastreador que no renderiza, una vista previa de enlace, un lector de
+      pantalla mientras arranca el módulo. La app lo reemplaza en cuanto
+      monta, así que dice exactamente lo mismo que la portada, no otra cosa.
+    -->
+    <div id="app">
+      <main class="wrap boot">
+        <h1>iTEP Practice Simulator</h1>
+        <p>
+          A full practice run of the iTEP English exam, free and in the browser.
+          Five sections — Grammar, Listening, Reading, Writing and Speaking —
+          each with the real countdown, plus a CEFR report from A1 to C2 when
+          you finish.
+        </p>
+        <ul>
+          <li><strong>Grammar</strong> — sentence completion and error detection, 10 minutes.</li>
+          <li><strong>Listening</strong> — conversations and a lecture, played once.</li>
+          <li><strong>Reading</strong> — two passages with comprehension questions, 20 minutes.</li>
+          <li><strong>Writing</strong> — timed written responses, 25 minutes.</li>
+          <li><strong>Speaking</strong> — recorded answers with preparation time.</li>
+        </ul>
+        <p>
+          Exam mode keeps official timing and scores at the end; study mode gives
+          feedback after every answer. Your attempt is saved locally, so closing
+          the tab does not lose it. No account and no download.
+        </p>
+        <p><small>Independent practice tool. Not affiliated with or endorsed by iTEP International.</small></p>
+        <noscript>
+          <p><strong>This simulator needs JavaScript.</strong> Enable it to take the exam.</p>
+        </noscript>
+      </main>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

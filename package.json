@@ -1,5 +1,5 @@
 {
-  "name": "itep-b1-simulator-vanilla",
+  "name": "itep-practice-simulator",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -13,5 +13,6 @@
   },
   "devDependencies": {
     "vite": "^5.4.10"
-  }
+  },
+  "description": "Full iTEP practice exam in the browser: five sections, real timing, CEFR report."
 }

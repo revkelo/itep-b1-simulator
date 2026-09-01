@@ -1,0 +1,20 @@
+# Rastreo abierto. Es una sola página pública y gratuita.
+User-agent: *
+Allow: /
+
+# La app se pinta con JavaScript, así que los rastreadores que no renderizan
+# dependen de llms.txt y del bloque estático del HTML. Se les nombra aparte
+# para que un cambio en la regla general no los deje fuera.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://itep.kgstudio.top/sitemap.xml
