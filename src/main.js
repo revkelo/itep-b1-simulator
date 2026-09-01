@@ -1246,64 +1246,152 @@ function runAudioTest() {
   }
 }
 
-function render() {
-  if (state.loading) return (app.innerHTML = `<main class="wrap"><section class="panel">Loading...</section></main>`);
-  if (state.error) return (app.innerHTML = `<main class="wrap"><section class="panel"><h2>Error</h2><p>${esc(state.error)}</p></section></main>`);
 
-  if (!state.started && state.view === "instructions") {
-    const sec = state.test.sections;
-    const grammarCount = (sec.grammar?.questions || []).length;
-    const listeningCount = (sec.listening?.items || []).reduce((a, it) => a + (it.questions || []).length, 0);
-    const readingCount = (sec.reading?.passages || []).reduce((a, p) => a + (p.questions || []).length, 0);
-    const writingCount = (sec.writing?.prompts || []).length;
-    const speakingCount = (sec.speaking?.prompts || []).length;
-    const importClass = state.importStatus === "error" ? "lnd-msg-error" : "lnd-msg-ok";
-    app.innerHTML = `<main class="wrap">
-  <header class="lnd-hero">
-    <img class="lnd-logo" src="${import.meta.env.BASE_URL}logo.svg" alt="" width="62" height="62">
-    <div class="lnd-hero-text">
-      <h1>iTEP Practice Simulator</h1>
-      <p>International Test of English Proficiency</p>
-    </div>
-    <span class="lnd-hero-tag">Free &bull; No account</span>
+/*
+ * La portada.
+ *
+ * El reparto -las dos barras- se calcula del examen cargado, no esta escrito
+ * a mano: si importas el tuyo con otros tiempos u otros pesos, el dibujo
+ * cambia con el. Es lo que lo hace verdad y no adorno.
+ */
+const SECCIONES = [
+  { id: "grammar", letra: "G", nombre: "Grammar" },
+  { id: "listening", letra: "L", nombre: "Listening" },
+  { id: "reading", letra: "R", nombre: "Reading" },
+  { id: "writing", letra: "W", nombre: "Writing" },
+  { id: "speaking", letra: "S", nombre: "Speaking" }
+];
+
+function contarSeccion(sec, id) {
+  if (id === "grammar") return (sec.grammar?.questions || []).length;
+  if (id === "listening") return (sec.listening?.items || []).reduce((a, it) => a + (it.questions || []).length, 0);
+  if (id === "reading") return (sec.reading?.passages || []).reduce((a, p) => a + (p.questions || []).length, 0);
+  return (sec[id]?.prompts || []).length;
+}
+
+function repartoDelExamen(sec) {
+  const filas = SECCIONES.map((s, i) => ({
+    ...s,
+    tono: i + 1,
+    segundos: Number(sec[s.id]?.timeLimit) || 0,
+    peso: Number(sec[s.id]?.weight) || 0,
+    items: contarSeccion(sec, s.id)
+  }));
+  const totalSeg = filas.reduce((a, f) => a + f.segundos, 0) || 1;
+  const totalPeso = filas.reduce((a, f) => a + f.peso, 0) || 1;
+  return filas.map((f) => {
+    const tiempo = (f.segundos / totalSeg) * 100;
+    const puntaje = (f.peso / totalPeso) * 100;
+    return { ...f, tiempo, puntaje, desfase: tiempo - puntaje, totalSeg };
+  });
+}
+
+function renderPortada() {
+  const sec = state.test.sections;
+  const filas = repartoDelExamen(sec);
+  const totalMin = Math.round(filas[0].totalSeg / 60);
+  const importClass = state.importStatus === "error" ? "lnd-msg-error" : "lnd-msg-ok";
+
+  // El que mas se pasa de lo que vale: de eso avisa la nota del final
+  const peor = filas.reduce((a, b) => (b.desfase > a.desfase ? b : a), filas[0]);
+
+  const tramo = (f, clave, ancho, i) =>
+    `<button class="tramo" data-sec="${f.id}" type="button"` +
+    ` style="flex: 0 0 ${ancho.toFixed(2)}%; animation-delay: ${i * 55}ms"` +
+    ` aria-label="${esc(f.nombre)}: ${ancho.toFixed(0)} per cent of the ${clave}">${f.letra}</button>`;
+
+  app.innerHTML = `<main class="lp">
+
+  <header class="lp-top">
+    <img class="lp-mark" src="${import.meta.env.BASE_URL}logo.svg" alt="" width="34" height="34">
+    <span class="lp-word">
+      <strong>iTEP Practice Simulator</strong>
+      <span>International Test of English Proficiency</span>
+    </span>
+    <span class="lp-free">Free &middot; no account</span>
   </header>
 
-  <p class="lnd-pitch">
-    A full run of the exam, timed like the real thing. Five sections back to
-    back, then a CEFR report from A1 to C2 based on how you actually answered.
-  </p>
-
-  <div class="lnd-sections">
-    <div class="lnd-sec"><span class="lnd-sec-badge">G</span><strong>Grammar</strong><span>${grammarCount} items &bull; 10 min</span></div>
-    <div class="lnd-sec"><span class="lnd-sec-badge">L</span><strong>Listening</strong><span>${listeningCount} items &bull; Variable</span></div>
-    <div class="lnd-sec"><span class="lnd-sec-badge">R</span><strong>Reading</strong><span>${readingCount} items &bull; 20 min</span></div>
-    <div class="lnd-sec"><span class="lnd-sec-badge">W</span><strong>Writing</strong><span>${writingCount} prompts &bull; 25 min</span></div>
-    <div class="lnd-sec"><span class="lnd-sec-badge">S</span><strong>Speaking</strong><span>${speakingCount} prompts &bull; ~3.5 min</span></div>
-  </div>
-
-  <section class="panel lnd-panel">
-    <p class="lnd-exam-meta">
-      ${esc(state.test.title)}
-      ${state.usingImportedExam ? `<span class="lnd-badge-imported">imported</span>` : ""}
+  <section class="lp-hero">
+    <h1>The whole exam.<br><em>On the real clock.</em></h1>
+    <p class="lp-lede">
+      Five sections back to back, then a CEFR band from A1 to C2 based on how
+      you actually answered. It runs in this tab. Nothing to install, nothing
+      to sign up for.
     </p>
-    <ul class="lnd-instructions">${state.test.instructions.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>
-
-    <p class="lnd-choose">How do you want to practice?</p>
-    <div class="mode-grid">
-      <article class="mode-card exam-card">
-        <h3>Exam Mode</h3>
-        <p>Official section timing, no feedback until the end, full score report on submit.</p>
-        <button class="btn primary lnd-btn" data-action="start-exam">Start Exam Mode</button>
-      </article>
-      <article class="mode-card study-card">
-        <h3>Study Mode</h3>
-        <p>Suggested timers with no auto-advance, and instant feedback after each answer.</p>
-        <button class="btn lnd-btn" data-action="start-study">Start Study Mode</button>
-      </article>
+    <div class="lp-go">
+      <button class="lp-btn lp-btn--fuerte" data-action="start-exam">Start exam mode</button>
+      <button class="lp-btn" data-action="start-study">Start study mode</button>
     </div>
+    <p class="lp-modes">
+      <strong>Exam mode</strong> holds the official timing and says nothing until you
+      submit. <strong>Study mode</strong> marks each answer as you go and lets the
+      clock run past.
+    </p>
   </section>
 
-  <section class="panel lnd-panel lnd-import">
+  <!--
+    El reparto. Las dos barras dicen lo mismo de dos maneras y no coinciden,
+    y ese desajuste es toda la pieza: el tiempo no se reparte como el puntaje.
+  -->
+  <section class="reparto" aria-labelledby="reparto-h">
+    <h2 id="reparto-h">Where the hour goes, and what it buys</h2>
+    <p class="reparto-lede">
+      Every section is worth the same fifth of your band. They are nowhere near
+      the same fraction of your ${totalMin} minutes.
+    </p>
+
+    <div class="fila">
+      <span class="fila-clave">Time</span>
+      <div class="barra barra--tiempo">${filas.map((f, i) => tramo(f, "clock", f.tiempo, i)).join("")}</div>
+      <span class="fila-total">${totalMin} min</span>
+    </div>
+
+    <div class="fila">
+      <span class="fila-clave">Score</span>
+      <div class="barra barra--puntaje">${filas.map((f, i) => tramo(f, "score", f.puntaje, i)).join("")}</div>
+      <span class="fila-total">100 %</span>
+    </div>
+
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Section</th>
+          <th class="oculta-estrecho">Items</th>
+          <th>Minutes</th>
+          <th>Of the clock</th>
+          <th>Over its share</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filas.map((f) => `<tr data-sec="${f.id}">
+          <td><span class="cual"><span class="punto" style="background: var(--s${f.tono})"></span>${f.nombre}</span></td>
+          <td class="n oculta-estrecho">${f.items}</td>
+          <td class="n">${Math.round(f.segundos / 60)}</td>
+          <td class="n">${f.tiempo.toFixed(0)} %</td>
+          <td class="desfase" data-signo="${f.desfase > 1 ? "mas" : f.desfase < -1 ? "menos" : "igual"}">${f.desfase > 0 ? "+" : ""}${f.desfase.toFixed(0)}</td>
+        </tr>`).join("")}
+      </tbody>
+    </table>
+
+    <p class="reparto-nota">
+      <strong>${peor.nombre} is where the hour disappears.</strong> It takes
+      ${peor.tiempo.toFixed(0)} per cent of the clock and buys the same
+      ${peor.puntaje.toFixed(0)} per cent of the band as every other section:
+      ${peor.desfase.toFixed(0)} points more clock than it is worth. Budget it
+      before you sit down, not while the timer runs.
+    </p>
+  </section>
+
+  <section class="hoja">
+    <p class="hoja-eyebrow">Loaded exam</p>
+    <div class="hoja-cabeza">
+      <h2>${esc(state.test.title)}</h2>
+      ${state.usingImportedExam ? `<span class="lnd-badge-imported">imported</span>` : ""}
+    </div>
+    <ul class="hoja-reglas">${state.test.instructions.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>
+  </section>
+
+  <section class="hoja lnd-import">
     <button class="lnd-import-head" data-action="toggle-import" aria-expanded="${state.importOpen}">
       <span>
         <strong>Use your own exam</strong>
@@ -1321,16 +1409,16 @@ function render() {
       </p>
 
       <div class="lnd-import-actions">
-        <button class="btn primary" data-action="pick-exam-file">Choose JSON file</button>
-        <button class="btn" data-action="download-template">Download template</button>
-        ${state.usingImportedExam ? `<button class="btn" data-action="reset-exam">Back to built-in exam</button>` : ""}
+        <button class="lp-btn lp-btn--fuerte" data-action="pick-exam-file">Choose JSON file</button>
+        <button class="lp-btn" data-action="download-template">Download template</button>
+        ${state.usingImportedExam ? `<button class="lp-btn" data-action="reset-exam">Back to built-in exam</button>` : ""}
       </div>
       <input type="file" id="examFile" accept="application/json,.json" hidden>
 
       <details class="lnd-paste" ${state.importPasteText || state.importStatus === "error" ? "open" : ""}>
         <summary>Or paste the JSON</summary>
-        <textarea id="examPaste" rows="7" spellcheck="false" placeholder='{ "title": "My exam", "sections": { ... } }'>${esc(state.importPasteText)}</textarea>
-        <button class="btn" data-action="import-pasted">Load pasted exam</button>
+        <textarea id="examPaste" rows="7" spellcheck="false" placeholder="Paste the exam JSON here">${esc(state.importPasteText)}</textarea>
+        <button class="lp-btn" data-action="import-pasted">Load pasted exam</button>
       </details>
 
       ${state.importMsg ? `<p class="lnd-msg ${importClass}">${esc(state.importMsg)}</p>` : ""}
@@ -1344,9 +1432,8 @@ function render() {
     </div>` : ""}
   </section>
 
-  <section class="panel lnd-panel">
-    <details class="verb-tense-ref">
-      <summary><strong>Grammar Reference: 12 Verb Tenses for iTEP</strong></summary>
+  <details class="lp-ref">
+    <summary>The twelve tenses, and the questions that test them</summary>
       <div class="verb-tense-body">
         <p class="verb-tense-intro">Mastering these verb tenses will help your iTEP grammar score and your English skills in general.</p>
         <div class="verb-tense-grid">
@@ -1400,9 +1487,27 @@ function render() {
           <p class="vt-explain">Past perfect in a third conditional - both conditions are in the unreal past.</p>
         </div>
       </div>
-    </details>
-  </section>
+  </details>
+
+  <p class="lp-aviso">
+    Independent practice tool, built by
+    <a href="https://kgstudio.top/" target="_blank" rel="noopener">Kevin Gonzalez</a>.
+    Not affiliated with or endorsed by iTEP International.
+  </p>
+
 </main>`;
+}
+
+function render() {
+  /* La portada tiene su propio papel y su propia tipografia; el examen no,
+     que mantiene su escala de kiosco. La marca va en el body porque el
+     fondo cubre la ventana entera, no solo el contenedor. */
+  document.body.classList.toggle("en-portada", !state.started && state.view === "instructions");
+  if (state.loading) return (app.innerHTML = `<main class="wrap"><section class="panel">Loading...</section></main>`);
+  if (state.error) return (app.innerHTML = `<main class="wrap"><section class="panel"><h2>Error</h2><p>${esc(state.error)}</p></section></main>`);
+
+  if (!state.started && state.view === "instructions") {
+    renderPortada();
     return;
   }
 
@@ -1577,6 +1682,39 @@ function autoStartSpeakingIfNeeded() {
 /* El input de archivo se dispara con `change`, no con `click`, y el elemento se
    vuelve a crear en cada render. Por eso el listener va delegado en `app` y en
    fase de captura: `change` no burbujea en todos los navegadores. */
+/*
+ * Mirar una seccion. Apuntar a un tramo, a su pareja de la otra barra o a su
+ * fila de la tabla enciende las tres a la vez: lo que se esta comparando es
+ * el desajuste entre tiempo y puntaje, no una barra suelta.
+ *
+ * Va por atributo en el contenedor y no repintando: el render reconstruye el
+ * innerHTML entero, y hacerlo en cada movimiento del raton seria absurdo.
+ */
+function mirarSeccion(id) {
+  const reparto = document.querySelector(".reparto");
+  if (!reparto) return;
+  reparto.querySelectorAll("[data-mirado]").forEach((el) => el.removeAttribute("data-mirado"));
+  if (!id) {
+    reparto.removeAttribute("data-mira");
+    return;
+  }
+  reparto.dataset.mira = id;
+  reparto.querySelectorAll(`[data-sec="${id}"]`).forEach((el) => el.setAttribute("data-mirado", ""));
+}
+
+app.addEventListener("pointerover", (e) => {
+  const con = e.target?.closest?.("[data-sec]");
+  if (con) mirarSeccion(con.dataset.sec);
+});
+
+app.addEventListener("pointerleave", () => mirarSeccion(null), true);
+
+/* Con teclado no hay puntero: el foco hace de mirada */
+app.addEventListener("focusin", (e) => {
+  const con = e.target?.closest?.("[data-sec]");
+  mirarSeccion(con ? con.dataset.sec : null);
+});
+
 app.addEventListener("input", (e) => {
   if (e.target?.id === "examPaste") state.importPasteText = e.target.value;
 });

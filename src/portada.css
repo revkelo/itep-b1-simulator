@@ -1,0 +1,550 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   LA PORTADA
+   ───────────────────────────────────────────────────────────────────────
+   De dónde sale el diseño: un examen de certificación es un cuadernillo y
+   un reloj. El fondo es papel de cuadernillo -gris verdoso, no crema-, las
+   tarjetas son la hoja, y el único color saturado es el rojo de las hojas
+   de respuesta ópticas: el que se usa para marcar, y el que avisa de que
+   se acaba el tiempo. Nada más se pinta.
+
+   La pieza central son dos barras. La de arriba reparte los 65 minutos del
+   examen a escala real; la de abajo, los 100 puntos. Writing se lleva el
+   38% del reloj y vale lo mismo que Speaking, que se lleva el 6%. Ese
+   desajuste es lo único que hay que saber antes de sentarse, y no lo
+   enseña ningún otro simulador. Las dos barras salen de los `timeLimit` y
+   los `weight` del examen cargado, así que si importas el tuyo, cambian.
+
+   Todo va bajo `.en-portada` para no filtrarse al examen, que tiene su
+   propia escala de kiosco.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+body.en-portada {
+  background: #e6e8e2;
+  color: #16181a;
+  font-family: var(--cuerpo);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.en-portada {
+  --papel: #e6e8e2;
+  --hoja: #fbfbf9;
+  --tinta: #16181a;
+  --grafito: #5b6067;
+  --regla: #c6c9c1;
+  --marca: #ce3a26;
+  --marca-tenue: #f2e0dc;
+
+  --s1: #2a2f35;
+  --s2: #454b53;
+  --s3: #626871;
+  --s4: #838a93;
+  --s5: #a3a9b1;
+
+  --titular: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --cuerpo: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --dato: "Martian Mono", ui-monospace, Consolas, monospace;
+}
+
+.lp {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 26px 22px 72px;
+}
+
+.lp ::selection {
+  background: var(--marca);
+  color: #fff;
+}
+
+.lp :focus-visible {
+  outline: 2px solid var(--marca);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── Cabecera ─────────────────────────────────────────────────────────── */
+
+.lp-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--regla);
+}
+
+.lp-mark {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.lp-word {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.lp-word strong {
+  font-family: var(--titular);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.lp-word span,
+.lp-free,
+.fila-clave,
+.fila-total,
+.tabla th,
+.hoja-eyebrow {
+  font-family: var(--dato);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grafito);
+}
+
+.lp-free {
+  margin-left: auto;
+  color: var(--marca);
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+/* ── Titular ──────────────────────────────────────────────────────────── */
+
+.lp-hero {
+  padding: 52px 0 44px;
+}
+
+.lp-hero h1 {
+  font-family: var(--titular);
+  font-size: clamp(2.6rem, 7.5vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+  margin: 0;
+  text-wrap: balance;
+}
+
+/* La segunda línea es la promesa, y el rojo la marca como la marcaría un lápiz */
+.lp-hero h1 em {
+  font-style: normal;
+  color: var(--marca);
+}
+
+.lp-lede {
+  max-width: 46ch;
+  margin: 22px 0 0;
+  font-size: 1.06rem;
+  color: var(--grafito);
+}
+
+.lp-go {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.lp-btn {
+  font: inherit;
+  font-weight: 600;
+  border: 1px solid var(--tinta);
+  background: none;
+  color: var(--tinta);
+  border-radius: 3px;
+  padding: 12px 22px;
+  cursor: pointer;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease,
+    border-color 0.14s ease;
+}
+
+.lp-btn:hover {
+  background: var(--tinta);
+  color: var(--hoja);
+}
+
+.lp-btn--fuerte {
+  background: var(--marca);
+  border-color: var(--marca);
+  color: #fff;
+}
+
+.lp-btn--fuerte:hover {
+  background: #b32e1c;
+  border-color: #b32e1c;
+  color: #fff;
+}
+
+.lp-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lp-modes {
+  margin: 18px 0 0;
+  max-width: 58ch;
+  font-size: 0.9rem;
+  color: var(--grafito);
+}
+
+.lp-modes strong {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+/* ── El reparto: la pieza ─────────────────────────────────────────────── */
+
+.reparto {
+  border-top: 1px solid var(--regla);
+  padding-top: 32px;
+}
+
+.reparto h2,
+.hoja-cabeza h2,
+.lp-ref summary {
+  font-family: var(--titular);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.reparto h2 {
+  font-size: 1.45rem;
+  margin: 0;
+}
+
+.reparto-lede {
+  margin: 8px 0 26px;
+  max-width: 54ch;
+  font-size: 0.94rem;
+  color: var(--grafito);
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 54px 1fr 64px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.fila-total {
+  text-align: right;
+}
+
+.barra {
+  display: flex;
+  height: 30px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--regla);
+}
+
+.tramo {
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-family: var(--dato);
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  transition: filter 0.14s ease;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tramo + .tramo {
+  border-left: 1px solid var(--papel);
+}
+
+.tramo[data-sec='grammar'] { background: var(--s1); }
+.tramo[data-sec='listening'] { background: var(--s2); }
+.tramo[data-sec='reading'] { background: var(--s3); }
+.tramo[data-sec='writing'] { background: var(--s4); }
+.tramo[data-sec='speaking'] { background: var(--s5); }
+
+/*
+ * Mirar un tramo enciende su pareja en la otra barra y su fila en la tabla:
+ * lo que se está mirando es la comparación entera, no una barra suelta.
+ */
+.reparto[data-mira] .tramo {
+  filter: saturate(0.15) opacity(0.35);
+}
+
+.reparto[data-mira] .tramo[data-mirado] {
+  filter: none;
+  background: var(--marca);
+}
+
+.barra--puntaje .tramo {
+  color: #8a6258;
+  background: var(--marca-tenue);
+}
+
+.reparto[data-mira] .barra--puntaje .tramo[data-mirado] {
+  color: #fff;
+}
+
+/*
+ * La barra de tiempo crece una vez al cargar, de izquierda a derecha: un
+ * reloj llenándose. Es el único movimiento de la página.
+ */
+.barra--tiempo .tramo {
+  animation: repartir 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes repartir {
+  from {
+    flex-basis: 0;
+  }
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 24px;
+}
+
+.tabla th {
+  font-weight: 500;
+  text-align: right;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--regla);
+}
+
+.tabla th:first-child,
+.tabla td:first-child {
+  text-align: left;
+}
+
+.tabla td {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--regla);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.tabla tbody tr {
+  cursor: pointer;
+}
+
+.tabla tbody tr:hover td {
+  background: var(--hoja);
+}
+
+.tabla .n {
+  font-family: var(--dato);
+  font-size: 0.76rem;
+}
+
+.tabla .cual {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.punto {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* El tono va en un `style` inline, asi que solo `!important` lo tapa */
+.reparto[data-mira] tr[data-mirado] .punto {
+  background: var(--marca) !important;
+}
+
+/* El desfase es la única celda con color, porque es lo único que sorprende */
+.desfase {
+  font-family: var(--dato);
+  font-size: 0.76rem;
+}
+
+.desfase[data-signo='mas'] {
+  color: var(--marca);
+}
+
+.desfase[data-signo='menos'] {
+  color: #2e6b4e;
+}
+
+.reparto-nota {
+  margin: 18px 0 0;
+  font-size: 0.86rem;
+  color: var(--grafito);
+  max-width: 60ch;
+}
+
+.reparto-nota strong {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+/* ── El examen cargado ────────────────────────────────────────────────── */
+
+.hoja {
+  background: var(--hoja);
+  border: 1px solid var(--regla);
+  border-radius: 4px;
+  padding: 22px;
+  margin-top: 42px;
+}
+
+.hoja-cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.hoja-cabeza h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.hoja-eyebrow {
+  width: 100%;
+  margin: 0 0 4px;
+}
+
+.hoja-reglas {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 7px;
+}
+
+.hoja-reglas li {
+  display: flex;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--grafito);
+}
+
+/* El calderón: es como se numeran las reglas de un reglamento de examen */
+.hoja-reglas li::before {
+  content: '\00A7';
+  font-family: var(--dato);
+  font-size: 0.7rem;
+  color: var(--marca);
+  padding-top: 3px;
+  flex: none;
+}
+
+/* ── La referencia de gramática ───────────────────────────────────────── */
+
+.lp-ref {
+  margin-top: 42px;
+  border-top: 1px solid var(--regla);
+  padding-top: 24px;
+}
+
+.lp-ref summary {
+  cursor: pointer;
+  font-size: 1.05rem;
+  list-style: none;
+}
+
+.lp-ref summary::-webkit-details-marker {
+  display: none;
+}
+
+.lp-ref summary::before {
+  content: '+';
+  color: var(--marca);
+  font-family: var(--dato);
+  margin-right: 10px;
+}
+
+.lp-ref[open] summary::before {
+  content: '\2212';
+}
+
+.lp-aviso {
+  margin: 40px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--regla);
+  font-size: 0.8rem;
+  color: var(--grafito);
+}
+
+/* ── Estrecho ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 620px) {
+  .lp-hero {
+    padding: 38px 0 32px;
+  }
+
+  .fila {
+    grid-template-columns: 42px 1fr 54px;
+    gap: 8px;
+  }
+
+  /* Las etiquetas no caben dentro de los tramos: la tabla ya las dice */
+  .tramo {
+    font-size: 0;
+  }
+
+  .oculta-estrecho {
+    display: none;
+  }
+
+  .lp-btn {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barra--tiempo .tramo {
+    animation: none;
+  }
+}
+
+/* ── El panel de importar, con el papel de la portada ─────────────────── */
+
+.en-portada .lnd-import { padding: 0; overflow: hidden; }
+.en-portada .lnd-import-head { padding: 20px 22px; }
+.en-portada .lnd-import-head:hover { background: #f2f1ec; }
+.en-portada .lnd-import-head strong {
+  font-family: var(--titular);
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  color: var(--tinta);
+}
+.en-portada .lnd-import-head em { color: var(--grafito); font-size: 0.88rem; }
+.en-portada .lnd-import-chev { color: var(--marca); font-family: var(--dato); font-size: 1.1rem; }
+.en-portada .lnd-import-body { padding: 0 22px 22px; border-top: 1px solid var(--regla); }
+.en-portada .lnd-import-note,
+.en-portada .lnd-import-cta { color: var(--grafito); font-size: 0.88rem; }
+.en-portada .lnd-import-cta a { color: var(--marca); font-weight: 600; }
+.en-portada .lnd-paste summary { color: var(--marca); font-weight: 600; font-size: 0.88rem; }
+.en-portada .lnd-paste textarea {
+  border: 1px solid var(--regla);
+  border-radius: 3px;
+  background: var(--papel);
+  color: var(--tinta);
+}
+.en-portada .lnd-msg { border-radius: 3px; font-size: 0.85rem; }
+.en-portada .lnd-badge-imported {
+  background: var(--marca);
+  border-color: var(--marca);
+  color: #fff;
+  border-radius: 2px;
+  font-family: var(--dato);
+  font-size: 8.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+  padding: 3px 7px;
+}

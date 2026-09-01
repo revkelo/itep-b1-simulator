@@ -48,7 +48,45 @@ try {
 
   check('el landing se pinta', html().includes('iTEP Practice Simulator'));
   check('el logo esta en la cabecera', /<img[^>]+logo\.svg/.test(html()));
-  check('estan los dos modos', html().includes('Start Exam Mode') && html().includes('Start Study Mode'));
+
+  // El reparto: la pieza. Los porcentajes tienen que salir de los timeLimit y
+  // los weight del examen cargado, no estar escritos a mano en la plantilla.
+  const datos = JSON.parse(examData).tests[0].sections;
+  const segs = ['grammar', 'listening', 'reading', 'writing', 'speaking'];
+  const totalSeg = segs.reduce((a, k) => a + datos[k].timeLimit, 0);
+  const esperado = Object.fromEntries(
+    segs.map((k) => [k, ((datos[k].timeLimit / totalSeg) * 100).toFixed(2)])
+  );
+
+  check('las dos barras estan', /barra--tiempo/.test(html()) && /barra--puntaje/.test(html()));
+  check(
+    'el total en minutos sale de los datos',
+    html().includes(String(Math.round(totalSeg / 60)) + ' min'),
+    Math.round(totalSeg / 60) + ' min'
+  );
+
+  const anchos = {};
+  for (const t of app.querySelectorAll('.barra--tiempo .tramo')) {
+    anchos[t.dataset.sec] = t.style.flexBasis.replace('%', '');
+  }
+  const cuadran = segs.every((k) => Number(anchos[k]).toFixed(2) === esperado[k]);
+  check('cada tramo se dibuja a escala real del reloj', cuadran,
+    segs.map((k) => k[0] + ':' + Number(anchos[k]).toFixed(0) + '%').join(' '));
+
+  const pesos = [...app.querySelectorAll('.barra--puntaje .tramo')]
+    .map((t) => Number(t.style.flexBasis.replace('%', '')));
+  check('la barra de puntaje es plana: todas valen lo mismo',
+    pesos.length === 5 && pesos.every((p) => Math.abs(p - 20) < 0.01));
+
+  check('senala Writing como el que se come la hora',
+    /Writing is where the hour disappears/.test(html()));
+
+  // Mirar una seccion tiene que encender las dos barras y la fila de la tabla
+  app.querySelector('.barra--tiempo .tramo[data-sec="reading"]')
+     .dispatchEvent(new window.Event('pointerover', { bubbles: true }));
+  const encendidos = app.querySelectorAll('[data-mirado]').length;
+  check('mirar un tramo enciende sus tres parejas', encendidos === 3, encendidos + ' elementos');
+  check('estan los dos modos', html().includes('Start exam mode') && html().includes('Start study mode'));
   check('no queda nada de generar con IA',
     !/Generate New Exam|with AI|GROQ API key/i.test(html()));
   check('el panel de importar esta plegado', !html().includes('Choose JSON file'));
