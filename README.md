@@ -31,17 +31,17 @@ El examen real tiene 5 secciones con tiempo limitado:
 
 ## Funcionalidades del simulador
 
-- **5 secciones completas** — Grammar · Listening · Reading · Writing · Speaking
-- **Timers reales** por sección — igual que el examen oficial
+- **5 secciones completas** - Grammar · Listening · Reading · Writing · Speaking
+- **Timers reales** por sección - igual que el examen oficial
 - **Modo examen** y **modo estudio**
-- **Autosave local** — si cierras el navegador, retoma donde dejaste
-- **Revisión antes de enviar** — revisa respuestas antes del submit final
-- **Reporte CEFR estimado** — calcula tu nivel (A1 → C2) al terminar, más el nivel iTEP equivalente
-- **Listening con TTS** — audio generado por el navegador, sin archivos externos
-- **Speaking recorder** — graba tu respuesta con el micrófono, transcribe con Web Speech API
-- **Evaluación de Writing y Speaking** — feedback automático
-- **Anti-refresh warning** — aviso si intentas salir durante el examen
-- **Notas por sección** — apuntes durante listening y speaking
+- **Autosave local** - si cierras el navegador, retoma donde dejaste
+- **Revisión antes de enviar** - revisa respuestas antes del submit final
+- **Reporte CEFR estimado** - calcula tu nivel (A1 → C2) al terminar, más el nivel iTEP equivalente
+- **Listening con TTS** - audio generado por el navegador, sin archivos externos
+- **Speaking recorder** - graba tu respuesta con el micrófono, transcribe con Web Speech API
+- **Evaluación de Writing y Speaking** - feedback automático
+- **Anti-refresh warning** - aviso si intentas salir durante el examen
+- **Notas por sección** - apuntes durante listening y speaking
 
 ---
 
@@ -65,8 +65,8 @@ Desplegado en Vercel; cada push a `main` publica en `itep.kgstudio.top`.
 - Build command: `npm run build`
 - Output: `dist`
 
-Todo lo de `public/` — `robots.txt`, `sitemap.xml`, `llms.txt`, `favicon.svg` y el
-banco de preguntas — se copia tal cual a la raíz del build.
+Todo lo de `public/` - `robots.txt`, `sitemap.xml`, `llms.txt`, `favicon.svg` y el
+banco de preguntas - se copia tal cual a la raíz del build.
 
 ---
 
@@ -104,6 +104,59 @@ modelo responda.
 
 ---
 
+## Calificar Speaking y Writing
+
+Las tres secciones de opción múltiple -Grammar, Listening y Reading- se
+califican solas y no necesitan nada. Las otras dos son respuestas abiertas: una
+grabación de voz y un texto. Para ponerles nota hay que leerlas, y de eso se
+encarga Groq.
+
+El circuito, para Speaking:
+
+```
+graba (MediaRecorder)
+  -> POST /api/transcribir   el .webm entero, en el cuerpo
+     -> Groq Whisper         whisper-large-v3-turbo
+  -> POST /api/evaluar       { tipo, consigna, texto, notas }
+     -> Groq chat            openai/gpt-oss-120b, el mismo motor que parla
+  -> { score, cefr, fluency, grammar, vocabulary, coherence, feedback }
+```
+
+Writing se salta el primer paso: ya llega escrito.
+
+**La llave vive en el servidor.** `GROQ_API_KEY` va sin el prefijo `VITE_`,
+porque Vite mete en el paquete que descarga el visitante toda variable que
+empiece por ahí. La leen únicamente las funciones de `api/`, que en Vercel se
+publican solas y en local las monta el servidor de Vite (ver el complemento de
+`vite.config.js`), así que en desarrollo y en producción se comporta igual.
+
+Para encenderlo:
+
+```bash
+vercel env add GROQ_API_KEY production
+vercel env add GROQ_API_KEY preview
+cp .env.example .env.local     # y pegar la llave, para desarrollo
+```
+
+`GET /api/estado` dice si un despliegue puede calificar, sin soltar la llave.
+
+### Sin llave el examen funciona igual
+
+Se hacen las cinco secciones, se graba, y Grammar, Listening y Reading se
+califican. Lo que no hay es transcripción ni nota de Speaking y Writing, y **eso
+se dice**: la pantalla de Speaking avisa antes de grabar, el informe marca las
+dos filas como *Not scored* y la banda CEFR se reparte entre las secciones que
+sí se midieron.
+
+Eso último no es un detalle. Antes, cuando faltaba la nota, las dos secciones
+caían a una "nota de avance" que daba 72 sobre 100 por haber apretado grabar o
+por llegar al mínimo de palabras. Como la llave no estaba puesta en ningún
+sitio, eso era lo que pasaba siempre: sesenta segundos de silencio valían lo
+mismo que una respuesta perfecta, y esos puntos entraban enteros en una banda
+que el sitio anuncia como *based on how you actually answered*.
+
+---
+
 ## Agregar audio real para Listening
 
 Por defecto usa TTS del navegador. Para usar archivos de audio propios:
@@ -124,14 +177,24 @@ los dos modos están, que el panel de importar abre, que acepta un examen válid
 en sus tres formatos, que rechaza lo que no lo es sin perder lo que el usuario
 pegó, y que se puede volver al examen de fábrica.
 
+También comprueba la referencia de gramática y la paleta: que ningún tono de
+sección baja de 4.5:1 contra el blanco de sus letras, y que el amarillo que
+marca no se confunde con ninguno de los cinco azules. Un color que ES la
+identidad de algo no se revisa a ojo.
+
+Y comprueba la calificación (`test/calificacion.test.mjs`): que la llave de
+Groq no aparece ni en `src/` ni en el paquete construido, que lo que devuelve
+el modelo se saca de un número antes de entrar en la nota, y que sin nota la
+sección se declara no calificada en vez de rellenarse sola.
+
 ---
 
 ## Stack
 
 - **Vite 5** + **Vanilla JavaScript** (ES Modules)
-- **Zod** — validación del schema del JSON
-- **Web Speech API** — TTS para listening + STT para speaking
-- **localStorage** — autosave del progreso
+- **Zod** - validación del schema del JSON
+- **Web Speech API** - TTS para listening + STT para speaking
+- **localStorage** - autosave del progreso
 - Sin frameworks, sin dependencias externas en runtime
 
 ---
@@ -141,16 +204,39 @@ pegó, y que se puede volver al examen de fábrica.
 ```
 itep-b1-simulator/
 ├── index.html         ← SEO, JSON-LD y la portada estática para rastreadores
+├── api/               ← funciones de servidor: aquí y solo aquí vive la llave
+│   ├── _nucleo.js     ← el trato con Groq: transcribir y evaluar
+│   ├── _http.js       ← leer el cuerpo, responder, traducir el código a HTTP
+│   ├── transcribir.js ← POST audio  → texto
+│   ├── evaluar.js     ← POST texto  → nota CEFR
+│   └── estado.js      ← GET: ¿este despliegue califica?
 ├── src/
-│   ├── main.js        ← motor del examen completo
-│   └── styles.css     ← UI estilo académico iTEP
+│   ├── main.js        ← motor del examen completo y la portada
+│   ├── portada.css    ← la portada, con la piel del examen
+│   └── styles.css     ← UI estilo académico iTEP, dentro del examen
+├── scripts/
+│   └── generar-og.mjs ← dibuja public/og.png con los minutos del examen
+├── test/
+│   ├── landing.test.mjs
+│   └── calificacion.test.mjs
 └── public/
     ├── data/exam-data.json  ← banco de preguntas (editable)
+    ├── og.png         ← la tarjeta de WhatsApp y LinkedIn, generada
     ├── robots.txt
     ├── sitemap.xml
     ├── llms.txt       ← qué es el sitio, en prosa, para buscadores con IA
+    ├── logo.svg
     └── favicon.svg
 ```
+
+La portada tiene su propia hoja de estilos, pero ya no su propio lenguaje: lleva
+el mismo campo azul, las mismas tarjetas claras y las mismas pastillas que el
+examen, porque antes eran dos sitios distintos y se notaba al pulsar Start. Todo
+cuelga de `body.en-portada`, así que no se filtra al examen, que mantiene su
+escala de kiosco.
+
+Los archivos de `api/` que empiezan por guion bajo son módulos, no endpoints:
+Vercel no los publica como rutas.
 
 ---
 
@@ -159,13 +245,24 @@ itep-b1-simulator/
 La app se pinta con JavaScript, así que un rastreador que no renderiza no vería
 nada. Por eso `index.html` lleva tres cosas que no dependen del bundle:
 
-- **Portada estática dentro de `#app`** — dice lo mismo que la portada real y la
+- **Portada estática dentro de `#app`** - dice lo mismo que la portada real y la
   app la reemplaza al montar. Es también lo que se ve mientras carga el módulo.
-- **`@graph` en JSON-LD** — `WebSite`, `WebApplication`, `LearningResource` y
+- **`@graph` en JSON-LD** - `WebSite`, `WebApplication`, `LearningResource` y
   `FAQPage`, todos citando la entidad `https://kgstudio.top/#kevin` por su `@id`.
   Esa referencia cruzada es lo que une este subdominio con el resto de la zona.
-- **`llms.txt`** — lo mismo en prosa, para los buscadores con IA que lo leen
+- **`llms.txt`** - lo mismo en prosa, para los buscadores con IA que lo leen
   antes que el HTML. Si cambias un dato, cámbialo en los dos.
+
+La tarjeta que se comparte, `public/og.png`, no se dibuja a mano:
+
+```bash
+npm run og
+```
+
+Saca los minutos de `public/data/exam-data.json`. La versión hecha a mano decía
+"Listening 20 min" y "Speaking 5 min" cuando el examen dice 6 y 4, y esa era la
+primera cifra que veía un estudiante al recibir el enlace. Si cambian los
+tiempos del examen, se vuelve a correr y se actualiza `lastmod` del sitemap.
 
 ---
 

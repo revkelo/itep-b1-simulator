@@ -18,13 +18,37 @@ report places the candidate between A1 and C2 based on how they answered.
 
 ## Sections
 
+The whole sitting is 65 minutes.
+
 - **Grammar** - sentence completion and error detection. 10 minutes.
 - **Listening** - short conversations, a longer conversation and an academic
-  lecture, each played once. Delivered by browser speech synthesis.
+  lecture, each played once. 6 minutes. Delivered by browser speech synthesis.
 - **Reading** - two passages with comprehension questions. 20 minutes.
 - **Writing** - timed written responses. 25 minutes.
 - **Speaking** - recorded answers with preparation time, transcribed in the
-  browser.
+  browser. 4 minutes.
+
+## Where the hour goes, and what it buys
+
+This is what the home page is built around, and it is the answer most other
+iTEP pages do not give. Every section is worth the same fifth of the band, but
+they are nowhere near the same fraction of the clock:
+
+| Section | Minutes | Of the clock | Of the score |
+| --- | --- | --- | --- |
+| Grammar | 10 | 15% | 20% |
+| Listening | 6 | 10% | 20% |
+| Reading | 20 | 31% | 20% |
+| Writing | 25 | 38% | 20% |
+| Speaking | 4 | 6% | 20% |
+
+Writing takes 38 per cent of the time for 20 per cent of the band, eighteen
+points more clock than it is worth. Speaking takes six per cent and buys the
+same twenty. The practical advice: decide how much of the hour Writing gets
+before sitting down, not while the timer runs.
+
+The two bars on the home page are drawn from the `timeLimit` and `weight`
+fields of the loaded exam, so they change if a different exam is imported.
 
 ## Modes
 
@@ -32,6 +56,22 @@ report places the candidate between A1 and C2 based on how they answered.
   score report on submit.
 - **Study mode** - suggested timers with no auto-advance, and feedback right
   after each answer.
+
+## Bringing your own exam
+
+The built-in exam is not the only one that can be sat. The home page loads any
+question bank that follows its JSON shape: a template can be downloaded from
+the page, filled in and brought back, by file or pasted. Question banks
+exported by `examia.kgstudio.top` are accepted as they are. Nothing is
+generated here and no API key is needed, which is what keeps the simulator
+working without depending on a model answering.
+
+## Grammar reference
+
+The home page carries a reference to the twelve English tenses the Grammar
+section keeps testing - simple, continuous, perfect and perfect continuous, in
+present, past and future - each with an example, plus three sample questions
+with the correct answer and the reason it is correct.
 
 ## How it works
 

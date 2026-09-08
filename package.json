@@ -7,14 +7,16 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node test/landing.test.mjs"
+    "test": "node test/landing.test.mjs && node test/calificacion.test.mjs",
+    "og": "node scripts/generar-og.mjs"
   },
   "dependencies": {
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "vite": "^5.4.10",
-    "jsdom": "^25.0.1"
+    "jsdom": "^25.0.1",
+    "playwright": "^1.62.1",
+    "vite": "^5.4.10"
   },
   "description": "Full iTEP practice exam in the browser: five sections, real timing, CEFR report."
 }

@@ -1,45 +1,90 @@
 /* ═══════════════════════════════════════════════════════════════════════
    LA PORTADA
    ───────────────────────────────────────────────────────────────────────
-   De dónde sale el diseño: un examen de certificación es un cuadernillo y
-   un reloj. El fondo es papel de cuadernillo -gris verdoso, no crema-, las
-   tarjetas son la hoja, y el único color saturado es el rojo de las hojas
-   de respuesta ópticas: el que se usa para marcar, y el que avisa de que
-   se acaba el tiempo. Nada más se pinta.
+   La portada y el examen eran dos sitios distintos: aquí un cuadernillo de
+   papel gris con tinta navy y un lápiz rojo, y al pulsar Start aparecía de
+   golpe un campo azul con tarjetas celestes y botones de pastilla. Nadie
+   diseñó esa frontera, simplemente estaban escritos en momentos distintos.
 
-   La pieza central son dos barras. La de arriba reparte los 65 minutos del
-   examen a escala real; la de abajo, los 100 puntos. Writing se lleva el
+   Ahora la portada lleva la piel del examen, que es la que manda porque es
+   donde se pasa la hora:
+
+     - el campo, el mismo degradado azul que cubre la ventana del examen;
+     - la hoja, la tarjeta clara de esquina grande donde va el texto que se
+       lee de verdad (en el examen es el pasaje y la pregunta);
+     - las pastillas, que son como se pulsa cualquier cosa ahí dentro;
+     - y el amarillo, el único acento que tiene el examen, reservado a lo
+       que hay que mirar: la instrucción de la barra y el reloj que se acaba.
+
+   El rojo desaparece. No estaba en el examen y era justo lo que hacía que
+   las dos mitades no se reconocieran.
+
+   La pieza central siguen siendo dos barras. La de arriba reparte los 65
+   minutos a escala real; la de abajo, los 100 puntos. Writing se lleva el
    38% del reloj y vale lo mismo que Speaking, que se lleva el 6%. Ese
-   desajuste es lo único que hay que saber antes de sentarse, y no lo
-   enseña ningún otro simulador. Las dos barras salen de los `timeLimit` y
-   los `weight` del examen cargado, así que si importas el tuyo, cambian.
+   desajuste es lo único que hay que saber antes de sentarse. Las dos barras
+   salen de los `timeLimit` y los `weight` del examen cargado, así que si
+   importas el tuyo, cambian.
 
    Todo va bajo `.en-portada` para no filtrarse al examen, que tiene su
    propia escala de kiosco.
    ═══════════════════════════════════════════════════════════════════════ */
 
 body.en-portada {
-  background: #e6e8e2;
-  color: #16181a;
+  /* El mismo degradado del examen, y fijo: la portada es larga y el campo
+     tiene que seguir siendo el mismo campo al final de la página. */
+  background: linear-gradient(180deg, #3b78b4, #63a2d8) fixed;
+  color: #fff;
   font-family: var(--cuerpo);
   font-size: 16px;
   line-height: 1.55;
 }
 
 .en-portada {
-  --papel: #e6e8e2;
-  --hoja: #fbfbf9;
-  --tinta: #16181a;
-  --grafito: #5b6067;
-  --regla: #c6c9c1;
-  --marca: #ce3a26;
-  --marca-tenue: #f2e0dc;
+  /* ── El campo ─────────────────────────────────────────────────────── */
+  --campo-alto: #3b78b4;
+  --campo-bajo: #63a2d8;
 
-  --s1: #2a2f35;
-  --s2: #454b53;
-  --s3: #626871;
-  --s4: #838a93;
-  --s5: #a3a9b1;
+  /* Lo que se escribe encima del campo, tal cual lo hace el examen */
+  --sobre-campo: #ffffff;
+  --sobre-campo-suave: #dbe9f9;
+  --regla: rgba(255, 255, 255, 0.28);
+
+  /* ── La hoja ──────────────────────────────────────────────────────── */
+  /* `--hoja` es la tarjeta del examen; `--tinta` es su texto */
+  --hoja: #eef5fb;
+  --hoja-borde: #cfe1f2;
+  --hoja-hueco: #dcebf8;
+  --tinta: #16385f;
+  --grafito: #4c6f97;
+
+  /* ── La marca ─────────────────────────────────────────────────────── */
+  --marca: #1a4a78;
+  --marca-oscura: #123a60;
+
+  /* Las pastillas del examen */
+  --pastilla: #95c4ef;
+  --pastilla-fuerte: #6ba8de;
+
+  /*
+   * El amarillo: el único acento del examen. Marca lo que se está mirando
+   * y lo que se pasa de su parte del reloj. Nunca lleva letras blancas
+   * encima -no se leerían-, siempre tinta.
+   */
+  --lapiz: #ffd60a;
+  --sobre-lapiz: #12314f;
+
+  /*
+   * La rampa de las secciones. Va de la tinta al azul del arco, y ningún
+   * tono baja de 4.5:1 contra el blanco de sus letras: antes era una rampa
+   * gris cuyo último tono se quedaba en 2.4 y no se leía. Lo comprueba
+   * `npm test`.
+   */
+  --s1: #0e2138;
+  --s2: #16375a;
+  --s3: #1f4e7d;
+  --s4: #2b689f;
+  --s5: #357bb6;
 
   --titular: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --cuerpo: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
@@ -47,20 +92,20 @@ body.en-portada {
 }
 
 .lp {
-  max-width: 900px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 26px 22px 72px;
+  padding: 22px 22px 72px;
 }
 
 .lp ::selection {
-  background: var(--marca);
-  color: #fff;
+  background: var(--lapiz);
+  color: var(--sobre-lapiz);
 }
 
 .lp :focus-visible {
-  outline: 2px solid var(--marca);
+  outline: 3px solid var(--lapiz);
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 /* ── Cabecera ─────────────────────────────────────────────────────────── */
@@ -73,9 +118,11 @@ body.en-portada {
   border-bottom: 1px solid var(--regla);
 }
 
+/* El logo ya trae su propio disco oscuro: un fondo detras solo le pinta un
+   aro que no es de nadie. */
 .lp-mark {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   display: block;
 }
 
@@ -83,6 +130,7 @@ body.en-portada {
   display: flex;
   flex-direction: column;
   line-height: 1.25;
+  color: var(--sobre-campo);
 }
 
 .lp-word strong {
@@ -102,62 +150,78 @@ body.en-portada {
   font-size: 9.5px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--grafito);
 }
 
+.lp-word span {
+  color: var(--sobre-campo-suave);
+}
+
+/* La misma pastilla amarilla que el examen le pone al modo en la cabecera */
 .lp-free {
   margin-left: auto;
-  color: var(--marca);
-  border: 1px solid currentColor;
-  border-radius: 2px;
-  padding: 4px 8px;
+  background: var(--lapiz);
+  color: var(--sobre-lapiz);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 /* ── Titular ──────────────────────────────────────────────────────────── */
 
 .lp-hero {
-  padding: 52px 0 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: 34px;
+  padding: 46px 0 44px;
+}
+
+.lp-hero-texto {
+  min-width: 0;
 }
 
 .lp-hero h1 {
   font-family: var(--titular);
-  font-size: clamp(2.6rem, 7.5vw, 4.5rem);
+  font-size: clamp(2.5rem, 6.4vw, 4rem);
   font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 0.96;
   margin: 0;
+  color: var(--sobre-campo);
   text-wrap: balance;
 }
 
-/* La segunda línea es la promesa, y el rojo la marca como la marcaría un lápiz */
+/* La segunda línea es la promesa, y va en el amarillo con el que el examen
+   escribe su barra de instrucciones: es la misma voz */
 .lp-hero h1 em {
   font-style: normal;
-  color: var(--marca);
+  color: var(--lapiz);
 }
 
 .lp-lede {
   max-width: 46ch;
-  margin: 22px 0 0;
+  margin: 20px 0 0;
   font-size: 1.06rem;
-  color: var(--grafito);
+  color: var(--sobre-campo-suave);
 }
 
 .lp-go {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 30px;
+  gap: 12px;
+  margin-top: 28px;
 }
 
+/* Los botones son los del examen: pastilla, sin borde, y del mismo azul */
 .lp-btn {
   font: inherit;
   font-weight: 600;
-  border: 1px solid var(--tinta);
-  background: none;
-  color: var(--tinta);
-  border-radius: 3px;
-  padding: 12px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--sobre-campo);
+  border-radius: 999px;
+  padding: 13px 26px;
   cursor: pointer;
   transition:
     background 0.14s ease,
@@ -166,20 +230,20 @@ body.en-portada {
 }
 
 .lp-btn:hover {
-  background: var(--tinta);
-  color: var(--hoja);
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .lp-btn--fuerte {
-  background: var(--marca);
-  border-color: var(--marca);
-  color: #fff;
+  background: var(--lapiz);
+  border-color: var(--lapiz);
+  color: var(--sobre-lapiz);
+  font-weight: 700;
 }
 
 .lp-btn--fuerte:hover {
-  background: #b32e1c;
-  border-color: #b32e1c;
-  color: #fff;
+  background: #ffe14d;
+  border-color: #ffe14d;
+  color: var(--sobre-lapiz);
 }
 
 .lp-btn:disabled {
@@ -191,19 +255,59 @@ body.en-portada {
   margin: 18px 0 0;
   max-width: 58ch;
   font-size: 0.9rem;
-  color: var(--grafito);
+  color: var(--sobre-campo-suave);
 }
 
 .lp-modes strong {
-  color: var(--tinta);
+  color: var(--sobre-campo);
   font-weight: 600;
+}
+
+/*
+ * La ventana: un recorte a escala de lo que hay al otro lado del botón.
+ * No es un adorno, es la respuesta a "¿y esto qué es?": la misma tarjeta,
+ * las mismas pastillas y el mismo reloj que se van a ver al pulsar Start.
+ */
+.lp-ventana {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 26px;
+  padding: 16px;
+  box-shadow: 0 22px 48px rgba(9, 38, 68, 0.28);
+}
+
+.lp-ventana svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 14px;
+}
+
+.lp-ventana figcaption {
+  margin: 12px 4px 2px;
+  font-family: var(--dato);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sobre-campo-suave);
 }
 
 /* ── El reparto: la pieza ─────────────────────────────────────────────── */
 
+/*
+ * Todo lo que se lee con detenimiento -las barras, la tabla, las reglas del
+ * examen, la referencia- va sobre la hoja clara del examen. El campo azul
+ * queda para el titular y para lo que se pulsa, igual que ahí dentro.
+ */
+.hoja,
 .reparto {
-  border-top: 1px solid var(--regla);
-  padding-top: 32px;
+  background: var(--hoja);
+  color: var(--tinta);
+  border: 1px solid var(--hoja-borde);
+  border-radius: 26px;
+  padding: 26px;
+  margin-top: 22px;
+  box-shadow: 0 14px 34px rgba(9, 38, 68, 0.16);
 }
 
 .reparto h2,
@@ -212,10 +316,11 @@ body.en-portada {
   font-family: var(--titular);
   font-weight: 700;
   letter-spacing: -0.025em;
+  color: var(--tinta);
 }
 
 .reparto h2 {
-  font-size: 1.45rem;
+  font-size: 1.5rem;
   margin: 0;
 }
 
@@ -231,7 +336,12 @@ body.en-portada {
   grid-template-columns: 54px 1fr 64px;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.fila-clave,
+.fila-total {
+  color: var(--grafito);
 }
 
 .fila-total {
@@ -240,10 +350,10 @@ body.en-portada {
 
 .barra {
   display: flex;
-  height: 30px;
-  border-radius: 2px;
+  height: 34px;
+  border-radius: 999px;
   overflow: hidden;
-  background: var(--regla);
+  background: var(--hoja-hueco);
 }
 
 .tramo {
@@ -262,7 +372,7 @@ body.en-portada {
 }
 
 .tramo + .tramo {
-  border-left: 1px solid var(--papel);
+  border-left: 1px solid var(--hoja);
 }
 
 .tramo[data-sec='grammar'] { background: var(--s1); }
@@ -279,18 +389,22 @@ body.en-portada {
   filter: saturate(0.15) opacity(0.35);
 }
 
+/* El tramo mirado se marca con el amarillo del examen: sobre una rampa azul,
+   el azul de marca no se distinguiría de los tonos que tiene al lado. Y las
+   letras pasan a tinta, porque en amarillo el blanco no se lee. */
 .reparto[data-mira] .tramo[data-mirado] {
   filter: none;
-  background: var(--marca);
+  background: var(--lapiz);
+  color: var(--sobre-lapiz);
 }
 
 .barra--puntaje .tramo {
-  color: #8a6258;
-  background: var(--marca-tenue);
+  color: var(--grafito);
+  background: var(--hoja-hueco);
 }
 
 .reparto[data-mira] .barra--puntaje .tramo[data-mirado] {
-  color: #fff;
+  color: var(--sobre-lapiz);
 }
 
 /*
@@ -317,7 +431,8 @@ body.en-portada {
   font-weight: 500;
   text-align: right;
   padding: 0 0 8px;
-  border-bottom: 1px solid var(--regla);
+  border-bottom: 1px solid var(--hoja-borde);
+  color: var(--grafito);
 }
 
 .tabla th:first-child,
@@ -327,7 +442,7 @@ body.en-portada {
 
 .tabla td {
   padding: 9px 0;
-  border-bottom: 1px solid var(--regla);
+  border-bottom: 1px solid var(--hoja-borde);
   font-size: 0.9rem;
   text-align: right;
 }
@@ -337,7 +452,7 @@ body.en-portada {
 }
 
 .tabla tbody tr:hover td {
-  background: var(--hoja);
+  background: var(--hoja-hueco);
 }
 
 .tabla .n {
@@ -355,27 +470,40 @@ body.en-portada {
 .punto {
   width: 9px;
   height: 9px;
-  border-radius: 2px;
+  border-radius: 999px;
   flex: none;
 }
 
-/* El tono va en un `style` inline, asi que solo `!important` lo tapa */
+/* El tono va en un `style` inline, así que sólo `!important` lo tapa */
 .reparto[data-mira] tr[data-mirado] .punto {
-  background: var(--marca) !important;
+  background: var(--lapiz) !important;
 }
 
-/* El desfase es la única celda con color, porque es lo único que sorprende */
+/*
+ * El desfase es la única celda con color, porque es lo único que sorprende.
+ * Va subrayado con el amarillo, como quien pasa un resaltador por la cifra
+ * que no cuadra: el amarillo suelto sobre la hoja clara no se leería.
+ */
 .desfase {
   font-family: var(--dato);
   font-size: 0.76rem;
+  color: var(--grafito);
 }
 
-.desfase[data-signo='mas'] {
-  color: var(--marca);
+/* El resaltador va en el `span` y no en la celda: una celda de tabla ocupa
+   toda su columna, y el trazo salia cruzando la fila entera en vez de marcar
+   la cifra. */
+.desfase[data-signo='mas'] span {
+  color: var(--tinta);
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: linear-gradient(transparent 12%, rgba(255, 214, 10, 0.85) 12%, rgba(255, 214, 10, 0.85) 88%, transparent 88%);
 }
 
+/* Quedarse corto no sorprende a nadie: lo que hay que ver es lo que se pasa */
 .desfase[data-signo='menos'] {
-  color: #2e6b4e;
+  color: var(--grafito);
 }
 
 .reparto-nota {
@@ -392,14 +520,6 @@ body.en-portada {
 
 /* ── El examen cargado ────────────────────────────────────────────────── */
 
-.hoja {
-  background: var(--hoja);
-  border: 1px solid var(--regla);
-  border-radius: 4px;
-  padding: 22px;
-  margin-top: 42px;
-}
-
 .hoja-cabeza {
   display: flex;
   flex-wrap: wrap;
@@ -408,13 +528,14 @@ body.en-portada {
 }
 
 .hoja-cabeza h2 {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   margin: 0;
 }
 
 .hoja-eyebrow {
   width: 100%;
   margin: 0 0 4px;
+  color: var(--grafito);
 }
 
 .hoja-reglas {
@@ -442,12 +563,73 @@ body.en-portada {
   flex: none;
 }
 
+/* ── Las cinco secciones ──────────────────────────────────────────────── */
+
+/*
+ * Las mismas cinco secciones que reparten las barras, con lo que se hace en
+ * cada una. Cada icono usa el tono que la sección ya tiene en la rampa, así
+ * que la tarjeta y su tramo de barra se reconocen como lo mismo.
+ */
+.secciones {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.sec {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 16px 14px 18px;
+  color: var(--sobre-campo);
+}
+
+.sec svg {
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+
+.sec h3 {
+  font-family: var(--titular);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  margin: 12px 0 4px;
+}
+
+.sec p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--sobre-campo-suave);
+}
+
+.sec-reloj {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: var(--dato);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sobre-lapiz);
+  background: var(--lapiz);
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-weight: 700;
+}
+
 /* ── La referencia de gramática ───────────────────────────────────────── */
 
 .lp-ref {
-  margin-top: 42px;
-  border-top: 1px solid var(--regla);
-  padding-top: 24px;
+  background: var(--hoja);
+  color: var(--tinta);
+  border: 1px solid var(--hoja-borde);
+  border-radius: 26px;
+  padding: 22px 26px;
+  margin-top: 22px;
+  box-shadow: 0 14px 34px rgba(9, 38, 68, 0.16);
 }
 
 .lp-ref summary {
@@ -471,19 +653,171 @@ body.en-portada {
   content: '\2212';
 }
 
+/*
+ * El cuerpo de la referencia se había quedado con las clases del examen:
+ * tarjetas azules y texto en azul dentro de una portada de papel y rojo.
+ * Ahora la portada ES la del examen, así que lo que hace falta es que se
+ * distinga de la hoja que la contiene, no que la imite.
+ */
+
+.ref-cuerpo {
+  margin-top: 20px;
+}
+
+.ref-intro {
+  margin: 0 0 22px;
+  max-width: 54ch;
+  font-size: 0.94rem;
+  color: var(--grafito);
+}
+
+.ref-rejilla {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ref-grupo {
+  background: #fff;
+  border: 1px solid var(--hoja-borde);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+
+.ref-grupo h3,
+.ref-muestra-titulo {
+  margin: 0;
+  font-family: var(--dato);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grafito);
+}
+
+.ref-grupo ul {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ref-grupo li + li {
+  margin-top: 10px;
+}
+
+.ref-grupo strong {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--tinta);
+}
+
+.ref-grupo span {
+  font-size: 0.88rem;
+  color: var(--grafito);
+}
+
+.ref-muestra-titulo {
+  margin: 32px 0 4px;
+}
+
+/* Cada muestra es una pregunta de hoja de respuestas: enunciado, opciones y
+   el porqué debajo. La buena se marca con el amarillo y con la palabra, no
+   solo con el color, que es lo único que ve quien no lo distingue. */
+.ref-muestra {
+  border-top: 1px solid var(--hoja-borde);
+  padding: 16px 0;
+}
+
+.ref-enunciado {
+  margin: 0;
+  font-size: 0.94rem;
+  color: var(--tinta);
+}
+
+.ref-num {
+  font-family: var(--dato);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: var(--marca);
+  margin-right: 10px;
+}
+
+.ref-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 20px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--dato);
+  font-size: 0.72rem;
+  color: var(--grafito);
+}
+
+.ref-opciones .es-la-buena {
+  color: var(--tinta);
+  font-weight: 700;
+}
+
+.ref-marca {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--lapiz);
+  color: var(--sobre-lapiz);
+  border-radius: 999px;
+  padding: 2px 7px;
+  margin-left: 6px;
+}
+
+.ref-porque {
+  margin: 10px 0 0;
+  max-width: 60ch;
+  font-size: 0.88rem;
+  color: var(--grafito);
+}
+
 .lp-aviso {
-  margin: 40px 0 0;
+  margin: 34px 0 0;
   padding-top: 18px;
   border-top: 1px solid var(--regla);
   font-size: 0.8rem;
-  color: var(--grafito);
+  color: var(--sobre-campo-suave);
+}
+
+.lp-aviso a {
+  color: var(--sobre-campo);
 }
 
 /* ── Estrecho ─────────────────────────────────────────────────────────── */
 
-@media (max-width: 620px) {
+@media (max-width: 900px) {
   .lp-hero {
-    padding: 38px 0 32px;
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .secciones {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .lp {
+    padding: 18px 14px 56px;
+  }
+
+  .lp-hero {
+    padding: 32px 0 30px;
+  }
+
+  .hoja,
+  .reparto,
+  .lp-ref {
+    padding: 20px 18px;
+    border-radius: 20px;
   }
 
   .fila {
@@ -500,6 +834,14 @@ body.en-portada {
     display: none;
   }
 
+  .ref-rejilla {
+    grid-template-columns: 1fr;
+  }
+
+  .secciones {
+    grid-template-columns: 1fr;
+  }
+
   .lp-btn {
     flex: 1;
   }
@@ -511,11 +853,11 @@ body.en-portada {
   }
 }
 
-/* ── El panel de importar, con el papel de la portada ─────────────────── */
+/* ── El panel de importar, con la hoja del examen ─────────────────────── */
 
 .en-portada .lnd-import { padding: 0; overflow: hidden; }
-.en-portada .lnd-import-head { padding: 20px 22px; }
-.en-portada .lnd-import-head:hover { background: #f2f1ec; }
+.en-portada .lnd-import-head { padding: 22px 26px; }
+.en-portada .lnd-import-head:hover { background: var(--hoja-hueco); }
 .en-portada .lnd-import-head strong {
   font-family: var(--titular);
   font-size: 1.05rem;
@@ -524,27 +866,50 @@ body.en-portada {
 }
 .en-portada .lnd-import-head em { color: var(--grafito); font-size: 0.88rem; }
 .en-portada .lnd-import-chev { color: var(--marca); font-family: var(--dato); font-size: 1.1rem; }
-.en-portada .lnd-import-body { padding: 0 22px 22px; border-top: 1px solid var(--regla); }
+.en-portada .lnd-import-body { padding: 0 26px 24px; border-top: 1px solid var(--hoja-borde); }
 .en-portada .lnd-import-note,
 .en-portada .lnd-import-cta { color: var(--grafito); font-size: 0.88rem; }
 .en-portada .lnd-import-cta a { color: var(--marca); font-weight: 600; }
 .en-portada .lnd-paste summary { color: var(--marca); font-weight: 600; font-size: 0.88rem; }
 .en-portada .lnd-paste textarea {
-  border: 1px solid var(--regla);
-  border-radius: 3px;
-  background: var(--papel);
+  border: 1px solid var(--hoja-borde);
+  border-radius: 12px;
+  background: #fff;
   color: var(--tinta);
 }
-.en-portada .lnd-msg { border-radius: 3px; font-size: 0.85rem; }
-.en-portada .lnd-badge-imported {
+
+/* Dentro de la hoja, los botones vuelven a ser las pastillas azules del
+   examen: el amarillo aquí competiría con el de arriba, que es el que lleva
+   al examen. */
+.en-portada .lnd-import-body .lp-btn {
+  border-color: var(--pastilla-fuerte);
+  background: transparent;
+  color: var(--marca);
+}
+.en-portada .lnd-import-body .lp-btn:hover {
+  background: var(--hoja-hueco);
+}
+.en-portada .lnd-import-body .lp-btn--fuerte {
   background: var(--marca);
   border-color: var(--marca);
   color: #fff;
-  border-radius: 2px;
+}
+.en-portada .lnd-import-body .lp-btn--fuerte:hover {
+  background: var(--marca-oscura);
+  border-color: var(--marca-oscura);
+  color: #fff;
+}
+
+.en-portada .lnd-msg { border-radius: 12px; font-size: 0.85rem; }
+.en-portada .lnd-badge-imported {
+  background: var(--lapiz);
+  border-color: var(--lapiz);
+  color: var(--sobre-lapiz);
+  border-radius: 999px;
   font-family: var(--dato);
   font-size: 8.5px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin: 0;
-  padding: 3px 7px;
+  padding: 3px 9px;
 }

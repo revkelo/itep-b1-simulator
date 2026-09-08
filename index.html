@@ -11,7 +11,7 @@
     <meta name="author" content="Kevin Gonzalez" />
     <link rel="canonical" href="https://itep.kgstudio.top/" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#3b78b4" />
 
     <!-- El enlace circula entre estudiantes por WhatsApp y grupos de clase.
          Sin tarjeta se comparte como una URL pelada y nadie la abre. -->
@@ -22,9 +22,8 @@
     <meta property="og:description"
       content="All five iTEP sections with real timing and a CEFR score report at the end. Free, in the browser, no account." />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:locale:alternate" content="es_CO" />
-    <!-- La tarjeta se declaraba `summary_large_image` sin imagen, asi que
-         salia vacia: el formato grande sin foto se ve peor que el pequeño. -->
+    <!-- La tarjeta la genera `npm run og` con los minutos del propio examen.
+         Estuvo dibujada a mano y decia 20 y 5 donde el examen dice 6 y 4. -->
     <meta property="og:image" content="https://itep.kgstudio.top/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -42,7 +41,7 @@
 
     <!-- Bricolage para los titulares, Instrument para el cuerpo y Martian Mono
          para los datos: minutos, porcentajes y etiquetas. Una hoja de examen
-         separa el texto de las cifras, y aqui la tipografia hace lo mismo. -->
+         separa el texto de las cifras, y aquí la tipografía hace lo mismo. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -91,6 +90,7 @@
             "Real per-section countdown timers",
             "Exam mode and study mode with instant feedback",
             "Autosave - closing the tab does not lose the attempt",
+            "Load your own question bank from a JSON file",
             "Listening delivered by browser speech synthesis",
             "Speaking recorded and transcribed in the browser",
             "CEFR score report from A1 to C2"
@@ -145,6 +145,22 @@
             },
             {
               "@type": "Question",
+              "name": "How long does the iTEP exam take, and which section takes the longest?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The full sitting is about 65 minutes: Grammar 10, Listening 6, Reading 20, Writing 25 and Speaking 4. Every section is worth the same fifth of the band, so Writing takes 38 per cent of the clock for 20 per cent of the score and Speaking takes 6 per cent for the same 20. Budget the writing time before you sit down."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I practise with my own questions?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. The simulator loads any question bank that follows its JSON shape: download the template from the home page, fill it in and bring it back. Banks exported by examia.kgstudio.top work as they are."
+              }
+            },
+            {
+              "@type": "Question",
               "name": "Is this the official iTEP exam?",
               "acceptedAnswer": {
                 "@type": "Answer",
@@ -183,15 +199,40 @@
         </p>
         <ul>
           <li><strong>Grammar</strong> - sentence completion and error detection, 10 minutes.</li>
-          <li><strong>Listening</strong> - conversations and a lecture, played once.</li>
+          <li><strong>Listening</strong> - conversations and a lecture, played once, 6 minutes.</li>
           <li><strong>Reading</strong> - two passages with comprehension questions, 20 minutes.</li>
           <li><strong>Writing</strong> - timed written responses, 25 minutes.</li>
-          <li><strong>Speaking</strong> - recorded answers with preparation time.</li>
+          <li><strong>Speaking</strong> - recorded answers with preparation time, 4 minutes.</li>
         </ul>
+        <h2>Where the hour goes, and what it buys</h2>
+        <p>
+          The whole sitting is 65 minutes, and every section is worth the same
+          fifth of your band. They are nowhere near the same fraction of the
+          clock. Writing takes 38 per cent of your time for 20 per cent of the
+          score; Speaking takes 6 per cent for the same 20. That is the one
+          thing worth knowing before you sit down, and the home page draws it
+          as two bars you can compare.
+        </p>
+        <h2>Exam mode and study mode</h2>
         <p>
           Exam mode keeps official timing and scores at the end; study mode gives
-          feedback after every answer. Your attempt is saved locally, so closing
-          the tab does not lose it. No account and no download.
+          feedback after every answer and lets the clock run past. Your attempt is
+          saved locally, so closing the tab does not lose it. No account and no
+          download.
+        </p>
+        <h2>Bring your own questions</h2>
+        <p>
+          The built-in exam is not the only one you can sit. The home page loads
+          any question bank in its JSON shape: download the template, fill it in
+          and bring it back. Banks exported by
+          <a href="https://examia.kgstudio.top/">examia</a> work as they are.
+        </p>
+        <h2>The twelve tenses the Grammar section keeps asking about</h2>
+        <p>
+          Simple present, simple past and simple future. Present, past and future
+          continuous. Present, past and future perfect. And present, past and
+          future perfect continuous. The home page lists each one with an example
+          and three sample questions with the answer explained.
         </p>
         <p><small>Independent practice tool. Not affiliated with or endorsed by iTEP International.</small></p>
         <noscript>

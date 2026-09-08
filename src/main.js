@@ -31,6 +31,10 @@ const state = {
   speakingTranscript: "",
   speakingTranscripts: {},
   speakingEvaluation: {},
+  /* Por que no hay transcripcion, cuando no la hay. El informe lo ensena. */
+  speakingMotivos: {},
+  /* null = todavia no se le ha preguntado a /api/estado */
+  califica: null,
   speakingAudioUrls: {},
   deviceCheck: { pendingMode: null, micStatus: "idle", micUrl: null, audioStatus: "idle" },
   writingEvaluation: {},
@@ -56,6 +60,7 @@ function saveState() {
     speakingRecordings: state.speakingRecordings,
     speakingTranscripts: state.speakingTranscripts,
     speakingEvaluation: state.speakingEvaluation,
+    speakingMotivos: state.speakingMotivos,
     writingEvaluation: state.writingEvaluation,
     speakingPrepRemaining: state.speakingPrepRemaining,
     sectionIndex: state.sectionIndex
@@ -72,6 +77,7 @@ function loadState() {
     if (p.speakingRecordings) state.speakingRecordings = p.speakingRecordings;
     if (p.speakingTranscripts) state.speakingTranscripts = p.speakingTranscripts;
     if (p.speakingEvaluation) state.speakingEvaluation = p.speakingEvaluation;
+    if (p.speakingMotivos) state.speakingMotivos = p.speakingMotivos;
     if (p.writingEvaluation) state.writingEvaluation = p.writingEvaluation;
     if (typeof p.speakingPrepRemaining === "number") state.speakingPrepRemaining = p.speakingPrepRemaining;
     if (typeof p.sectionIndex === "number") state.sectionIndex = p.sectionIndex;
@@ -91,6 +97,14 @@ function promiseWithTimeout(promise, ms, fallback = null) {
 
 async function init() {
   loadState();
+  /*
+   * Se pregunta una vez, al arrancar, si este despliegue puede calificar. Sin
+   * esto la pantalla de speaking no puede avisar ANTES de grabar, y el
+   * candidato se entera de que su respuesta no tiene nota en el informe final,
+   * cuando ya gasto los dos minutos. No bloquea el arranque: si tarda o falla,
+   * queda en false y el examen sigue.
+   */
+  consultarSiCalifica().then(() => { if (!state.loading) render(); });
   try {
     const dataUrl = `${import.meta.env.BASE_URL}data/exam-data.json`;
     const res = await fetch(dataUrl, { cache: "no-store" });
@@ -650,6 +664,7 @@ function resetAttemptState() {
   state.speakingTranscript = "";
   state.speakingTranscripts = {};
   state.speakingEvaluation = {};
+  state.speakingMotivos = {};
   state.speakingAudioUrls = {};
   state.writingEvaluation = {};
   state.questionIndexes = { grammar: 0, listening: 0, reading: 0 };
@@ -872,28 +887,37 @@ async function startActualRecording(p) {
     const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
     // Give SpeechRecognition time to fire its final onresult before reading the transcript
     await new Promise((r) => setTimeout(r, 600));
-    let transcript = (state.speakingTranscripts[p.id] || state.speakingTranscript || "").trim();
-    const note = (state.notes.speaking[p.id] || "").trim();
+    const delNavegador = (state.speakingTranscripts[p.id] || state.speakingTranscript || "").trim();
 
-    if (blob.size === 0 && !transcript && !note) {
+    if (blob.size === 0 && !delNavegador) {
       state.speakingStatus = "idle";
+      state.speakingMotivos[p.id] = "No audio came from the microphone. Check the permission and record again.";
       state.speakingEvaluation[p.id] = JSON.stringify({
-        score: 0,
-        cefr: "A1",
-        feedback: "No speaking response detected. Please record again and allow microphone access."
+        sinCalificar: true,
+        motivo: state.speakingMotivos[p.id]
       });
       saveState();
       return render();
     }
 
-    // Fallback: if Web Speech API produced no transcript, use Groq Whisper
-    if (!transcript && blob.size > 0) {
-      const whisperText = await transcribeWithGroqWhisper(blob);
-      if (whisperText) {
-        transcript = whisperText;
-        state.speakingTranscripts[p.id] = transcript;
-        state.speakingTranscript = transcript;
-      }
+    /*
+     * Whisper manda sobre lo que oyó el navegador, no al revés.
+     *
+     * La Web Speech API es de Chrome, necesita hablar con un servicio de
+     * Google y en Firefox y Safari no existe: montarla como fuente principal
+     * dejaba a media internet sin transcripción y por tanto sin nota. Se
+     * queda porque va escribiendo en vivo mientras se habla, que es útil de
+     * ver, pero la que cuenta es la del servidor. Si el servidor no puede
+     * -no hay llave, o falló-, se usa la del navegador antes que nada.
+     */
+    state.speakingStatus = "transcribing";
+    render();
+    const { texto, motivo } = await transcribirGrabacion(blob);
+    let transcript = texto || delNavegador;
+    state.speakingMotivos[p.id] = transcript ? "" : (motivo || "Nothing could be made out in the recording.");
+    if (transcript) {
+      state.speakingTranscripts[p.id] = transcript;
+      state.speakingTranscript = transcript;
     }
 
     const url = URL.createObjectURL(blob);
@@ -920,91 +944,117 @@ async function startActualRecording(p) {
   setTimeout(() => rec.stop(), p.speakTime * 1000);
 }
 
-async function transcribeWithGroqWhisper(blob) {
-  const key = import.meta.env.VITE_GROQ_API_KEY || "";
-  if (!key) return "";
+/*
+ * La transcripción y la evaluación viven detrás de /api.
+ *
+* Antes se llamaba al servicio de Groq desde el propio navegador, con la
+ * llave leida de una variable de entorno con prefijo de cliente. Vite mete en
+ * el paquete que descarga el visitante todo lo que lleve ese prefijo, asi que
+ * ponerla en Vercel para "encender" speaking habria publicado la llave en un
+ * .js de un sitio abierto. Nunca se puso -por eso speaking no evaluaba nada- y
+ * ahora ya no puede ponerse: la llave la lee `api/_nucleo.js` en el servidor.
+ *
+ * `test/calificacion.test.mjs` lo comprueba con un grep a secas sobre este
+ * archivo, de ahi que aqui no se escriban ni el prefijo ni el dominio.
+ */
+
+/** Pregunta una vez si este despliegue puede calificar, y se lo guarda. */
+async function consultarSiCalifica() {
+  if (state.califica !== null) return state.califica;
   try {
-    const form = new FormData();
-    form.append("file", blob, "recording.webm");
-    form.append("model", "whisper-large-v3");
-    form.append("language", "en");
-    const res = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}` },
-      body: form
-    });
-    if (!res.ok) return "";
-    const data = await res.json();
-    return data.text || "";
+    const res = await fetch("/api/estado");
+    if (!res.ok) throw new Error(String(res.status));
+    const d = await res.json();
+    state.califica = Boolean(d.califica);
   } catch {
-    return "";
+    /* Sin /api -abriendo el dist a pelo, por ejemplo- no hay calificación. */
+    state.califica = false;
+  }
+  return state.califica;
+}
+
+/**
+ * Pasa la grabación a texto.
+ *
+ * Devuelve `{ texto, motivo }`. `motivo` solo viene cuando NO hay texto, y es
+ * lo que el informe le enseña al candidato: quedarse callado y que el
+ * micrófono no estuviera conectado no son la misma cosa, y antes las dos
+ * terminaban igual, en nada.
+ */
+async function transcribirGrabacion(blob) {
+  if (!blob || blob.size === 0) return { texto: "", motivo: "The recording came out empty." };
+  try {
+    const res = await fetch("/api/transcribir", {
+      method: "POST",
+      headers: { "Content-Type": blob.type || "audio/webm" },
+      body: blob
+    });
+    const d = await res.json().catch(() => null);
+    if (res.ok && d?.ok && d.texto) return { texto: d.texto, motivo: "" };
+    if (d?.codigo === "sin_llave") {
+      state.califica = false;
+      return { texto: "", motivo: "" };
+    }
+    return { texto: "", motivo: d?.mensaje || `The transcription service returned ${res.status}.` };
+  } catch (e) {
+    return { texto: "", motivo: "Could not reach the transcription service." };
+  }
+}
+
+/** Llama a la rúbrica del servidor y guarda el juicio, o el motivo de que no haya. */
+async function evaluarRespuesta(tipo, destino, promptObj, texto, notas = "") {
+  const guardarMotivo = (motivo) => {
+    destino[promptObj.id] = JSON.stringify({ sinCalificar: true, motivo });
+    saveState();
+  };
+
+  if (!(await consultarSiCalifica())) {
+    return guardarMotivo("This deployment has no AI scoring configured.");
+  }
+  if (!texto.trim()) {
+    return guardarMotivo("There was no answer to score.");
+  }
+
+  try {
+    const res = await fetch("/api/evaluar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tipo, consigna: promptObj.prompt, texto, notas })
+    });
+    const d = await res.json().catch(() => null);
+    if (res.ok && d?.ok && d.juicio) {
+      destino[promptObj.id] = JSON.stringify(d.juicio);
+      saveState();
+      return;
+    }
+    if (d?.codigo === "sin_llave") state.califica = false;
+    guardarMotivo(d?.mensaje || `The scoring service returned ${res.status}.`);
+  } catch {
+    guardarMotivo("Could not reach the scoring service.");
   }
 }
 
 async function evaluateSpeakingWithGroq(promptObj) {
-  const key = import.meta.env.VITE_GROQ_API_KEY || "";
-  if (!key) return;
-  try {
-    const note = state.notes.speaking[promptObj.id] || "";
-    const transcript = state.speakingTranscripts[promptObj.id] || state.speakingTranscript || "";
-    if (!transcript && !note) {
-      state.speakingEvaluation[promptObj.id] = JSON.stringify({
-        score: 0,
-        cefr: "A1",
-        feedback: "No usable speaking response detected for this task."
-      });
-      saveState();
-      return;
-    }
-
-    const body = {
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-      messages: [{ role: "user", content: `Evaluate this iTEP speaking response and place it on the CEFR scale (A1-C2). Return JSON with keys score, cefr, fluency, pronunciation, grammar, vocabulary, coherence, feedback. Prompt: ${promptObj.prompt}\nTranscript: ${transcript}\nNotes: ${note}` }]
-    };
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify(body)
+  const transcript = state.speakingTranscripts[promptObj.id] || "";
+  const note = state.notes.speaking[promptObj.id] || "";
+  if (!transcript) {
+    /*
+     * Sin transcripción no se evalúa, y se dice por qué. Antes se le mandaban
+     * al modelo las notas de preparación como si fueran la respuesta: eso
+     * calificaba un borrador escrito en una sección de hablar.
+     */
+    state.speakingEvaluation[promptObj.id] = JSON.stringify({
+      sinCalificar: true,
+      motivo: state.speakingMotivos[promptObj.id] || "No transcript was obtained from the recording."
     });
-    if (!res.ok) return;
-    const data = await res.json();
-    state.speakingEvaluation[promptObj.id] = data.choices?.[0]?.message?.content || "";
     saveState();
-  } catch {}
+    return;
+  }
+  await evaluarRespuesta("speaking", state.speakingEvaluation, promptObj, transcript, note);
 }
 
 async function evaluateWritingWithGroq(promptObj, text) {
-  const key = import.meta.env.VITE_GROQ_API_KEY || "";
-  if (!key) return;
-  try {
-    if (!text?.trim()) {
-      state.writingEvaluation[promptObj.id] = JSON.stringify({
-        score: 0,
-        cefr: "A1",
-        feedback: "No writing response submitted for this task."
-      });
-      saveState();
-      return;
-    }
-
-    const body = {
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-      messages: [{ role: "user", content: `Evaluate this iTEP writing response and place it on the CEFR scale (A1-C2). Return JSON with keys score, cefr, grammar, coherence, vocabulary, fluency, corrections, feedback, improvedVersion. Prompt: ${promptObj.prompt}\nResponse: ${text}` }]
-    };
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    state.writingEvaluation[promptObj.id] = data.choices?.[0]?.message?.content || "";
-    saveState();
-  } catch {}
+  await evaluarRespuesta("writing", state.writingEvaluation, promptObj, text || "");
 }
 
 function renderSpeaking() {
@@ -1014,27 +1064,75 @@ function renderSpeaking() {
   const already = !!state.speakingRecordings[p.id];
   const preparing = state.speakingStatus === "preparing";
   const recording = state.speakingStatus === "recording";
-  const evalRaw = state.speakingEvaluation[p.id] || "";
-  const evalObj = safeParseJsonObject(evalRaw);
-  const evalBlock = evalObj
-    ? `<div class="feedback-card">
+  const transcribing = state.speakingStatus === "transcribing";
+  const busy = preparing || recording || transcribing;
+
+  const estado = transcribing ? "Transcribing..."
+    : preparing ? "Preparing..."
+    : recording ? "Recording..."
+    : already ? "Recorded" : "Ready";
+
+  /*
+   * Lo que se oyo, escrito. Es la pieza que faltaba: la nota sale de este
+   * texto, asi que si el candidato no lo ve no tiene forma de saber si lo
+   * calificaron mal o si el microfono entendio otra cosa.
+   */
+  const transcript = state.speakingTranscripts[p.id] || "";
+  const motivo = state.speakingMotivos[p.id] || "";
+  const bloqueTranscripcion = already
+    ? (transcript
+      ? `<div class="transcript"><h4>What we heard</h4><p>${esc(transcript)}</p></div>`
+      : `<div class="study-feedback bad"><p><strong>No transcript.</strong> ${esc(motivo || "Nothing could be made out in the recording.")}</p></div>`)
+    : "";
+
+  const evalObj = safeParseJsonObject(state.speakingEvaluation[p.id] || "");
+  const evalBlock = !evalObj ? ""
+    : evalObj.sinCalificar
+      ? `<div class="study-feedback"><p><strong>Not scored.</strong> ${esc(evalObj.motivo || "")}</p></div>`
+      : `<div class="feedback-card">
         <h4>Speaking Feedback</h4>
-        <div class="feedback-grid">
-          <div><strong>Score</strong><span>${Number.isFinite(Number(evalObj.score)) ? Number(evalObj.score) : "-"}</span></div>
-          <div><strong>CEFR</strong><span>${esc(evalObj.cefr || "-")}</span></div>
-          <div><strong>Fluency</strong><span>${Number.isFinite(Number(evalObj.fluency)) ? Number(evalObj.fluency) : "-"}</span></div>
-          <div><strong>Pronunciation</strong><span>${Number.isFinite(Number(evalObj.pronunciation)) ? Number(evalObj.pronunciation) : "-"}</span></div>
-          <div><strong>Grammar</strong><span>${Number.isFinite(Number(evalObj.grammar)) ? Number(evalObj.grammar) : "-"}</span></div>
-          <div><strong>Vocabulary</strong><span>${Number.isFinite(Number(evalObj.vocabulary)) ? Number(evalObj.vocabulary) : "-"}</span></div>
-          <div><strong>Coherence</strong><span>${Number.isFinite(Number(evalObj.coherence)) ? Number(evalObj.coherence) : "-"}</span></div>
-        </div>
-        <p>${esc(evalObj.feedback || "No detailed feedback.")}</p>
-      </div>`
-    : (evalRaw ? `<div class="transcript"><h4>Speaking Feedback</h4><p>${esc(evalRaw)}</p></div>` : "");
+        <div class="feedback-grid">${celdasNota(evalObj, ["score", "cefr", "fluency", "grammar", "vocabulary", "coherence"])}</div>
+        ${evalObj.feedback ? `<p>${esc(evalObj.feedback)}</p>` : ""}
+      </div>`;
+
+  /*
+   * Si este despliegue no califica, se dice ANTES de grabar. Enterarse en el
+   * informe final, cuando ya se gastaron los dos minutos, no le sirve a nadie.
+   */
+  const avisoSinNota = state.califica === false
+    ? `<div class="study-feedback"><p>This deployment records and transcribes your answer, but does not score it: no AI scoring is configured. Grammar, Listening and Reading are still scored normally.</p></div>`
+    : "";
+
   const speakingPart = state.speakingPartIndex === 0 ? "Part 1 (Read + Speak)" : "Part 2 (Opinion Response)";
-  return `<section class="panel"><h3>Speaking - ${speakingPart}</h3><p class="prompt">${esc(p.prompt)}</p><p class="muted">Prep ${p.prepTime}s | Speak ${p.speakTime}s | Microphone starts automatically</p><div class="speak-meta"><span class="tag">${preparing ? "Preparing..." : recording ? "Recording..." : already ? "Recorded" : "Ready"}</span><span id="speaking-prep-remaining" class="muted">${preparing ? `${state.speakingPrepRemaining}s prep` : ""}</span><span id="speaking-remaining" class="muted">${recording ? `${state.speakingRemaining}s remaining` : ""}</span></div><button class="btn primary" data-action="start-recording" ${(recording || preparing || already) ? "disabled" : ""}>${already ? "Recorded" : preparing ? "Preparing..." : recording ? "Recording..." : "Start Recording"}</button><div class="wave ${(recording || preparing) ? "active" : ""}"></div><label class="muted">Notes</label><textarea id="speaking-notes" data-pid="${p.id}" placeholder="Write notes before speaking...">${esc(note)}</textarea><audio id="speaking-playback" controls style="display:${already ? "block" : "none"}"></audio>${evalBlock}</section>`;
+  return `<section class="panel"><h3>Speaking - ${speakingPart}</h3>
+    <p class="prompt">${esc(p.prompt)}</p>
+    <p class="muted">Prep ${p.prepTime}s | Speak ${p.speakTime}s | Microphone starts automatically</p>
+    ${avisoSinNota}
+    <div class="speak-meta"><span class="tag">${estado}</span><span id="speaking-prep-remaining" class="muted">${preparing ? `${state.speakingPrepRemaining}s prep` : ""}</span><span id="speaking-remaining" class="muted">${recording ? `${state.speakingRemaining}s remaining` : ""}</span></div>
+    <button class="btn primary" data-action="start-recording" ${(busy || already) ? "disabled" : ""}>${already ? "Recorded" : busy ? estado : "Start Recording"}</button>
+    <div class="wave ${busy ? "active" : ""}"></div>
+    <label class="muted">Notes</label>
+    <textarea id="speaking-notes" data-pid="${p.id}" placeholder="Write notes before speaking...">${esc(note)}</textarea>
+    <audio id="speaking-playback" controls style="display:${already ? "block" : "none"}"></audio>
+    ${bloqueTranscripcion}${evalBlock}</section>`;
 }
 
+/*
+ * Las celdas de una nota. Solo se pinta la que existe: la version anterior
+ * dibujaba siempre las siete y las que no venian salian con un guion, asi que
+ * "no lo medimos" y "lo medimos y dio cero" se veian casi igual.
+ *
+ * Pronunciation ya no esta en la lista a proposito: se calificaba leyendo una
+ * transcripcion, sin oir nada.
+ */
+function celdasNota(obj, claves) {
+  const etiqueta = { score: "Score", cefr: "CEFR", fluency: "Fluency", grammar: "Grammar", vocabulary: "Vocabulary", coherence: "Coherence" };
+  return claves.map((k) => {
+    const v = obj[k];
+    if (v === undefined || v === null || v === "") return "";
+    return `<div><strong>${etiqueta[k] || k}</strong><span>${esc(String(v))}</span></div>`;
+  }).join("");
+}
 function renderExamBody() {
   const s = sectionName();
   if (s === "grammar") return renderGrammar();
@@ -1070,34 +1168,60 @@ function computeReport() {
   const listening = scoreObjective(lRows.map((x) => x.q));
   const reading = scoreObjective(rQs);
 
-  const writingProgress = sec.writing.prompts.map((p) => {
-    const words = ((state.writingTexts[p.id] || "").trim().match(/\S+/g) || []).length;
-    if (!p.minWords || p.minWords <= 0) return words > 0 ? 1 : 0;
-    return Math.min(words / p.minWords, 1);
-  });
-  const writingProgressScore = Math.round((writingProgress.reduce((acc, x) => acc + x, 0) / Math.max(writingProgress.length, 1)) * 72);
-  const writingAiScores = sec.writing.prompts.map((p) => {
-    const parsed = safeParseJsonObject(state.writingEvaluation[p.id] || "");
-    const aiScore = Number(parsed?.score);
-    return Number.isFinite(aiScore) ? Math.max(0, Math.min(100, aiScore)) : null;
-  }).filter((x) => x !== null);
-  const writing = writingAiScores.length
-    ? Math.round((writingAiScores.reduce((acc, x) => acc + x, 0) / writingAiScores.length) * 0.72)
-    : writingProgressScore;
+  /*
+   * Writing y Speaking se puntuan con la nota del modelo, y si no hay nota NO
+   * se puntuan.
+   *
+   * Antes, cuando faltaba, caian a una "nota de avance": 72 sobre 100 por
+   * haber grabado las dos consignas, 72 por llegar al minimo de palabras. Como
+   * la llave de Groq no estaba puesta en ningun sitio, eso era lo que pasaba
+   * SIEMPRE: sesenta segundos de silencio valian igual que una respuesta
+   * perfecta, y esos puntos entraban enteros en la banda CEFR. El informe
+   * promete una banda "based on how you actually answered" y estaba regalando
+   * dos quintas partes de ella por apretar un boton.
+   *
+   * Ahora, sin nota, la seccion sale como no calificada y la banda se reparte
+   * entre las que si se midieron. Es menos completo y es cierto, y el informe
+   * dice cual falta y por que.
+   */
+  const notaMedia = (prompts, evaluaciones) => {
+    const notas = prompts.map((p) => {
+      const parsed = safeParseJsonObject(evaluaciones[p.id] || "");
+      if (!parsed || parsed.sinCalificar) return null;
+      const n = Number(parsed.score);
+      return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : null;
+    }).filter((x) => x !== null);
+    if (!notas.length) return null;
+    return Math.round(notas.reduce((acc, x) => acc + x, 0) / notas.length);
+  };
 
-  const speakingAnswered = sec.speaking.prompts.filter((p) => state.speakingRecordings[p.id]).length;
-  const speakingProgressScore = Math.round((speakingAnswered / Math.max(sec.speaking.prompts.length, 1)) * 72);
-  const speakingAiScores = sec.speaking.prompts.map((p) => {
-    const parsed = safeParseJsonObject(state.speakingEvaluation[p.id] || "");
-    const aiScore = Number(parsed?.score);
-    return Number.isFinite(aiScore) ? Math.max(0, Math.min(100, aiScore)) : null;
-  }).filter((x) => x !== null);
-  const speaking = speakingAiScores.length
-    ? Math.round((speakingAiScores.reduce((acc, x) => acc + x, 0) / speakingAiScores.length) * 0.72)
-    : speakingProgressScore;
+  const writing = notaMedia(sec.writing.prompts, state.writingEvaluation);
+  const speaking = notaMedia(sec.speaking.prompts, state.speakingEvaluation);
 
-  const overall = Math.round(grammar * sec.grammar.weight + listening * sec.listening.weight + reading * sec.reading.weight + writing * sec.writing.weight + speaking * sec.speaking.weight);
+  /* El motivo de la primera consigna sin calificar vale para las dos: es el
+     mismo despliegue y el mismo servicio los que faltan o fallan. */
+  const primerMotivo = (prompts, evaluaciones) => {
+    for (const p of prompts) {
+      const parsed = safeParseJsonObject(evaluaciones[p.id] || "");
+      if (parsed && parsed.sinCalificar && parsed.motivo) return parsed.motivo;
+    }
+    return "";
+  };
+
+  const medidas = [
+    { id: "Grammar", nota: grammar, peso: sec.grammar.weight },
+    { id: "Listening", nota: listening, peso: sec.listening.weight },
+    { id: "Reading", nota: reading, peso: sec.reading.weight },
+    { id: "Writing", nota: writing, peso: sec.writing.weight },
+    { id: "Speaking", nota: speaking, peso: sec.speaking.weight }
+  ];
+  const calificadas = medidas.filter((m) => m.nota !== null);
+  const pesoTotal = calificadas.reduce((acc, m) => acc + m.peso, 0) || 1;
+  const overall = Math.round(calificadas.reduce((acc, m) => acc + m.nota * m.peso, 0) / pesoTotal);
   const cefr = overall < 25 ? "A1" : overall < 40 ? "A2" : overall < 55 ? "B1" : overall < 70 ? "B2" : overall < 85 ? "C1" : "C2";
+  const sinCalificar = medidas.filter((m) => m.nota === null).map((m) => m.id);
+  const motivoSinCalificar = primerMotivo(sec.speaking.prompts, state.speakingEvaluation)
+    || primerMotivo(sec.writing.prompts, state.writingEvaluation);
 
   const grammarWrong = gQs.filter((q) => state.answers[q.id] !== q.correctAnswer).map((q) => ({ id: q.id, prompt: q.prompt, chosen: state.answers[q.id], correct: q.correctAnswer, why: q.explanation || "Review grammar structure." }));
   const readingWrong = rQs.filter((q) => state.answers[q.id] !== q.correctAnswer).map((q) => ({ id: q.id, prompt: q.prompt, chosen: state.answers[q.id], correct: q.correctAnswer, why: q.explanation || "Find supporting evidence in the passage." }));
@@ -1106,49 +1230,65 @@ function computeReport() {
   const readingRight = rQs.filter((q) => state.answers[q.id] === q.correctAnswer).map((q) => ({ id: q.id, prompt: q.prompt }));
   const listeningRight = lRows.filter((x) => state.answers[x.q.id] === x.q.correctAnswer).map((x) => ({ id: x.q.id, prompt: x.q.prompt }));
 
-  return { grammar, listening, reading, writing, speaking, overall, cefr, grammarWrong, readingWrong, listeningWrong, grammarRight, readingRight, listeningRight };
+  return { grammar, listening, reading, writing, speaking, overall, cefr, sinCalificar, motivoSinCalificar, grammarWrong, readingWrong, listeningWrong, grammarRight, readingRight, listeningRight };
 }
 
 function renderReview() {
   const rpt = computeReport();
-  return `<main class="wrap"><section class="panel"><h2>Review & Submit</h2><div class="scores"><div>Grammar ${rpt.grammar}</div><div>Listening ${rpt.listening}</div><div>Reading ${rpt.reading}</div><div>Writing ${rpt.writing}</div><div>Speaking ${rpt.speaking}</div></div><div class="actions"><button class="btn" data-action="back-exam" ${state.finalizing ? "disabled" : ""}>Back</button><button class="btn primary" data-action="finish-exam" ${state.finalizing ? "disabled" : ""}>${state.finalizing ? "Processing..." : "Finish"}</button></div></section></main>`;
+  return `<main class="wrap"><section class="panel"><h2>Review & Submit</h2><div class="scores"><div>Grammar ${rpt.grammar}</div><div>Listening ${rpt.listening}</div><div>Reading ${rpt.reading}</div><div>Writing ${rpt.writing === null ? "not scored" : rpt.writing}</div><div>Speaking ${rpt.speaking === null ? "not scored" : rpt.speaking}</div></div><div class="actions"><button class="btn" data-action="back-exam" ${state.finalizing ? "disabled" : ""}>Back</button><button class="btn primary" data-action="finish-exam" ${state.finalizing ? "disabled" : ""}>${state.finalizing ? "Processing..." : "Finish"}</button></div></section></main>`;
 }
 
 function renderReport() {
   const rpt = computeReport();
+  const sec = state.test.sections;
   const scoreToCefr = (x) => (x < 25 ? "A1" : x < 40 ? "A2" : x < 55 ? "B1" : x < 70 ? "B2" : x < 85 ? "C1" : "C2");
   const toItepLevel = (x) => (Math.max(0, Math.min(100, x)) / 20).toFixed(1);
+  /*
+   * Las cinco filas ya vienen sobre 100. Antes Writing y Speaking se
+   * multiplicaban por 100/72 para deshacer la escala de la "nota de avance";
+   * quitada esa, el reescalado solo inflaba la nota real un 39 por ciento.
+   */
   const sectionRows = [
     ["Grammar", rpt.grammar],
     ["Listening", rpt.listening],
     ["Reading", rpt.reading],
-    ["Writing", Math.round((rpt.writing / 72) * 100)],
-    ["Speaking", Math.round((rpt.speaking / 72) * 100)]
+    ["Writing", rpt.writing],
+    ["Speaking", rpt.speaking]
   ];
 
   const blockWrong = (title, arr, withAudio = false) => `<h3>${title}</h3>${arr.length ? arr.map((x) => `<div class="transcript"><p><strong>${esc(x.id)}</strong>: ${esc(x.prompt)}</p><p><strong>Your answer:</strong> ${x.chosen ?? "No answer"} | <strong>Correct:</strong> ${x.correct}</p><p><strong>Why:</strong> ${esc(x.why)}</p>${withAudio ? `<p><strong>Audio text for review:</strong> ${esc(x.audioContext)}</p>` : ""}</div>`).join("") : "<p>No mistakes.</p>"}`;
   const blockRight = (title, arr) => `<h3>${title}</h3>${arr.length ? arr.map((x) => `<div class="transcript"><p><strong>${esc(x.id)}</strong>: ${esc(x.prompt)}</p></div>`).join("") : "<p>No correct answers recorded.</p>"}`;
-  const renderFeedbackCards = (obj, title, audioUrls = {}) => {
-    const entries = Object.entries(obj);
-    if (!entries.length) return `<p>No ${esc(title)} feedback available.</p>`;
-    return entries.map(([id, txt]) => {
-      const parsed = safeParseJsonObject(txt);
-      const audioUrl = audioUrls[id] || "";
+  /*
+   * Una tarjeta por consigna. Tres casos y no dos: calificada, no calificada
+   * -con el motivo- y respuesta que ni siquiera se intento. Antes las dos
+   * ultimas caian en la misma tarjeta con guiones en todas las casillas.
+   *
+   * Pronunciation ya no se pinta: se calificaba leyendo una transcripcion, sin
+   * haber oido la grabacion, y salia impresa al lado de las que si se miden.
+   */
+  const renderFeedbackCards = (obj, title, prompts, audioUrls = {}) => {
+    return prompts.map((p) => {
+      const parsed = safeParseJsonObject(obj[p.id] || "");
+      const audioUrl = audioUrls[p.id] || "";
       const audioHtml = audioUrl ? `<audio controls src="${audioUrl}" style="width:100%;margin-bottom:0.5rem"></audio>` : "";
-      if (!parsed) return `<div class="transcript">${audioHtml}<p><strong>${esc(id)}:</strong></p><p>${esc(txt)}</p></div>`;
+      const transcript = title === "Speaking" ? (state.speakingTranscripts[p.id] || "") : (state.writingTexts[p.id] || "");
+      const suyo = transcript
+        ? `<p class="lo-dicho"><strong>${title === "Speaking" ? "What we heard" : "What you wrote"}:</strong> ${esc(transcript)}</p>`
+        : "";
+
+      if (!parsed) {
+        return `<div class="study-feedback"><p><strong>${esc(p.id)}</strong> - no answer recorded for this task.</p></div>`;
+      }
+      if (parsed.sinCalificar) {
+        return `<div class="study-feedback bad">${audioHtml}<p><strong>${esc(p.id)} - not scored.</strong> ${esc(parsed.motivo || "")}</p>${suyo}</div>`;
+      }
       return `<div class="feedback-card">
-        <h4>${esc(id)} - ${esc(title)} Feedback</h4>
+        <h4>${esc(p.id)} - ${esc(title)} Feedback</h4>
         ${audioHtml}
-        <div class="feedback-grid">
-          <div><strong>Score</strong><span>${Number.isFinite(Number(parsed.score)) ? Number(parsed.score) : "-"}</span></div>
-          <div><strong>CEFR</strong><span>${esc(parsed.cefr || "-")}</span></div>
-          ${parsed.fluency !== undefined ? `<div><strong>Fluency</strong><span>${esc(parsed.fluency)}</span></div>` : ""}
-          ${parsed.pronunciation !== undefined ? `<div><strong>Pronunciation</strong><span>${esc(parsed.pronunciation)}</span></div>` : ""}
-          ${parsed.grammar !== undefined ? `<div><strong>Grammar</strong><span>${esc(parsed.grammar)}</span></div>` : ""}
-          ${parsed.vocabulary !== undefined ? `<div><strong>Vocabulary</strong><span>${esc(parsed.vocabulary)}</span></div>` : ""}
-          ${parsed.coherence !== undefined ? `<div><strong>Coherence</strong><span>${esc(parsed.coherence)}</span></div>` : ""}
-        </div>
+        <div class="feedback-grid">${celdasNota(parsed, ["score", "cefr", "fluency", "grammar", "vocabulary", "coherence"])}</div>
+        ${suyo}
         ${parsed.feedback ? `<p>${esc(parsed.feedback)}</p>` : ""}
+        ${parsed.corrections ? `<p><strong>Corrections:</strong> ${esc(parsed.corrections)}</p>` : ""}
         ${parsed.improvedVersion ? `<p><strong>Improved version:</strong> ${esc(parsed.improvedVersion)}</p>` : ""}
       </div>`;
     }).join("");
@@ -1160,16 +1300,19 @@ function renderReport() {
     <div class="oa-pill"><span>CEFR LEVEL</span><strong>${rpt.cefr}</strong></div>
     <div class="oa-pill"><span>iTEP LEVEL</span><strong>${toItepLevel(rpt.overall)}</strong></div>
   </div>
+  ${rpt.sinCalificar.length ? `<div class="study-feedback bad"><p><strong>This band covers ${5 - rpt.sinCalificar.length} of the 5 sections.</strong> ${rpt.sinCalificar.join(" and ")} ${rpt.sinCalificar.length > 1 ? "were" : "was"} not scored, so ${rpt.sinCalificar.length > 1 ? "they are" : "it is"} left out of the calculation instead of being counted as a pass. ${esc(rpt.motivoSinCalificar || "")}</p></div>` : ""}
   <h3 class="table-title">Assessment by Test Section</h3>
   <table class="assessment-table">
     <thead><tr><th>Test Section</th><th>CEFR Level</th><th>iTEP Level</th><th>Description</th></tr></thead>
     <tbody>
-      ${sectionRows.map(([name, score]) => `<tr><td>${name}</td><td>${scoreToCefr(score)}</td><td>${toItepLevel(score)}</td><td>${score >= 70 ? "Advanced" : score >= 55 ? "Upper Intermediate" : score >= 40 ? "Intermediate" : score >= 25 ? "Elementary" : "Beginner"}</td></tr>`).join("")}
+      ${sectionRows.map(([name, score]) => score === null
+        ? `<tr><td>${name}</td><td colspan="3" class="sin-calificar">Not scored</td></tr>`
+        : `<tr><td>${name}</td><td>${scoreToCefr(score)}</td><td>${toItepLevel(score)}</td><td>${score >= 70 ? "Advanced" : score >= 55 ? "Upper Intermediate" : score >= 40 ? "Intermediate" : score >= 25 ? "Elementary" : "Beginner"}</td></tr>`).join("")}
     </tbody>
   </table>
   ${blockWrong("Listening - Incorrect", rpt.listeningWrong, true)}${blockRight("Listening - Correct", rpt.listeningRight)}${blockWrong("Reading - Incorrect", rpt.readingWrong)}${blockRight("Reading - Correct", rpt.readingRight)}${blockWrong("Grammar - Incorrect", rpt.grammarWrong)}${blockRight("Grammar - Correct", rpt.grammarRight)}
-  <h3>Writing AI Feedback</h3>${renderFeedbackCards(state.writingEvaluation, "Writing")}
-  <h3>Speaking AI Feedback</h3>${renderFeedbackCards(state.speakingEvaluation, "Speaking", state.speakingAudioUrls)}
+  <h3>Writing AI Feedback</h3>${renderFeedbackCards(state.writingEvaluation, "Writing", sec.writing.prompts)}
+  <h3>Speaking AI Feedback</h3>${renderFeedbackCards(state.speakingEvaluation, "Speaking", sec.speaking.prompts, state.speakingAudioUrls)}
   <button class="btn" data-action="restart">Restart Exam</button></section></main>`;
 }
 
@@ -1262,6 +1405,162 @@ const SECCIONES = [
   { id: "speaking", letra: "S", nombre: "Speaking" }
 ];
 
+/*
+ * Un dibujo por seccion, con lo que se hace en ella. El cuadro va relleno con
+ * el tono que esa seccion ya tiene en las dos barras -de ahi el `var(--s..)`-
+ * asi que la tarjeta y su tramo de barra se reconocen como la misma cosa sin
+ * tener que leer la etiqueta.
+ *
+ * Son dibujos y no fotos a proposito: el examen entero esta hecho de campo
+ * azul, tarjeta clara y trazo blanco, y una foto ahi dentro seria lo unico
+ * de la pagina que no viene del examen.
+ */
+const DIBUJOS_SECCION = {
+  // La marca de correccion: una linea de texto y el caret que inserta debajo
+  grammar: `<path d="M11 15h18M11 21h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M17 30l3.5-5 3.5 5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+  // Los cascos: el arco por encima y las dos almohadillas
+  listening: `<path d="M12 25v-2a8 8 0 0 1 16 0v2" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+              <rect x="9.5" y="24" width="5" height="8" rx="2.5" fill="#fff"/>
+              <rect x="25.5" y="24" width="5" height="8" rx="2.5" fill="#fff"/>`,
+  // El libro abierto, con el lomo en medio
+  reading: `<path d="M20 13.5c-2.6-1.7-5.6-2.3-9-2v16c3.4-.3 6.4.3 9 2m0-16c2.6-1.7 5.6-2.3 9-2v16c-3.4-.3-6.4.3-9 2m0-16v16"
+                  stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  // El lapiz, en diagonal como se sostiene
+  writing: `<path d="M12 28l-1 4 4-1L29 17a2.4 2.4 0 0 0 0-3.4l-.6-.6a2.4 2.4 0 0 0-3.4 0z"
+                  stroke="#fff" stroke-width="2.2" stroke-linejoin="round" fill="none"/>
+            <path d="M23 15.5l4.5 4.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>`,
+  // El microfono y su pie
+  speaking: `<rect x="16.5" y="9.5" width="7" height="13" rx="3.5" stroke="#fff" stroke-width="2.2" fill="none"/>
+             <path d="M13 20a7 7 0 0 0 14 0M20 27v4M16.5 31h7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" fill="none"/>`
+};
+
+/* La pagina esta en ingles, que es el idioma del examen */
+const QUE_SE_HACE = {
+  grammar: "Complete the sentence and spot the error, at speed.",
+  listening: "Conversations and a lecture, each played once.",
+  reading: "Two long passages with the questions underneath.",
+  writing: "You type the whole answer while the clock runs.",
+  speaking: "You record your answer after a few seconds to think."
+};
+
+/*
+ * La ventana del titular: un recorte a escala de lo que hay al otro lado del
+ * boton. Es el mismo campo azul, la misma tarjeta y las mismas pastillas que
+ * se ven al pulsar Start, asi que la portada deja de prometer una cosa y
+ * abrir otra. Va dibujado y no capturado para que no envejezca solo.
+ */
+function ventanaDelExamen() {
+  return `<figure class="lp-ventana">
+    <svg viewBox="0 0 420 268" role="img" aria-label="A preview of the exam screen: a question card with four answer pills and the section clock.">
+      <defs>
+        <linearGradient id="lpCampo" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#3b78b4"/>
+          <stop offset="1" stop-color="#63a2d8"/>
+        </linearGradient>
+      </defs>
+      <rect width="420" height="268" rx="14" fill="url(#lpCampo)"/>
+
+      <!-- La cabecera del examen: el disco, la seccion y la pastilla del modo -->
+      <circle cx="34" cy="30" r="13" fill="#2b6ca8" stroke="#8bb9e4" stroke-width="2"/>
+      <rect x="56" y="22" width="86" height="9" rx="4.5" fill="#ffffff" opacity=".92"/>
+      <rect x="56" y="36" width="54" height="6" rx="3" fill="#eaf4ff" opacity=".7"/>
+      <rect x="336" y="21" width="60" height="20" rx="10" fill="#ffd60a"/>
+
+      <!-- La barra de instrucciones, en el amarillo con el que habla el examen -->
+      <rect x="112" y="56" width="196" height="7" rx="3.5" fill="#ffec3d" opacity=".95"/>
+
+      <!-- El pasaje y la pregunta: las dos tarjetas claras -->
+      <rect x="24" y="78" width="176" height="130" rx="16" fill="#eef5fb"/>
+      <rect x="42" y="98" width="140" height="7" rx="3.5" fill="#9fbdd8"/>
+      <rect x="42" y="113" width="126" height="7" rx="3.5" fill="#c2d6e8"/>
+      <rect x="42" y="128" width="136" height="7" rx="3.5" fill="#c2d6e8"/>
+      <rect x="42" y="143" width="102" height="7" rx="3.5" fill="#c2d6e8"/>
+      <rect x="42" y="164" width="140" height="7" rx="3.5" fill="#c2d6e8"/>
+      <rect x="42" y="179" width="118" height="7" rx="3.5" fill="#c2d6e8"/>
+
+      <rect x="212" y="78" width="184" height="130" rx="16" fill="#eef5fb"/>
+      <rect x="230" y="96" width="128" height="8" rx="4" fill="#7fa3c4"/>
+      <rect x="230" y="118" width="148" height="20" rx="10" fill="#ffffff"/>
+      <!-- La opcion marcada: el mismo aro que deja el examen al seleccionar -->
+      <rect x="230" y="144" width="148" height="20" rx="10" fill="#ffffff" stroke="#ffd60a" stroke-width="3"/>
+      <rect x="230" y="170" width="148" height="20" rx="10" fill="#ffffff"/>
+
+      <!-- El pie: el reloj de la seccion y las dos pastillas de navegacion -->
+      <rect x="24" y="224" width="52" height="14" rx="7" fill="#ffffff" opacity=".9"/>
+      <rect x="24" y="244" width="34" height="6" rx="3" fill="#dbe9f9" opacity=".8"/>
+      <rect x="288" y="224" width="48" height="20" rx="10" fill="#95c4ef"/>
+      <rect x="344" y="224" width="52" height="20" rx="10" fill="#6ba8de"/>
+
+      <!-- La barra de avance, abajo del todo, como en el examen -->
+      <rect x="24" y="258" width="372" height="5" rx="2.5" fill="#6f9fcd"/>
+      <rect x="24" y="258" width="128" height="5" rx="2.5" fill="#3a84c8"/>
+    </svg>
+    <figcaption>This is the screen behind the button</figcaption>
+  </figure>`;
+}
+
+/*
+ * La referencia de gramatica de la portada. Antes iba escrita a mano en la
+ * plantilla, doce veces lo mismo; asi el texto se lee de un vistazo y el
+ * marcado sale de una sola forma.
+ */
+const TIEMPOS_VERBALES = [
+  {
+    grupo: "Simple",
+    casos: [
+      ["Simple present", "I eat."],
+      ["Simple past", "I ate yesterday."],
+      ["Simple future", "I will eat tomorrow."]
+    ]
+  },
+  {
+    grupo: "Continuous",
+    casos: [
+      ["Present continuous", "I am eating right now."],
+      ["Past continuous", "I was eating when the phone rang."],
+      ["Future continuous", "I will be eating at 9 a.m. tomorrow."]
+    ]
+  },
+  {
+    grupo: "Perfect",
+    casos: [
+      ["Present perfect", "I have eaten eggs every day this week."],
+      ["Past perfect", "I had eaten eggs every day until yesterday."],
+      ["Future perfect", "By tomorrow, I will have eaten eggs every day."]
+    ]
+  },
+  {
+    grupo: "Perfect continuous",
+    casos: [
+      ["Present perfect continuous", "I have been eating for ten minutes."],
+      ["Past perfect continuous", "I had been eating when the phone rang."],
+      ["Future perfect continuous", "I will have finished eating by the time you arrive."]
+    ]
+  }
+];
+
+const PREGUNTAS_MUESTRA = [
+  {
+    enunciado: "Susan is not coming with us because she ______ that movie already.",
+    opciones: ["will see", "was seeing", "will have seen", "has seen"],
+    correcta: 3,
+    porque: "Present perfect: the action is finished, and it is why she is not coming now."
+  },
+  {
+    enunciado: "While on my way to the cafeteria, I noticed that I ______ my wallet.",
+    opciones: ["forget", "sometimes forget", "am forgetting", "had forgotten"],
+    correcta: 3,
+    porque: "Past perfect: the forgetting happened before the noticing."
+  },
+  {
+    enunciado: "If I ______ able to go to the play, she would not have had to drive her car.",
+    opciones: ["was", "have been", "am going to be", "had been"],
+    correcta: 3,
+    porque: "Past perfect in a third conditional: both halves sit in the unreal past."
+  }
+];
+
 function contarSeccion(sec, id) {
   if (id === "grammar") return (sec.grammar?.questions || []).length;
   if (id === "listening") return (sec.listening?.items || []).reduce((a, it) => a + (it.questions || []).length, 0);
@@ -1312,21 +1611,40 @@ function renderPortada() {
   </header>
 
   <section class="lp-hero">
-    <h1>The whole exam.<br><em>On the real clock.</em></h1>
-    <p class="lp-lede">
-      Five sections back to back, then a CEFR band from A1 to C2 based on how
-      you actually answered. It runs in this tab. Nothing to install, nothing
-      to sign up for.
-    </p>
-    <div class="lp-go">
-      <button class="lp-btn lp-btn--fuerte" data-action="start-exam">Start exam mode</button>
-      <button class="lp-btn" data-action="start-study">Start study mode</button>
+    <div class="lp-hero-texto">
+      <h1>The whole exam.<br><em>On the real clock.</em></h1>
+      <p class="lp-lede">
+        Five sections back to back, then a CEFR band from A1 to C2 based on how
+        you actually answered. It runs in this tab. Nothing to install, nothing
+        to sign up for.
+      </p>
+      <div class="lp-go">
+        <button class="lp-btn lp-btn--fuerte" data-action="start-exam">Start exam mode</button>
+        <button class="lp-btn" data-action="start-study">Start study mode</button>
+      </div>
+      <p class="lp-modes">
+        <strong>Exam mode</strong> holds the official timing and says nothing until you
+        submit. <strong>Study mode</strong> marks each answer as you go and lets the
+        clock run past.
+      </p>
     </div>
-    <p class="lp-modes">
-      <strong>Exam mode</strong> holds the official timing and says nothing until you
-      submit. <strong>Study mode</strong> marks each answer as you go and lets the
-      clock run past.
-    </p>
+    ${ventanaDelExamen()}
+  </section>
+
+  <!--
+    Las cinco secciones, cada una con su tono de la rampa: la misma identidad
+    de color que llevan en las dos barras de abajo y en la tabla.
+  -->
+  <section class="secciones" aria-label="The five sections">
+    ${filas.map((f) => `<article class="sec">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <rect width="40" height="40" rx="12" fill="var(--s${f.tono})"/>
+        ${DIBUJOS_SECCION[f.id] || ""}
+      </svg>
+      <h3>${f.nombre}</h3>
+      <p>${QUE_SE_HACE[f.id] || ""}</p>
+      <span class="sec-reloj">${Math.round(f.segundos / 60)} min</span>
+    </article>`).join("")}
   </section>
 
   <!--
@@ -1368,7 +1686,7 @@ function renderPortada() {
           <td class="n oculta-estrecho">${f.items}</td>
           <td class="n">${Math.round(f.segundos / 60)}</td>
           <td class="n">${f.tiempo.toFixed(0)} %</td>
-          <td class="desfase" data-signo="${f.desfase > 1 ? "mas" : f.desfase < -1 ? "menos" : "igual"}">${f.desfase > 0 ? "+" : ""}${f.desfase.toFixed(0)}</td>
+          <td class="desfase" data-signo="${f.desfase > 1 ? "mas" : f.desfase < -1 ? "menos" : "igual"}"><span>${f.desfase > 0 ? "+" : ""}${f.desfase.toFixed(0)}</span></td>
         </tr>`).join("")}
       </tbody>
     </table>
@@ -1434,58 +1752,23 @@ function renderPortada() {
 
   <details class="lp-ref">
     <summary>The twelve tenses, and the questions that test them</summary>
-      <div class="verb-tense-body">
-        <p class="verb-tense-intro">Mastering these verb tenses will help your iTEP grammar score and your English skills in general.</p>
-        <div class="verb-tense-grid">
-          <div class="vt-group">
-            <h4>Simple Tenses</h4>
-            <ul>
-              <li><strong>Simple Present:</strong> I eat.</li>
-              <li><strong>Simple Past:</strong> I ate yesterday.</li>
-              <li><strong>Simple Future:</strong> I will eat tomorrow.</li>
-            </ul>
-          </div>
-          <div class="vt-group">
-            <h4>Continuous Tenses</h4>
-            <ul>
-              <li><strong>Present Continuous:</strong> I am eating right now.</li>
-              <li><strong>Past Continuous:</strong> I was eating when the phone rang.</li>
-              <li><strong>Future Continuous:</strong> I will be eating at 9 a.m. tomorrow.</li>
-            </ul>
-          </div>
-          <div class="vt-group">
-            <h4>Perfect Tenses</h4>
-            <ul>
-              <li><strong>Present Perfect:</strong> I have eaten eggs every day this week.</li>
-              <li><strong>Past Perfect:</strong> I had eaten eggs every day until yesterday.</li>
-              <li><strong>Future Perfect:</strong> By tomorrow, I will have eaten eggs every day.</li>
-            </ul>
-          </div>
-          <div class="vt-group">
-            <h4>Perfect Continuous Tenses</h4>
-            <ul>
-              <li><strong>Present Perfect Continuous:</strong> I have been eating for ten minutes.</li>
-              <li><strong>Past Perfect Continuous:</strong> I had been eating when the phone rang.</li>
-              <li><strong>Future Perfect Continuous:</strong> I will have just finished eating by the time you come tomorrow.</li>
-            </ul>
-          </div>
+      <div class="ref-cuerpo">
+        <p class="ref-intro">
+          Grammar is the section you can prepare from a list. These twelve tenses
+          are what its questions keep asking about.
+        </p>
+        <div class="ref-rejilla">
+          ${TIEMPOS_VERBALES.map((g) => `<div class="ref-grupo">
+            <h3>${g.grupo}</h3>
+            <ul>${g.casos.map((c) => `<li><strong>${c[0]}</strong><span>${c[1]}</span></li>`).join("")}</ul>
+          </div>`).join("")}
         </div>
-        <h4 class="vt-sample-title">Sample iTEP Questions</h4>
-        <div class="vt-sample">
-          <p><strong>Q1.</strong> Susan is not coming with us because she ________ that movie already.</p>
-          <p class="vt-choices">A) will see &nbsp; B) was seeing &nbsp; C) will have seen &nbsp; <strong>D) has seen</strong> ✓</p>
-          <p class="vt-explain">Present perfect - the action is complete but relevant to the present situation.</p>
-        </div>
-        <div class="vt-sample">
-          <p><strong>Q2.</strong> While on my way to the cafeteria, I noticed that I ________ my wallet.</p>
-          <p class="vt-choices">A) forget &nbsp; B) sometimes forget &nbsp; C) am forgetting &nbsp; <strong>D) had forgotten</strong> ✓</p>
-          <p class="vt-explain">Past perfect - the forgetting happened before the noticing.</p>
-        </div>
-        <div class="vt-sample">
-          <p><strong>Q3.</strong> If I ________ able to go to the play, she would not have had to drive her car.</p>
-          <p class="vt-choices">A) was &nbsp; B) have been &nbsp; C) am going to be &nbsp; <strong>D) had been</strong> ✓</p>
-          <p class="vt-explain">Past perfect in a third conditional - both conditions are in the unreal past.</p>
-        </div>
+        <h3 class="ref-muestra-titulo">How the exam asks it</h3>
+        ${PREGUNTAS_MUESTRA.map((q, i) => `<div class="ref-muestra">
+          <p class="ref-enunciado"><span class="ref-num">Q${i + 1}</span>${q.enunciado}</p>
+          <ol class="ref-opciones">${q.opciones.map((o, j) => `<li${j === q.correcta ? ' class="es-la-buena"' : ""}>${"ABCD"[j]}) ${o}${j === q.correcta ? ' <span class="ref-marca">correct</span>' : ""}</li>`).join("")}</ol>
+          <p class="ref-porque">${q.porque}</p>
+        </div>`).join("")}
       </div>
   </details>
 

@@ -91,6 +91,49 @@ try {
     !/Generate New Exam|with AI|GROQ API key/i.test(html()));
   check('el panel de importar esta plegado', !html().includes('Choose JSON file'));
 
+  // La referencia de gramatica vestia con las clases del examen -tarjetas
+  // azules- dentro de una portada de papel y rojo. Ahora es de la portada.
+  const ref = app.querySelector('details.lp-ref');
+  const refHtml = ref.innerHTML;
+  check('la referencia de gramatica no usa las clases del examen',
+    !/verb-tense|"vt-|class="vt/.test(refHtml));
+  check('estan los doce tiempos verbales',
+    ref.querySelectorAll('.ref-grupo li').length === 12,
+    ref.querySelectorAll('.ref-grupo li').length + ' entradas');
+  check('cada muestra marca su respuesta con la palabra, no solo con el color',
+    ref.querySelectorAll('.ref-muestra').length === 3 &&
+    ref.querySelectorAll('.ref-opciones .es-la-buena .ref-marca').length === 3);
+  check('la referencia no se salta un nivel de encabezado',
+    ref.querySelectorAll('h4').length === 0 && ref.querySelectorAll('h3').length > 0);
+
+  // La rampa de las secciones se lee en portada.css, no en el DOM: jsdom no
+  // resuelve variables CSS. El tono ES la identidad de la seccion en la barra,
+  // y sus letras van en blanco encima, asi que se comprueba por contraste.
+  const css = fs.readFileSync(ROOT + 'src/portada.css', 'utf8');
+  const luminancia = (hex) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const contraste = (a, b) => {
+    const [x, y] = [luminancia(a), luminancia(b)];
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+  };
+  const rampa = [1, 2, 3, 4, 5].map((n) => (css.match(new RegExp('--s' + n + ': (#[0-9a-f]{6})')) || [])[1]);
+  const peorTono = Math.min(...rampa.map((h) => contraste(h, '#ffffff')));
+  check('los cinco tonos de seccion existen', rampa.every(Boolean), rampa.join(' '));
+  check('las letras blancas se leen sobre todos los tonos',
+    peorTono >= 4.5, 'el peor va a ' + peorTono.toFixed(2) + ':1');
+
+  // El lapiz -lo que se mira y lo que se pasa del reloj- no puede confundirse
+  // con la rampa, que ahora es azul entera.
+  const lapiz = (css.match(/--lapiz: (#[0-9a-f]{6})/) || [])[1];
+  const distancia = (a, b) => Math.hypot(...[1, 3, 5].map(
+    (i) => parseInt(a.slice(i, i + 2), 16) - parseInt(b.slice(i, i + 2), 16)));
+  const cerca = Math.min(...rampa.map((h) => distancia(h, lapiz)));
+  check('el lapiz no se parece a ningun tono de la rampa',
+    cerca > 120, 'a ' + cerca.toFixed(0) + ' del mas cercano');
+
   // Abrir el panel de importar
   app.querySelector('[data-action="toggle-import"]').click();
   await new Promise((r) => setTimeout(r, 50));
