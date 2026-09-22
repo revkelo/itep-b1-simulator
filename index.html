@@ -59,6 +59,14 @@
       Va como @graph y cita la entidad de Kevin en kgstudio.top con su @id,
       que es lo que ata este sitio al resto de la zona en vez de dejarlo como
       un dominio suelto más.
+
+      Aquí había un `FAQPage` con seis preguntas que no están en ninguna parte
+      de la página: ni en este bloque estático ni en la aplicación que lo
+      reemplaza al montar. Marcar como pregunta frecuente algo que el visitante
+      no puede leer va contra las normas de Google y es lo que ya pasó una vez;
+      lo que decían esas respuestas -que es gratis, las cinco secciones, la
+      escala CEFR, los tiempos, el banco propio y que no es el examen oficial-
+      está en la prosa de arriba y en `llms.txt`, que es donde se lee.
     -->
     <script type="application/ld+json">
     {
@@ -114,60 +122,6 @@
           "inLanguage": "en",
           "isAccessibleForFree": true,
           "author": { "@id": "https://kgstudio.top/#kevin" }
-        },
-        {
-          "@type": "FAQPage",
-          "@id": "https://itep.kgstudio.top/#faq",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "Is this simulator free?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes. It runs entirely in the browser, with no account, no download and no payment."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Which sections does it cover?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "All five sections of the iTEP exam: Grammar, Listening, Reading, Writing and Speaking, each with its own countdown."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "What level is the exam?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "It is a full iTEP exam, not a single-level test. Difficulty spans the CEFR scale and the report places you between A1 and C2 based on how you actually answered."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "How long does the iTEP exam take, and which section takes the longest?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "The full sitting is about 65 minutes: Grammar 10, Listening 6, Reading 20, Writing 25 and Speaking 4. Every section is worth the same fifth of the band, so Writing takes 38 per cent of the clock for 20 per cent of the score and Speaking takes 6 per cent for the same 20. Budget the writing time before you sit down."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Can I practise with my own questions?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes. The simulator loads any question bank that follows its JSON shape: download the template from the home page, fill it in and bring it back. Banks exported by examia.kgstudio.top work as they are."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Is this the official iTEP exam?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "No. It is an independent practice simulator built to match the structure and timing of the exam. It is not affiliated with or endorsed by iTEP International."
-              }
-            }
-          ]
         },
         {
           "@type": "Person",
