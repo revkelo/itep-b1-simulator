@@ -4,6 +4,22 @@ Simulador completo del examen **iTEP** construido en Vite + Vanilla JS. Recrea l
 
 **En producción:** <https://itep.kgstudio.top>
 
+## Despliegue en Cloudflare Pages
+
+El proyecto `itep` está conectado a este repositorio: cada push a `main`
+publica con `npm run build` y directorio de salida `dist`.
+`wrangler.jsonc` activa la compatibilidad con Node para las API.
+
+`functions/api/[[path]].js` adapta las peticiones de Pages a los mismos
+handlers de `api/` usados en desarrollo y Vercel. Las rutas `/api/estado`,
+`/api/transcribir` y `/api/evaluar` se ejecutan en el servidor.
+La llave `GROQ_API_KEY` se configura como secreto de Pages; opcionalmente se
+pueden configurar `GROQ_MODEL` y `GROQ_WHISPER_MODEL`. No usar el prefijo
+`VITE_` para secretos. Sin llave, el examen sigue disponible y declara
+Speaking/Writing sin calificar, igual que antes de la migración.
+
+Validación: `npm run build` y `npm test`.
+
 > Es un examen completo, no un simulacro de un solo nivel: la dificultad recorre
 > la escala CEFR y el reporte ubica al candidato entre A1 y C2 según cómo
 > respondió. Útil para quien debe certificar su inglés con el iTEP Academic o
