@@ -18,6 +18,11 @@
  */
 
 /* El mismo motor que usa parla. `GROQ_MODEL` lo puede cambiar sin tocar código. */
+import { AsyncLocalStorage } from "node:async_hooks";
+
+const entorno = new AsyncLocalStorage();
+const config = (name) => entorno.getStore()?.[name] ?? process.env[name];
+export const conEntorno = (env, run) => entorno.run(env || {}, run);
 export const MODELO_EVALUACION = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
 /* Turbo basta y sobra para inglés leído en voz alta, y es el más barato. */
@@ -27,11 +32,39 @@ export const MODELO_TRANSCRIPCION =
 const RAIZ = "https://api.groq.com/openai/v1";
 
 export function hayLlave() {
-  return Boolean((process.env.GROQ_API_KEY || "").trim());
+  return Boolean((config("GROQ_API_KEY") || "").trim());
 }
 
 function llave() {
-  return (process.env.GROQ_API_KEY || "").trim();
+  return (config("GROQ_API_KEY") || "").trim();
+}
+
+export function modelos() {
+  return {
+    evaluacion: config("GROQ_MODEL") || MODELO_EVALUACION,
+    transcripcion: config("DEEPGRAM_API_KEY")
+      ? `deepgram/${config("DEEPGRAM_MODEL") || "nova-3"}`
+      : config("GROQ_WHISPER_MODEL") || MODELO_TRANSCRIPCION
+  };
+}
+
+async function transcribirDeepgram(audio, tipoMime) {
+  try {
+    const query = new URLSearchParams({
+      model: config("DEEPGRAM_MODEL") || "nova-3", language: "en", smart_format: "true"
+    });
+    const response = await fetch(`https://api.deepgram.com/v1/listen?${query}`, {
+      method: "POST",
+      headers: { Authorization: `Token ${config("DEEPGRAM_API_KEY")}`, "Content-Type": tipoMime },
+      body: audio
+    });
+    if (!response.ok) return fallo(`Deepgram returned ${response.status}.`, "deepgram");
+    const data = await response.json();
+    const texto = data?.results?.channels?.[0]?.alternatives?.[0]?.transcript?.trim();
+    return texto ? { ok: true, texto } : fallo("No speech found in the recording.", "sin_voz");
+  } catch {
+    return fallo("Could not reach Deepgram.", "red");
+  }
 }
 
 /*
@@ -49,12 +82,18 @@ function fallo(mensaje, codigo = "error") {
  * @param {string} tipoMime          lo que dijo el MediaRecorder
  */
 export async function transcribir(audio, tipoMime = "audio/webm") {
-  if (!hayLlave()) return fallo("This deployment has no AI scoring configured.", "sin_llave");
+  if (!hayLlave() && !config("DEEPGRAM_API_KEY")) return fallo("This deployment has no AI scoring configured.", "sin_llave");
   if (!audio || audio.length === 0) return fallo("The recording arrived empty.", "vacio");
+
+  if (config("DEEPGRAM_API_KEY")) {
+    const result = await transcribirDeepgram(audio, tipoMime);
+    if (result.ok || result.codigo === "sin_voz" || !hayLlave()) return result;
+    // Groq Whisper remains available if the transcription provider is unavailable.
+  }
 
   const form = new FormData();
   form.append("file", new Blob([audio], { type: tipoMime }), "respuesta.webm");
-  form.append("model", MODELO_TRANSCRIPCION);
+  form.append("model", config("GROQ_WHISPER_MODEL") || MODELO_TRANSCRIPCION);
   form.append("language", "en");
   /*
    * `text` en vez de `verbose_json`: de la respuesta solo se usa el texto, y
@@ -136,7 +175,7 @@ export async function evaluar(tipo, consigna, texto, notas = "") {
   if (!limpio) return fallo("There is nothing to score.", "vacio");
 
   const cuerpo = {
-    model: MODELO_EVALUACION,
+    model: config("GROQ_MODEL") || MODELO_EVALUACION,
     temperature: 0.2,
     response_format: { type: "json_object" },
     messages: [

@@ -10,7 +10,7 @@
  * final, en el informe, cuando ya no puede hacer nada.
  */
 
-import { hayLlave, MODELO_EVALUACION, MODELO_TRANSCRIPCION } from "./_nucleo.js";
+import { hayLlave, modelos } from "./_nucleo.js";
 import { responder } from "./_http.js";
 
 export default async function handler(req, res) {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     ok: true,
     califica: hayLlave(),
     modelos: hayLlave()
-      ? { evaluacion: MODELO_EVALUACION, transcripcion: MODELO_TRANSCRIPCION }
+      ? modelos()
       : null
   });
 }

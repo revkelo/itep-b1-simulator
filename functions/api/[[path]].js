@@ -2,12 +2,13 @@ import { Buffer } from "node:buffer";
 import estado from "../../api/estado.js";
 import evaluar from "../../api/evaluar.js";
 import transcribir from "../../api/transcribir.js";
+import { conEntorno } from "../../api/_nucleo.js";
 
 const handlers = { estado, evaluar, transcribir };
 
 // Reutiliza las API de Vercel sin duplicar la lógica de evaluación ni exponer
 // las llaves de Groq al navegador. nodejs_compat proporciona process.env.
-export async function onRequest({ request, params }) {
+export async function onRequest({ request, params, env }) {
   const path = Array.isArray(params.path) ? params.path.join("/") : params.path;
   const handler = Object.hasOwn(handlers, path) ? handlers[path] : null;
   if (!handler) {
@@ -26,7 +27,7 @@ export async function onRequest({ request, params }) {
     setHeader(name, value) { headers.set(name, value); },
     end(value) { body = value; }
   };
-  await handler(req, res);
+  await conEntorno(env, () => handler(req, res));
   return new Response(request.method === "HEAD" ? null : body, {
     status: res.statusCode,
     headers
